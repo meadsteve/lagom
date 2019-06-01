@@ -11,6 +11,11 @@ some_thing = container[SomeClass]
 ```python
 container[SomeExpensiveToCreateClass] = SomeExpensiveToCreateClass("up", "left")
 ```
+alternatively if you want to defer construction until it's needed:
+```python
+container[SomeExpensiveToCreateClass] = Singleton(SomeExpensiveToCreateClass)
+```
+
 
 ### Defining a type that gets recreated every time
 ```python
