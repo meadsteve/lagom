@@ -1,4 +1,5 @@
 # Lagom - Dependency injection container
+[![Build Status](https://travis-ci.org/meadsteve/lagom.svg?branch=master)](https://travis-ci.org/meadsteve/lagom)
 ## Usage
 Everything in Lagom is based on types. To create an object
 you pass the type to the container:
