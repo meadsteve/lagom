@@ -1,0 +1,15 @@
+language: python
+dist: xenial
+python:
+  - "3.7"
+
+env:
+  global:
+    - PIPENV_VENV_IN_PROJECT=1
+    - PIPENV_IGNORE_VIRTUALENVS=1
+install:
+  - pip install pipenv
+  - pipenv install --dev
+script:
+  - pipenv run mypy --ignore-missing-imports --strict-optional --check-untyped-defs test lagom
+  - pipenv run pytest test -vv
