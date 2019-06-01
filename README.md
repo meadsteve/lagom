@@ -9,19 +9,16 @@ some_thing = container[SomeClass]
 
 ### Defining a singleton
 ```python
-container = Container()
 container[SomeExpensiveToCreateClass] = SomeExpensiveToCreateClass("up", "left")
 ```
 
 ### Defining a type that gets recreated every time
 ```python
-container = Container()
 container[SomeClass] = lambda: SomeClass("down", "spiral")
 ```
 
 ### Alias a concrete instance to an ABC
 ```python
-container = Container()
 container[SomeAbc] = ConcreteClass
 ```
 ## Example
