@@ -1,0 +1,10 @@
+[build-system]
+requires = ["flit"]
+build-backend = "flit.buildapi"
+
+[tool.flit.metadata]
+module = "lagom"
+author = "meadsteve"
+author-email = "meadsteve@gmail.com"
+classifiers = ["License :: OSI Approved :: MIT License"]
+
