@@ -13,11 +13,7 @@ X = TypeVar("X")
 class Container:
     _registered_types: Dict[Type, Resolver] = {}
 
-    def define(
-        self,
-        dep_type: Union[Type[X], Type],
-        dep_resolver: Resolver
-    ) -> None:
+    def define(self, dep_type: Union[Type[X], Type], dep_resolver: Resolver) -> None:
         self._registered_types[dep_type] = dep_resolver
 
     def resolve(self, dep_type: Type[X], suppress_error=False) -> X:
@@ -30,7 +26,9 @@ class Container:
             return self._build(registered_type)
         except UnresolvableType as inner_error:
             if not suppress_error:
-                raise UnresolvableType(f"Cannot construct type {dep_type.__name__}") from inner_error
+                raise UnresolvableType(
+                    f"Cannot construct type {dep_type.__name__}"
+                ) from inner_error
             return None  # type: ignore
 
     def partial(self, func: Callable) -> Callable:
@@ -67,16 +65,10 @@ class Container:
             key: self.resolve(sub_dep_type, suppress_error=suppress_error)
             for (key, sub_dep_type) in spec.annotations.items()
         }
-        filtered_deps = {
-            key: dep
-            for (key, dep) in sub_deps.items()
-            if dep is not None
-        }
+        filtered_deps = {key: dep for (key, dep) in sub_deps.items() if dep is not None}
         return filtered_deps
 
     def _load_singleton(self, singleton: Singleton):
         if singleton.has_instance:
             return singleton.instance
-        return singleton.set_instance(
-            self._build(singleton.singleton_type)
-        )
+        return singleton.set_instance(self._build(singleton.singleton_type))

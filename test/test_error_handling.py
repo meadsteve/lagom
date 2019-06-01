@@ -5,13 +5,11 @@ from lagom.exceptions import UnresolvableType
 
 
 class MyMissingDep:
-
     def __init__(self, _stuff: str):
         pass
 
 
 class UnfulfilledDeps:
-
     def __init__(self, _stuff: MyMissingDep):
         pass
 

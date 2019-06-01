@@ -22,10 +22,10 @@ class MyMoreComplicatedDep:
 @pytest.fixture
 def container():
     c = Container()
-    c.define(List[MySimpleDep], Construction(lambda: [
-        MySimpleDep("One"),
-        MySimpleDep("Two")
-    ]))
+    c.define(
+        List[MySimpleDep],
+        Construction(lambda: [MySimpleDep("One"), MySimpleDep("Two")]),
+    )
     return c
 
 

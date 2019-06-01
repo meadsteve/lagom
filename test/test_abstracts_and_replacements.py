@@ -56,6 +56,3 @@ def test_alias_can_be_defined(container: Container):
     container.define(AnotherAbc, Alias(AnotherConcrete))
     resolved = container.resolve(AnotherAbc)
     assert resolved.stuff == "full"
-
-
-

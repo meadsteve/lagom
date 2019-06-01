@@ -27,6 +27,7 @@ class AnotherAbc(ABC):
 class AnotherConcrete(AnotherAbc):
     stuff = "full"
 
+
 @pytest.fixture
 def container():
     c = Container()

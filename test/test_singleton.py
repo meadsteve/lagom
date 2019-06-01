@@ -22,9 +22,9 @@ class MyCompositeDep:
 def container():
     c = Container()
     c.define(MyBasicDep, Singleton(MyBasicDep))
-    c.define(MyMoreComplicatedDep, Singleton(
-        Construction(lambda: MyMoreComplicatedDep(5))
-    ))
+    c.define(
+        MyMoreComplicatedDep, Singleton(Construction(lambda: MyMoreComplicatedDep(5)))
+    )
     c.define(MyCompositeDep, Singleton(MyCompositeDep))
     return c
 
@@ -49,4 +49,3 @@ def test_singleton_can_compose_other_dependencies(container: Container):
     assert type(first.a) == MyBasicDep
     assert type(first.b) == MyMoreComplicatedDep
     assert first is second
-

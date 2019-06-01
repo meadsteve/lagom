@@ -8,5 +8,7 @@ def bind_to_container(container: Container):
         @functools.wraps(func)
         def wrapper(*args, **kwargs):
             return container.partial(func)(*args, **kwargs)
+
         return wrapper
+
     return decorator
