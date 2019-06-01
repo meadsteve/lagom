@@ -1,0 +1,2 @@
+class UnresolvableType(ValueError):
+    pass
