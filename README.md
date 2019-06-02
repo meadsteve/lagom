@@ -95,3 +95,9 @@ def some_test(container: Container):
     game_to_test = container[Game]
     # TODO: act & assert on something
 ```
+
+## Design Goals
+* Everything should be done by type. No reliance on names.
+* All domain code should remain unmodified. No special decorators.
+* Make use of modern python features (3.7 at the time of creation)
+* The API should expose sensible typing (for use in pycharm/mypy)
