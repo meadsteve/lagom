@@ -1,0 +1,9 @@
+build:
+  nodes:
+    coverage:
+      tests:
+        override:
+          - command: './scripts/coverage.sh'
+            coverage:
+              file: '.coverage'
+              format: 'py-cc'

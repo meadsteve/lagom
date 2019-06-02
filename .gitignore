@@ -2,3 +2,7 @@ venv
 .pytest_cache
 .mypy_cache
 /dist/
+
+/.coverage
+/coverage.xml
+/htmlcov
