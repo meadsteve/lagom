@@ -1,5 +1,12 @@
 build:
+  environment:
+    python:
+      version: 3.7.3
   nodes:
+    dependencies:
+      before:
+        - pip install pipenv
+        - pipenv install --dev
     coverage:
       tests:
         override:
