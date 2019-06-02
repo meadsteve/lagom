@@ -27,7 +27,10 @@ container[SomeClass] = lambda: SomeClass("down", "spiral")
 ```python
 container[SomeAbc] = ConcreteClass
 ```
+
 ## Example
+
+### App setup
 ```python
 from abc import ABC
 from dataclasses import dataclass
@@ -75,4 +78,17 @@ container[DiceClient] = HttpDiceClient
 
 game = container[Game]
 
+```
+
+### Testing without patching
+Taking the container from above we can now swap out
+the dice client to a test double/fake. When we get an
+instance of the `Game` class it will have the new
+fake dice client injected in.
+
+```python
+def some_test(container: Container):
+    container[DiceClient] = FakeDice(always_roll=6)
+    game_to_test = container[Game]
+    # TODO: act & assert on something
 ```
