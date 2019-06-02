@@ -6,5 +6,7 @@ build-backend = "flit.buildapi"
 module = "lagom"
 author = "meadsteve"
 author-email = "meadsteve@gmail.com"
+requires-python="~=3.7"
+description-file="README.md"
 classifiers = ["License :: OSI Approved :: MIT License"]
 
