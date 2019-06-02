@@ -3,11 +3,11 @@ build:
     python:
       version: 3.7.3
   nodes:
-    dependencies:
-      before:
-        - pip install pipenv
-        - pipenv install --dev
     coverage:
+      dependencies:
+        before:
+          - pip install pipenv
+          - pipenv install --dev
       tests:
         override:
           - command: './scripts/coverage.sh'
