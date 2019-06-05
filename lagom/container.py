@@ -2,7 +2,8 @@ import functools
 import inspect
 from typing import Dict, Type, Union, Any, TypeVar, Callable
 
-from .exceptions import UnresolvableType
+from lagom.util.functional import arity
+from .exceptions import UnresolvableType, InvalidDependencyDefinition
 from .definitions import Resolver, Construction, Singleton, Alias, DEFINITION_TYPES
 
 UNRESOLVABLE_TYPES = [str, int, float, bool]
@@ -17,17 +18,6 @@ class Container:
 
     def define(self, dep: Union[Type[X], Type], resolver: DepDefinition) -> None:
         self._registered_types[dep] = self._normalise(resolver)
-
-    @staticmethod
-    def _normalise(resolver: DepDefinition) -> Resolver:
-        if type(resolver) in DEFINITION_TYPES:
-            return resolver
-        elif inspect.isfunction(resolver):
-            return Construction(resolver)
-        elif not inspect.isclass(resolver):
-            return Singleton(lambda: resolver)  # type: ignore
-        else:
-            return Alias(resolver)
 
     def resolve(self, dep_type: Type[X], suppress_error=False) -> X:
         try:
@@ -54,6 +44,24 @@ class Container:
 
     def __setitem__(self, dep: Type, resolver: DepDefinition):
         self.define(dep, resolver)
+
+    def _normalise(self, resolver: DepDefinition) -> Resolver:
+        if type(resolver) in DEFINITION_TYPES:
+            return resolver
+        elif inspect.isfunction(resolver):
+            return self._build_lambda_constructor(resolver)
+        elif not inspect.isclass(resolver):
+            return Singleton(lambda: resolver)  # type: ignore
+        else:
+            return Alias(resolver)
+
+    def _build_lambda_constructor(self, resolver: Callable) -> Construction:
+        artiy = arity(resolver)
+        if artiy == 0:
+            return Construction(resolver)
+        if artiy == 1:
+            return Construction(functools.partial(resolver, self))
+        raise InvalidDependencyDefinition(f"Arity {arity} functions are not supported")
 
     def _build(self, dep_type: Any) -> Any:
         if isinstance(dep_type, Alias):
