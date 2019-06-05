@@ -9,12 +9,25 @@ UNRESOLVABLE_TYPES = [str, int, float, bool]
 
 X = TypeVar("X")
 
+DepDefinition = Any
+
 
 class Container:
     _registered_types: Dict[Type, Resolver] = {}
 
-    def define(self, dep_type: Union[Type[X], Type], dep_resolver: Resolver) -> None:
-        self._registered_types[dep_type] = dep_resolver
+    def define(self, dep: Union[Type[X], Type], resolver: DepDefinition) -> None:
+        self._registered_types[dep] = self._normalise(resolver)
+
+    @staticmethod
+    def _normalise(resolver: DepDefinition) -> Resolver:
+        if type(resolver) in DEFINITION_TYPES:
+            return resolver
+        elif inspect.isfunction(resolver):
+            return Construction(resolver)
+        elif not inspect.isclass(resolver):
+            return Singleton(lambda: resolver)  # type: ignore
+        else:
+            return Alias(resolver)
 
     def resolve(self, dep_type: Type[X], suppress_error=False) -> X:
         try:
@@ -39,14 +52,8 @@ class Container:
     def __getitem__(self, dep: Type[X]) -> X:
         return self.resolve(dep)
 
-    def __setitem__(self, dep: Type, resolver):
-        if type(resolver) in DEFINITION_TYPES:
-            return self.define(dep, resolver)
-        if inspect.isfunction(resolver):
-            return self.define(dep, Construction(resolver))
-        if not inspect.isclass(resolver):
-            return self.define(dep, Singleton(lambda: resolver))  # type: ignore
-        return self.define(dep, Alias(resolver))
+    def __setitem__(self, dep: Type, resolver: DepDefinition):
+        self.define(dep, resolver)
 
     def _build(self, dep_type: Any) -> Any:
         if isinstance(dep_type, Alias):
