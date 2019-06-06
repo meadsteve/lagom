@@ -25,6 +25,11 @@ container[SomeExpensiveToCreateClass] = Singleton(SomeExpensiveToCreateClass)
 ```python
 container[SomeClass] = lambda: SomeClass("down", "spiral")
 ```
+if the type needs things from the container the lambda can take a
+single argument which is the container:
+```python
+container[SomeClass] = lambda c: SomeClass(c[SomeOtherDep], "spinning")
+```
 
 ### Alias a concrete instance to an ABC
 ```python
