@@ -24,8 +24,6 @@ class Container:
             if dep_type in UNRESOLVABLE_TYPES:
                 raise UnresolvableType(f"Cannot construct type {dep_type}")
             registered_type = self._registered_types.get(dep_type, dep_type)
-            if isinstance(registered_type, Singleton):
-                return self._load_singleton(registered_type)
             return self._build(registered_type)
         except UnresolvableType as inner_error:
             if not suppress_error:
@@ -68,6 +66,8 @@ class Container:
             return self.resolve(dep_type.alias_type)
         if isinstance(dep_type, Construction):
             return dep_type.construct()
+        if isinstance(dep_type, Singleton):
+            return self._load_singleton(dep_type)
         return self._reflection_build(dep_type)
 
     def _reflection_build(self, dep_type: Type[X]) -> X:
