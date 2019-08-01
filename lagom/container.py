@@ -32,9 +32,11 @@ class Container:
                 ) from inner_error
             return None  # type: ignore
 
-    def partial(self, func: Callable) -> Callable:
+    def partial(self, func: Callable, keys_to_skip=[]) -> Callable:
         spec = inspect.getfullargspec(func)
-        bindable_deps = self._infer_dependencies(spec, suppress_error=True)
+        bindable_deps = self._infer_dependencies(
+            spec, suppress_error=True, keys_to_skip=keys_to_skip
+        )
         return functools.partial(func, **bindable_deps)
 
     def __getitem__(self, dep: Type[X]) -> X:
@@ -75,10 +77,13 @@ class Container:
         sub_deps = self._infer_dependencies(spec)
         return dep_type(**sub_deps)  # type: ignore
 
-    def _infer_dependencies(self, spec: inspect.FullArgSpec, suppress_error=False):
+    def _infer_dependencies(
+        self, spec: inspect.FullArgSpec, suppress_error=False, keys_to_skip=[]
+    ):
         sub_deps = {
             key: self.resolve(sub_dep_type, suppress_error=suppress_error)
             for (key, sub_dep_type) in spec.annotations.items()
+            if key != "return" and sub_dep_type != Any and key not in keys_to_skip
         }
         filtered_deps = {key: dep for (key, dep) in sub_deps.items() if dep is not None}
         return filtered_deps
