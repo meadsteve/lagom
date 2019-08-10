@@ -19,6 +19,7 @@ def example_function(resolved: MyDep, message: str) -> str:
 
 def example_generator(resolved: MyDep, message: str) -> Generator:
     yield resolved.value + message
+    yield resolved.value + " finished"
 
 
 @bind_to_container(container)
@@ -40,4 +41,4 @@ def test_partial_application_can_be_applied_to_generators():
     results = []
     for result in partial(message=" world"):
         results.append(result)
-    assert results == ["testing world"]
+    assert results == ["testing world", "testing finished"]
