@@ -36,6 +36,18 @@ def test_a_decorator_can_be_used_to_bind_as_well():
     assert another_example_function(message=" hello") == "testing hello"
 
 
+def test_incorrect_arguments_are_handled_well():
+    with pytest.raises(TypeError) as err:
+        another_example_function(not_the_message=" no")
+    assert "unexpected keyword argument 'not_the_message'" in str(err.value)
+
+
+def test_positional_arguments_raise_an_error():
+    with pytest.raises(TypeError) as err:
+        another_example_function("woo")
+    assert "takes 0 positional arguments but 1 was given" in str(err.value)
+
+
 def test_partial_application_can_be_applied_to_generators():
     partial = container.partial(example_generator)
     results = []
