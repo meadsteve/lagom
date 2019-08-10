@@ -7,7 +7,10 @@ from lagom.exceptions import UnresolvableType
 
 
 class MyDep:
-    value: str = "testing"
+    value: str
+
+    def __init__(self, value="testing"):
+        self.value = value
 
 
 container = Container()
@@ -34,6 +37,13 @@ def test_partial_application_can_be_applied_to_functions():
 
 def test_a_decorator_can_be_used_to_bind_as_well():
     assert another_example_function(message=" hello") == "testing hello"
+
+
+def test_container_values_can_be_overridden():
+    assert (
+        another_example_function(resolved=MyDep("replaced"), message=" hello")
+        == "replaced hello"
+    )
 
 
 def test_incorrect_arguments_are_handled_well():
