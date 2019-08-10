@@ -36,6 +36,24 @@ container[SomeClass] = lambda c: SomeClass(c[SomeOtherDep], "spinning")
 container[SomeAbc] = ConcreteClass
 ```
 
+### Partially bind a function
+Apply a function decorator to any function.
+```python
+@bind_to_container(container)
+def handle_some_request(request: typing.Dict, game: Game):
+    # do something to the game
+    pass
+```
+
+This function can now be called omitting any arguments 
+that the container knows how to build.
+```python
+# we can now call the following. the game argument will automagically
+# come from the container
+handle_some_request(request={"roll_dice": 5})
+```
+
+
 ## Example
 
 ### App setup
