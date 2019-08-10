@@ -32,7 +32,7 @@ class Container:
                 ) from inner_error
             return None  # type: ignore
 
-    def partial(self, func: Callable, keys_to_skip=None) -> Callable:
+    def partial(self, func: Callable[..., X], keys_to_skip=None) -> Callable[..., X]:
         spec = inspect.getfullargspec(func)
         bindable_deps = self._infer_dependencies(
             spec, suppress_error=True, keys_to_skip=keys_to_skip or []

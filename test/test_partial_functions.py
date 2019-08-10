@@ -1,4 +1,4 @@
-from typing import Generator, AsyncGenerator
+from typing import Generator, AsyncGenerator, Any
 
 import pytest
 
@@ -17,7 +17,7 @@ def example_function(resolved: MyDep, message: str) -> str:
     return resolved.value + message
 
 
-def example_generator(resolved: MyDep, message: str) -> Generator:
+def example_generator(resolved: MyDep, message: str) -> Generator[str, Any, Any]:
     yield resolved.value + message
     yield resolved.value + " finished"
 
