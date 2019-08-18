@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.3.2 (2019-08-18)
+
+### Enhancements
+* Simplified decorator for partial functions that now allows 
+positional argument calls.
+
+### Bug fixes
+None
+
+### Backwards incompatible changes
+None
+
 ## 0.3.1 (2019-07-10)
 
 ### Enhancements

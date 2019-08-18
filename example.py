@@ -58,3 +58,7 @@ def handle_some_request(request: typing.Dict, game: Game):
 # we can now call the following. the game argument will automagically
 # come from the container
 handle_some_request(request={"roll_dice": 5})
+
+# or even:
+
+handle_some_request({"roll_dice": 5})
