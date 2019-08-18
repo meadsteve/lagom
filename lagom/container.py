@@ -2,9 +2,9 @@ import functools
 import inspect
 from typing import Dict, Type, Union, Any, TypeVar, Callable
 
-from lagom.util.functional import arity
-from .exceptions import UnresolvableType, InvalidDependencyDefinition
-from .definitions import Resolver, Construction, Singleton, Alias, DEFINITION_TYPES
+from .interfaces import SpecialDepDefinition
+from .exceptions import UnresolvableType
+from .definitions import normalise
 
 UNRESOLVABLE_TYPES = [str, int, float, bool]
 
@@ -14,10 +14,10 @@ DepDefinition = Any
 
 
 class Container:
-    _registered_types: Dict[Type, Resolver] = {}
+    _registered_types: Dict[Type, SpecialDepDefinition] = {}
 
     def define(self, dep: Union[Type[X], Type], resolver: DepDefinition) -> None:
-        self._registered_types[dep] = self._normalise(resolver)
+        self._registered_types[dep] = normalise(resolver, self)
 
     def resolve(self, dep_type: Type[X], suppress_error=False) -> X:
         try:
@@ -45,31 +45,9 @@ class Container:
     def __setitem__(self, dep: Type, resolver: DepDefinition):
         self.define(dep, resolver)
 
-    def _normalise(self, resolver: DepDefinition) -> Resolver:
-        if type(resolver) in DEFINITION_TYPES:
-            return resolver
-        elif inspect.isfunction(resolver):
-            return self._build_lambda_constructor(resolver)
-        elif not inspect.isclass(resolver):
-            return Singleton(lambda: resolver)  # type: ignore
-        else:
-            return Alias(resolver)
-
-    def _build_lambda_constructor(self, resolver: Callable) -> Construction:
-        artiy = arity(resolver)
-        if artiy == 0:
-            return Construction(resolver)
-        if artiy == 1:
-            return Construction(functools.partial(resolver, self))
-        raise InvalidDependencyDefinition(f"Arity {arity} functions are not supported")
-
     def _build(self, dep_type: Any) -> Any:
-        if isinstance(dep_type, Alias):
-            return self.resolve(dep_type.alias_type)
-        if isinstance(dep_type, Construction):
-            return dep_type.construct()
-        if isinstance(dep_type, Singleton):
-            return self._load_singleton(dep_type)
+        if isinstance(dep_type, SpecialDepDefinition):
+            return dep_type.get_instance(self._build)
         return self._reflection_build(dep_type)
 
     def _reflection_build(self, dep_type: Type[X]) -> X:
@@ -87,8 +65,3 @@ class Container:
         }
         filtered_deps = {key: dep for (key, dep) in sub_deps.items() if dep is not None}
         return filtered_deps
-
-    def _load_singleton(self, singleton: Singleton):
-        if singleton.has_instance:
-            return singleton.instance
-        return singleton.set_instance(self._build(singleton.singleton_type))
