@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.3 (PENDING)
+## 0.3.3 (2020-02-03)
 
 ### Enhancements
 * Added `dependency_definition` decorator to handle log construction logic
