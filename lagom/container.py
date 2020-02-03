@@ -3,7 +3,7 @@ import inspect
 from typing import Dict, Type, Union, Any, TypeVar, Callable
 
 from .interfaces import SpecialDepDefinition
-from .exceptions import UnresolvableType
+from .exceptions import UnresolvableType, DuplicateDefinition
 from .definitions import normalise
 
 UNRESOLVABLE_TYPES = [str, int, float, bool]
@@ -14,9 +14,14 @@ DepDefinition = Any
 
 
 class Container:
-    _registered_types: Dict[Type, SpecialDepDefinition] = {}
+    _registered_types: Dict[Type, SpecialDepDefinition]
+
+    def __init__(self):
+        self._registered_types = {}
 
     def define(self, dep: Union[Type[X], Type], resolver: DepDefinition) -> None:
+        if dep in self._registered_types:
+            raise DuplicateDefinition()
         self._registered_types[dep] = normalise(resolver, self)
 
     def resolve(self, dep_type: Type[X], suppress_error=False) -> X:

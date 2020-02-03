@@ -28,12 +28,6 @@ class AnotherConcrete(AnotherAbc):
     stuff = "full"
 
 
-@pytest.fixture
-def container():
-    c = Container()
-    return c
-
-
 def test_deps_can_be_referenced_by_square_brackets(container: Container):
     container[MySimpleDep] = Construction(lambda: MySimpleDep("hooray"))
     resolved = container[MySimpleDep]

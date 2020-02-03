@@ -14,12 +14,6 @@ class UnfulfilledDeps:
         pass
 
 
-@pytest.fixture
-def container():
-    c = Container()
-    return c
-
-
 @pytest.mark.parametrize("dep", [str, int, float, bool])
 def test_simple_objects_cannot_be_resolved(container: Container, dep):
     with pytest.raises(UnresolvableType):

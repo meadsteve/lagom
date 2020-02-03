@@ -36,23 +36,24 @@ class AnotherConcrete(AnotherAbc):
 
 
 @pytest.fixture
-def container():
-    c = Container()
-    c.define(MySimpleAbc, Construction(lambda: MySimpleDep("hooray")))
-    return c
+def container_with_abc(container: Container):
+    container.define(MySimpleAbc, Construction(lambda: MySimpleDep("hooray")))
+    return container
 
 
-def test_registered_concrete_class_is_loaded(container: Container):
-    resolved = container.resolve(MySimpleAbc)
+def test_registered_concrete_class_is_loaded(container_with_abc: Container):
+    resolved = container_with_abc.resolve(MySimpleAbc)
     assert resolved.stuff == "hooray"
 
 
-def test_registered_concrete_class_is_used_for_other_objects(container: Container):
-    resolved = container.resolve(MyMoreComplicatedDep)
+def test_registered_concrete_class_is_used_for_other_objects(
+    container_with_abc: Container
+):
+    resolved = container_with_abc.resolve(MyMoreComplicatedDep)
     assert resolved.stuff == "hooray"
 
 
-def test_alias_can_be_defined(container: Container):
-    container.define(AnotherAbc, Alias(AnotherConcrete))
-    resolved = container.resolve(AnotherAbc)
+def test_alias_can_be_defined(container_with_abc: Container):
+    container_with_abc.define(AnotherAbc, Alias(AnotherConcrete))
+    resolved = container_with_abc.resolve(AnotherAbc)
     assert resolved.stuff == "full"

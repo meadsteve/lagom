@@ -20,20 +20,19 @@ class MyMoreComplicatedDep:
 
 
 @pytest.fixture
-def container():
-    c = Container()
-    c.define(
+def container_with_list(container: Container):
+    container.define(
         List[MySimpleDep],
         Construction(lambda: [MySimpleDep("One"), MySimpleDep("Two")]),
     )
-    return c
+    return container
 
 
-def test_works_for_list_types(container: Container):
-    resolved = container.resolve(List[MySimpleDep])
+def test_works_for_list_types(container_with_list: Container):
+    resolved = container_with_list.resolve(List[MySimpleDep])
     assert [x.stuff for x in resolved] == ["One", "Two"]
 
 
-def test_works_for_inferred_list_types(container: Container):
-    resolved = container.resolve(MyMoreComplicatedDep)
+def test_works_for_inferred_list_types(container_with_list: Container):
+    resolved = container_with_list.resolve(MyMoreComplicatedDep)
     assert resolved.stuff == "One,Two"
