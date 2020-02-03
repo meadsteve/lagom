@@ -1,7 +1,7 @@
 import functools
 import inspect
 from copy import copy
-from typing import Dict, Type, Union, Any, TypeVar, Callable, Set
+from typing import Dict, Type, Union, Any, TypeVar, Callable, Set, List
 
 from .interfaces import SpecialDepDefinition
 from .exceptions import UnresolvableType, DuplicateDefinition
@@ -42,12 +42,27 @@ class Container:
                 ) from inner_error
             return None  # type: ignore
 
-    def partial(self, func: Callable[..., X], keys_to_skip=None) -> Callable[..., X]:
+    def partial(
+        self, func: Callable[..., X], keys_to_skip=None, shared: List[Type] = None
+    ) -> Callable[..., X]:
+        if shared:
+            return self._partial_with_shared_singletons(func, shared)
         spec = inspect.getfullargspec(func)
         bindable_deps = self._infer_dependencies(
             spec, suppress_error=True, keys_to_skip=keys_to_skip or []
         )
         return functools.partial(func, **bindable_deps)
+
+    def clone(self):
+        new_container = Container()
+        new_container._registered_types = copy(self._registered_types)
+
+        # Even though the new container has the type definitions we want
+        # them all to be overridable so the clone can have updated
+        # definitions
+        new_container._explicitly_registered_types = set()
+
+        return new_container
 
     def __getitem__(self, dep: Type[X]) -> X:
         return self.resolve(dep)
@@ -79,13 +94,16 @@ class Container:
         filtered_deps = {key: dep for (key, dep) in sub_deps.items() if dep is not None}
         return filtered_deps
 
-    def clone(self):
-        new_container = Container()
-        new_container._registered_types = copy(self._registered_types)
+    def _partial_with_shared_singletons(
+        self, func: Callable[..., X], shared: List[Type]
+    ):
+        def _function(*args, **kwargs):
+            temp_container = self.clone()
+            # For each of the shared dependencies resolve before invocation
+            # and replace with a singleton
+            for type_def in shared:
+                temp_container[type_def] = temp_container.resolve(type_def)
+            temp_bound_func = temp_container.partial(func, shared=[])
+            return temp_bound_func(*args, **kwargs)
 
-        # Even though the new container has the type definitions we want
-        # them all to be overridable so the clone can have updated
-        # definitions
-        new_container._explicitly_registered_types = set()
-
-        return new_container
+        return _function
