@@ -1,6 +1,7 @@
 import functools
 import inspect
-from typing import Dict, Type, Union, Any, TypeVar, Callable
+from copy import copy
+from typing import Dict, Type, Union, Any, TypeVar, Callable, Set
 
 from .interfaces import SpecialDepDefinition
 from .exceptions import UnresolvableType, DuplicateDefinition
@@ -16,14 +17,17 @@ DepDefinition = Any
 
 class Container:
     _registered_types: Dict[Type, SpecialDepDefinition]
+    _explicitly_registered_types: Set[Type]
 
     def __init__(self):
         self._registered_types = {}
+        self._explicitly_registered_types = set()
 
     def define(self, dep: Union[Type[X], Type], resolver: DepDefinition) -> None:
-        if dep in self._registered_types:
+        if dep in self._explicitly_registered_types:
             raise DuplicateDefinition()
         self._registered_types[dep] = normalise(resolver, self)
+        self._explicitly_registered_types.add(dep)
 
     def resolve(self, dep_type: Type[X], suppress_error=False) -> X:
         try:
@@ -62,8 +66,9 @@ class Container:
         return dep_type(**sub_deps)  # type: ignore
 
     def _infer_dependencies(
-        self, spec: inspect.FullArgSpec, suppress_error=False, keys_to_skip=[]
+        self, spec: inspect.FullArgSpec, suppress_error=False, keys_to_skip=None
     ):
+        keys_to_skip = keys_to_skip or []
         sub_deps = {
             key: self.resolve(sub_dep_type, suppress_error=suppress_error)
             for (key, sub_dep_type) in spec.annotations.items()
@@ -73,3 +78,14 @@ class Container:
         }
         filtered_deps = {key: dep for (key, dep) in sub_deps.items() if dep is not None}
         return filtered_deps
+
+    def clone(self):
+        new_container = Container()
+        new_container._registered_types = copy(self._registered_types)
+
+        # Even though the new container has the type definitions we want
+        # them all to be overridable so the clone can have updated
+        # definitions
+        new_container._explicitly_registered_types = set()
+
+        return new_container
