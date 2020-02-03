@@ -31,6 +31,16 @@ single argument which is the container:
 container[SomeClass] = lambda c: SomeClass(c[SomeOtherDep], "spinning")
 ```
 
+if your construction logic is longer than would fit in a lambda a
+function can also be bound to the container:
+```python
+@dependency_definition(container)
+def my_constructor() -> MyComplexDep:
+    # Really long
+    # stuff goes here
+    return MyComplexDep(some_number=5)
+```
+
 ### Alias a concrete instance to an ABC
 ```python
 container[SomeAbc] = ConcreteClass

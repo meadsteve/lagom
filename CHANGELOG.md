@@ -3,6 +3,7 @@
 ## 0.3.3 (PENDING)
 
 ### Enhancements
+* Added `dependency_definition` decorator to handle log construction logic
 * Error is raised if the same typed is defined twice.
 
 ### Bug fixes
