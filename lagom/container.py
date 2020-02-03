@@ -5,6 +5,7 @@ from typing import Dict, Type, Union, Any, TypeVar, Callable
 from .interfaces import SpecialDepDefinition
 from .exceptions import UnresolvableType, DuplicateDefinition
 from .definitions import normalise
+from .util.reflection import RETURN_ANNOTATION
 
 UNRESOLVABLE_TYPES = [str, int, float, bool]
 
@@ -66,7 +67,9 @@ class Container:
         sub_deps = {
             key: self.resolve(sub_dep_type, suppress_error=suppress_error)
             for (key, sub_dep_type) in spec.annotations.items()
-            if key != "return" and sub_dep_type != Any and key not in keys_to_skip
+            if key != RETURN_ANNOTATION
+            and sub_dep_type != Any
+            and key not in keys_to_skip
         }
         filtered_deps = {key: dep for (key, dep) in sub_deps.items() if dep is not None}
         return filtered_deps

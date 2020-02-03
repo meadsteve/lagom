@@ -1,0 +1,1 @@
+RETURN_ANNOTATION = "return"
