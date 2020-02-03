@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.3 (PENDING)
+
+### Enhancements
+* Error is raised if the same typed is defined twice.
+
+### Bug fixes
+* All container instances no longer share the same state.
+
+### Backwards incompatible changes
+None
+
 ## 0.3.2 (2019-08-18)
 
 ### Enhancements
