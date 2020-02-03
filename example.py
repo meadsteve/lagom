@@ -67,9 +67,6 @@ container[PlayerDb] = lambda: LocalCachingPlayerDb("blah blah blah")
 # Wherever our code wants a DiceClient we get the http one
 container[DiceClient] = HttpDiceClient
 
-# Now the container can build the game object
-
-game = container[Game]
 
 # If we wanted to build this into a web framework for example
 # we can partially bind functions to the container we share the
@@ -85,7 +82,3 @@ def handle_some_request(request: typing.Dict, game: Game, player_db: PlayerDb):
 # we can now call the following. the game argument will automagically
 # come from the container
 handle_some_request(request={"roll_dice": 5})
-
-# or even:
-
-handle_some_request({"roll_dice": 5})
