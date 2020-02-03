@@ -1,12 +1,13 @@
 import inspect
+from typing import List, Type
 
 from .container import Container
 from .util.reflection import RETURN_ANNOTATION
 
 
-def bind_to_container(container: Container):
+def bind_to_container(container: Container, shared: List[Type] = None):
     def decorator(func):
-        return container.partial(func)
+        return container.partial(func, shared=shared)
 
     return decorator
 

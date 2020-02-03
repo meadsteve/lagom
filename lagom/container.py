@@ -1,6 +1,7 @@
 import functools
 import inspect
-from typing import Dict, Type, Union, Any, TypeVar, Callable
+from copy import copy
+from typing import Dict, Type, Union, Any, TypeVar, Callable, Set, List
 
 from .interfaces import SpecialDepDefinition
 from .exceptions import UnresolvableType, DuplicateDefinition
@@ -16,14 +17,17 @@ DepDefinition = Any
 
 class Container:
     _registered_types: Dict[Type, SpecialDepDefinition]
+    _explicitly_registered_types: Set[Type]
 
     def __init__(self):
         self._registered_types = {}
+        self._explicitly_registered_types = set()
 
     def define(self, dep: Union[Type[X], Type], resolver: DepDefinition) -> None:
-        if dep in self._registered_types:
+        if dep in self._explicitly_registered_types:
             raise DuplicateDefinition()
         self._registered_types[dep] = normalise(resolver, self)
+        self._explicitly_registered_types.add(dep)
 
     def resolve(self, dep_type: Type[X], suppress_error=False) -> X:
         try:
@@ -38,12 +42,27 @@ class Container:
                 ) from inner_error
             return None  # type: ignore
 
-    def partial(self, func: Callable[..., X], keys_to_skip=None) -> Callable[..., X]:
+    def partial(
+        self, func: Callable[..., X], keys_to_skip=None, shared: List[Type] = None
+    ) -> Callable[..., X]:
+        if shared:
+            return self._partial_with_shared_singletons(func, shared)
         spec = inspect.getfullargspec(func)
         bindable_deps = self._infer_dependencies(
             spec, suppress_error=True, keys_to_skip=keys_to_skip or []
         )
         return functools.partial(func, **bindable_deps)
+
+    def clone(self):
+        new_container = Container()
+        new_container._registered_types = copy(self._registered_types)
+
+        # Even though the new container has the type definitions we want
+        # them all to be overridable so the clone can have updated
+        # definitions
+        new_container._explicitly_registered_types = set()
+
+        return new_container
 
     def __getitem__(self, dep: Type[X]) -> X:
         return self.resolve(dep)
@@ -62,8 +81,9 @@ class Container:
         return dep_type(**sub_deps)  # type: ignore
 
     def _infer_dependencies(
-        self, spec: inspect.FullArgSpec, suppress_error=False, keys_to_skip=[]
+        self, spec: inspect.FullArgSpec, suppress_error=False, keys_to_skip=None
     ):
+        keys_to_skip = keys_to_skip or []
         sub_deps = {
             key: self.resolve(sub_dep_type, suppress_error=suppress_error)
             for (key, sub_dep_type) in spec.annotations.items()
@@ -73,3 +93,17 @@ class Container:
         }
         filtered_deps = {key: dep for (key, dep) in sub_deps.items() if dep is not None}
         return filtered_deps
+
+    def _partial_with_shared_singletons(
+        self, func: Callable[..., X], shared: List[Type]
+    ):
+        def _function(*args, **kwargs):
+            temp_container = self.clone()
+            # For each of the shared dependencies resolve before invocation
+            # and replace with a singleton
+            for type_def in shared:
+                temp_container[type_def] = temp_container.resolve(type_def)
+            temp_bound_func = temp_container.partial(func, shared=[])
+            return temp_bound_func(*args, **kwargs)
+
+        return _function
