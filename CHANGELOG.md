@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.4.1 (2020-02-03)
+
+### Enhancements
+* Invocation level caching for decorated functions
+
+### Bug fixes
+None
+
+### Backwards incompatible changes
+None
+
 ## 0.4.0 (2020-02-03)
 
 ### Enhancements

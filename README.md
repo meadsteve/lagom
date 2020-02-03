@@ -64,7 +64,31 @@ handle_some_request(request={"roll_dice": 5})
 ```
 
 
-## Example
+### Invocation level caching
+Suppose you have a function and you want all the dependencies
+to share an instance of an object then you can define invocation
+level shared dependencies.
+
+```python
+
+class ProfileLoader:
+    def __init__(self, loader: DataLoader):
+        pass
+
+class AvatarLoader:
+    def __init__(self, loader: DataLoader):
+        pass
+
+@bind_to_container(container, shared=[DataLoader])
+def handle_some_request(request: typing.Dict, profile: ProfileLoader, user_avatar: AvatarLoader):
+    # do something to the game
+    pass
+```
+
+now each invocation of handle_some_request will get the same instance
+of loader so this class can cache values for the invocation lifetime.
+
+## Full Example
 
 ### App setup
 ```python
