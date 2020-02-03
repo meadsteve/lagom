@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.3 (2020-02-03)
+## 0.4.0 (2020-02-03)
 
 ### Enhancements
 * Added `dependency_definition` decorator to handle log construction logic
@@ -10,7 +10,7 @@
 * All container instances no longer share the same state.
 
 ### Backwards incompatible changes
-None
+* It's now no longer possible to overwrite existing definitions.
 
 ## 0.3.2 (2019-08-18)
 
