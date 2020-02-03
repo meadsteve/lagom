@@ -4,3 +4,7 @@ class UnresolvableType(ValueError):
 
 class InvalidDependencyDefinition(ValueError):
     pass
+
+
+class DuplicateDefinition(ValueError):
+    pass

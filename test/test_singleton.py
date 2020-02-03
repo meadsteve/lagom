@@ -19,33 +19,32 @@ class MyCompositeDep:
 
 
 @pytest.fixture
-def container():
-    c = Container()
-    c.define(MyBasicDep, Singleton(MyBasicDep))
-    c.define(
+def container_with_deps(container: Container):
+    container.define(MyBasicDep, Singleton(MyBasicDep))
+    container.define(
         MyMoreComplicatedDep, Singleton(Construction(lambda: MyMoreComplicatedDep(5)))
     )
-    c.define(MyCompositeDep, Singleton(MyCompositeDep))
-    return c
+    container.define(MyCompositeDep, Singleton(MyCompositeDep))
+    return container
 
 
-def test_singleton_is_only_resolved_once(container: Container):
-    first = container.resolve(MyBasicDep)
-    second = container.resolve(MyBasicDep)
+def test_singleton_is_only_resolved_once(container_with_deps: Container):
+    first = container_with_deps.resolve(MyBasicDep)
+    second = container_with_deps.resolve(MyBasicDep)
     assert first is not None
     assert first is second
 
 
-def test_singleton_can_have_construction_logic(container: Container):
-    first = container.resolve(MyMoreComplicatedDep)
-    second = container.resolve(MyMoreComplicatedDep)
+def test_singleton_can_have_construction_logic(container_with_deps: Container):
+    first = container_with_deps.resolve(MyMoreComplicatedDep)
+    second = container_with_deps.resolve(MyMoreComplicatedDep)
     assert first.sum_number == 5
     assert first is second
 
 
-def test_singleton_can_compose_other_dependencies(container: Container):
-    first = container.resolve(MyCompositeDep)
-    second = container.resolve(MyCompositeDep)
+def test_singleton_can_compose_other_dependencies(container_with_deps: Container):
+    first = container_with_deps.resolve(MyCompositeDep)
+    second = container_with_deps.resolve(MyCompositeDep)
     assert type(first.a) == MyBasicDep
     assert type(first.b) == MyMoreComplicatedDep
     assert first is second

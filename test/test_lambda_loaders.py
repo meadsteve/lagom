@@ -14,11 +14,6 @@ class ComplexDep:
         self.value = some_dep.basic_value
 
 
-@pytest.fixture
-def container():
-    return Container()
-
-
 def test_lambda_arity_zero_works(container: Container):
     container.define(MyBasicDep, lambda: MyBasicDep())
     assert type(container[MyBasicDep]) == MyBasicDep
