@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.5.3 (2020-02-04)
+
+### Enhancements
+None
+
+### Bug fixes
+* Fix async binding with invocation level singletons so that they pass iscoroutinefunction
+
+### Backwards incompatible changes
+None
+
 ## 0.5.2 (2020-02-04)
 
 ### Enhancements

@@ -9,8 +9,20 @@ class Something:
     pass
 
 
-def test_partial_application_can_be_applied_to_async_functions(container: Container):
+def test_partial_application_async_functions_pass_iscoroutinefunction(
+    container: Container
+):
     @bind_to_container(container)
+    async def example_async_function(message: str) -> str:
+        return message
+
+    assert inspect.iscoroutinefunction(example_async_function)
+
+
+def test_partial_application_async_functions_with_shared_pass_iscoroutinefunction(
+    container: Container
+):
+    @bind_to_container(container, shared=[Something])
     async def example_async_function(message: str) -> str:
         return message
 

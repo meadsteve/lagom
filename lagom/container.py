@@ -113,7 +113,7 @@ class Container:
     def _partial_with_shared_singletons(
         self, func: Callable[..., X], shared: List[Type]
     ):
-        def _function(*args, **kwargs):
+        def _cloned_container():
             temp_container = self.clone()
             # For each of the shared dependencies resolve before invocation
             # and replace with a singleton
@@ -121,7 +121,21 @@ class Container:
                 temp_container[type_def] = Singleton(
                     Construction(lambda: self.resolve(type_def))
                 )
-            temp_bound_func = temp_container.partial(func, shared=[])
-            return temp_bound_func(*args, **kwargs)
+            return temp_container
 
-        return _function
+        if inspect.iscoroutinefunction(func):
+
+            async def _async_function(*args, **kwargs):
+                temp_container = _cloned_container()
+                temp_bound_func = temp_container.partial(func, shared=[])
+                return await temp_bound_func(*args, **kwargs)
+
+            return _async_function
+        else:
+
+            def _function(*args, **kwargs):
+                temp_container = _cloned_container()
+                temp_bound_func = temp_container.partial(func, shared=[])
+                return temp_bound_func(*args, **kwargs)
+
+            return _function
