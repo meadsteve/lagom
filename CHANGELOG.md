@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.5.4 (2020-02-04)
+
+### Enhancements
+None
+
+### Bug fixes
+* Fix bug causing bound functions to resolve dependencies at definition time.
+
+### Backwards incompatible changes
+None
+
 ## 0.5.3 (2020-02-04)
 
 ### Enhancements

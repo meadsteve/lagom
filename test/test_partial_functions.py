@@ -1,5 +1,5 @@
 import inspect
-from typing import Generator, Any
+from typing import Generator, Any, ClassVar
 
 import pytest
 
@@ -7,9 +7,11 @@ from lagom import Container, bind_to_container
 
 
 class MyDep:
+    loaded: ClassVar[bool] = False
     value: str
 
     def __init__(self, value="testing"):
+        MyDep.loaded = True
         self.value = value
 
 
@@ -72,3 +74,13 @@ def test_partial_application_can_be_applied_to_generators():
     for result in partial(message=" world"):
         results.append(result)
     assert results == ["testing world", "testing finished"]
+
+
+def test_deps_are_loaded_at_call_time_not_definition_time():
+    MyDep.loaded = False
+
+    @bind_to_container(container)
+    def some_random_unused_function(message: str, resolved: MyDep) -> str:
+        return resolved.value + message
+
+    assert not MyDep.loaded

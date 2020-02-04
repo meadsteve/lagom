@@ -48,15 +48,17 @@ class Container:
         if shared:
             return self._partial_with_shared_singletons(func, shared)
         spec = inspect.getfullargspec(func)
-        bindable_deps = self._infer_dependencies(
-            spec, suppress_error=True, keys_to_skip=keys_to_skip or []
-        )
-        bound_func = functools.partial(func, **bindable_deps)
 
-        if inspect.iscoroutinefunction(bound_func.func):
+        def _bind_func():
+            bindable_deps = self._infer_dependencies(
+                spec, suppress_error=True, keys_to_skip=keys_to_skip or []
+            )
+            return functools.partial(func, **bindable_deps)
+
+        if inspect.iscoroutinefunction(func):
 
             async def _async_wrapper(*args, **kwargs):
-                return await bound_func(*args, **kwargs)  # type: ignore
+                return await _bind_func()(*args, **kwargs)  # type: ignore
 
             return _async_wrapper
 
@@ -65,7 +67,7 @@ class Container:
         # The output from functools.partial will evaluate to False so we
         # need to wrap the call.
         def _compatibility_wrapper(*args, **kwargs):
-            return bound_func(*args, **kwargs)
+            return _bind_func()(*args, **kwargs)
 
         return _compatibility_wrapper
 
