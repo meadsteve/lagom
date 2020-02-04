@@ -154,7 +154,8 @@ def some_test(container: Container):
 ```
 
 ## Design Goals
+* The API should expose sensible typing (for use in pycharm/mypy)
 * Everything should be done by type. No reliance on names.
 * All domain code should remain unmodified. No special decorators.
+* Usage of the container should make code testable without monkey patching.
 * Make use of modern python features (3.7 at the time of creation)
-* The API should expose sensible typing (for use in pycharm/mypy)
