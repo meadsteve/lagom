@@ -19,6 +19,26 @@ def test_functions_that_are_typed_can_be_used_by_a_container(container: Containe
     assert container[MyComplexDep] == MyComplexDep(some_number=5)
 
 
+def test_the_functions_return_new_instances_each_time(container: Container):
+    @dependency_definition(container)
+    def my_constructor() -> MyComplexDep:
+        return MyComplexDep(some_number=5)
+
+    first = container[MyComplexDep]
+    second = container[MyComplexDep]
+    assert first is not second
+
+
+def test_functions_can_be_made_into_singletons(container: Container):
+    @dependency_definition(container, singleton=True)
+    def my_constructor() -> MyComplexDep:
+        return MyComplexDep(some_number=5)
+
+    first = container[MyComplexDep]
+    second = container[MyComplexDep]
+    assert first is second
+
+
 def test_functions_that_are_not_typed_raise_an_error(container: Container):
 
     with pytest.raises(SyntaxError):

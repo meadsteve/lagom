@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.4.2 (PENDING)
+
+### Enhancements
+* Singleton bool for `dependency_definition` decorator
+
+### Bug fixes
+None
+
+### Backwards incompatible changes
+None
+
 ## 0.4.1 (2020-02-03)
 
 ### Enhancements
