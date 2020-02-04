@@ -11,6 +11,17 @@ None
 ### Backwards incompatible changes
 None
 
+## 0.5.5 (2020-02-04)
+
+### Enhancements
+* Better error handling
+
+### Bug fixes
+None
+
+### Backwards incompatible changes
+None
+
 ## 0.5.3 (2020-02-04)
 
 ### Enhancements

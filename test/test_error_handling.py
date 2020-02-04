@@ -21,6 +21,14 @@ def test_simple_objects_cannot_be_resolved(container: Container, dep):
 
 
 def test_raises_error_with_the_dep_that_couldnt_be_built(container):
+    with pytest.raises(UnresolvableType):
+        container.resolve(MyMissingDep)
+
+
+def test_raises_error_with_the_dep_that_couldnt_be_built_at_the_top_level(container):
     with pytest.raises(UnresolvableType) as e_info:
         container.resolve(UnfulfilledDeps)
-    assert str(e_info.value) == "Cannot construct type UnfulfilledDeps"
+    assert (
+        str(e_info.value) == "Unable to construct dependency of type UnfulfilledDeps "
+        "The constructor probably has some unresolvable dependencies"
+    )

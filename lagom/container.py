@@ -32,14 +32,12 @@ class Container:
     def resolve(self, dep_type: Type[X], suppress_error=False) -> X:
         try:
             if dep_type in UNRESOLVABLE_TYPES:
-                raise UnresolvableType(f"Cannot construct type {dep_type}")
+                raise UnresolvableType(dep_type)
             registered_type = self._registered_types.get(dep_type, dep_type)
             return self._build(registered_type)
         except UnresolvableType as inner_error:
             if not suppress_error:
-                raise UnresolvableType(
-                    f"Cannot construct type {dep_type.__name__}"
-                ) from inner_error
+                raise UnresolvableType(dep_type) from inner_error
             return None  # type: ignore
 
     def partial(
@@ -96,7 +94,10 @@ class Container:
     def _reflection_build(self, dep_type: Type[X]) -> X:
         spec = inspect.getfullargspec(dep_type.__init__)
         sub_deps = self._infer_dependencies(spec)
-        return dep_type(**sub_deps)  # type: ignore
+        try:
+            return dep_type(**sub_deps)  # type: ignore
+        except TypeError as type_error:
+            raise UnresolvableType(dep_type) from type_error
 
     def _infer_dependencies(
         self, spec: inspect.FullArgSpec, suppress_error=False, keys_to_skip=None
