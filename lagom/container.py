@@ -5,7 +5,7 @@ from typing import Dict, Type, Union, Any, TypeVar, Callable, Set, List
 
 from .interfaces import SpecialDepDefinition
 from .exceptions import UnresolvableType, DuplicateDefinition
-from .definitions import normalise
+from .definitions import normalise, Singleton, Construction
 from .util.reflection import RETURN_ANNOTATION
 
 UNRESOLVABLE_TYPES = [str, int, float, bool]
@@ -102,7 +102,9 @@ class Container:
             # For each of the shared dependencies resolve before invocation
             # and replace with a singleton
             for type_def in shared:
-                temp_container[type_def] = temp_container.resolve(type_def)
+                temp_container[type_def] = Singleton(
+                    Construction(lambda: self.resolve(type_def))
+                )
             temp_bound_func = temp_container.partial(func, shared=[])
             return temp_bound_func(*args, **kwargs)
 

@@ -1,15 +1,16 @@
 # Changelog
 
-## 0.4.2 (PENDING)
+## 0.5.0 (2020-02-04)
 
 ### Enhancements
 * Singleton bool for `dependency_definition` decorator
+* Invocation level singletons are now lazily loaded
 
 ### Bug fixes
 None
 
 ### Backwards incompatible changes
-None
+* Invocation level singletons are now lazily loaded
 
 ## 0.4.1 (2020-02-03)
 
