@@ -88,6 +88,18 @@ def handle_some_request(request: typing.Dict, profile: ProfileLoader, user_avata
 now each invocation of handle_some_request will get the same instance
 of loader so this class can cache values for the invocation lifetime.
 
+### Alternative to decorator
+The above example can also be used without a decorator if you want
+to keep the pure unaltered function available for testing.
+
+```python
+def handle_some_request(request: typing.Dict, game: Game):
+    pass
+
+# This new function can be bound to a route or used wherever
+# need
+func_with_injection = container.partial(handle_some_request)
+```
 ## Full Example
 
 ### App setup
