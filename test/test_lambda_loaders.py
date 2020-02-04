@@ -27,4 +27,4 @@ def test_lambda_arity_one_is_passed_the_container(container: Container):
 
 def test_lambda_arity_two_results_in_an_error(container: Container):
     with pytest.raises(InvalidDependencyDefinition):
-        container.define(MyBasicDep, lambda _x, _y: MyBasicDep)
+        container.define(MyBasicDep, lambda _x, _y: MyBasicDep)  # type: ignore

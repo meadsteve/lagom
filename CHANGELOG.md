@@ -1,4 +1,15 @@
 # Changelog
+## 0.6.0 (2020-02-04)
+
+### Enhancements
+* Expose a richer type definition when registering dependencies. This is a
+design goal after all.
+
+### Bug fixes
+None
+
+### Backwards incompatible changes
+* The strong type definition *could* cause errors in existing code.
 
 ## 0.5.4 (2020-02-04)
 

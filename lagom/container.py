@@ -23,7 +23,13 @@ class Container:
         self._registered_types = {}
         self._explicitly_registered_types = set()
 
-    def define(self, dep: Union[Type[X], Type], resolver: DepDefinition) -> None:
+    def define(
+        self,
+        dep: Type[X],
+        resolver: Union[
+            Type[X], Callable[[], X], Callable[[Any], X], SpecialDepDefinition[X], X
+        ],
+    ) -> None:
         if dep in self._explicitly_registered_types:
             raise DuplicateDefinition()
         self._registered_types[dep] = normalise(resolver, self)
@@ -83,7 +89,13 @@ class Container:
     def __getitem__(self, dep: Type[X]) -> X:
         return self.resolve(dep)
 
-    def __setitem__(self, dep: Type, resolver: DepDefinition):
+    def __setitem__(
+        self,
+        dep: Type[X],
+        resolver: Union[
+            Type[X], Callable[[], X], Callable[[Any], X], SpecialDepDefinition[X], X
+        ],
+    ):
         self.define(dep, resolver)
 
     def _build(self, dep_type: Any) -> Any:
