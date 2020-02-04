@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.5.1 (2020-02-04)
+
+### Enhancements
+* The result of binding to a container will now pass `inspect.is_function`
+
+### Bug fixes
+None
+
+### Backwards incompatible changes
+None
+
 ## 0.5.0 (2020-02-04)
 
 ### Enhancements

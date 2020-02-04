@@ -1,3 +1,4 @@
+import inspect
 from typing import Generator, Any
 
 import pytest
@@ -32,6 +33,11 @@ def another_example_function(message: str, resolved: MyDep) -> str:
 def test_partial_application_can_be_applied_to_functions_with_named_args():
     partial = container.partial(example_function)
     assert partial(message=" world") == "testing world"
+
+
+def test_partial_application_returns_something_that_is_considered_a_function():
+    partial = container.partial(example_function)
+    inspect.isfunction(partial)
 
 
 def test_partial_application_can_be_applied_to_functions_with_positional_args_first():

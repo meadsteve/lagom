@@ -1,3 +1,4 @@
+import inspect
 from random import random
 from typing import Generator, Any, ClassVar
 
@@ -73,3 +74,13 @@ def test_that_shared_types_are_lazy_loaded(container: Container):
 
     example_function_that_defines_but_doesnt_use_sharing()
     assert not SomeCache.loaded
+
+
+def test_partial_application_returns_something_that_is_considered_a_function(
+    container: Container
+):
+    @bind_to_container(container, shared=[SomeCache])
+    def example_function_with_shared():
+        return "ok"
+
+    inspect.isfunction(example_function_with_shared)

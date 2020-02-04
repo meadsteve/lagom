@@ -51,7 +51,16 @@ class Container:
         bindable_deps = self._infer_dependencies(
             spec, suppress_error=True, keys_to_skip=keys_to_skip or []
         )
-        return functools.partial(func, **bindable_deps)
+        bound_func = functools.partial(func, **bindable_deps)
+
+        # This function exists so that binding can be used in places
+        # that rely on `inspect.is_function` to return True.
+        # The output from functools.partial will evaluate to False so we
+        # need to wrap the call.
+        def _compatibility_wrapper(*args, **kwargs):
+            return bound_func(*args, **kwargs)
+
+        return _compatibility_wrapper
 
     def clone(self):
         new_container = Container()
