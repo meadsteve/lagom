@@ -152,16 +152,20 @@ game = container[Game]
 
 ```
 
-### Testing without patching
+### Modifying the container instead of patching in tests
 Taking the container from above we can now swap out
 the dice client to a test double/fake. When we get an
 instance of the `Game` class it will have the new
 fake dice client injected in.
 
 ```python
-def some_test(container: Container):
-    container[DiceClient] = FakeDice(always_roll=6)
-    game_to_test = container[Game]
+def container_fixture():
+    from my_app.prod_container import container
+    return container.clone() # Cloning enables overwriting deps
+
+def test_something(container_fixture: Container):
+    container_fixture[DiceClient] = FakeDice(always_roll=6)
+    game_to_test = container_fixture[Game]
     # TODO: act & assert on something
 ```
 
