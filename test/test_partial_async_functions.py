@@ -27,7 +27,9 @@ async def test_calling_async_partials_works_as_expected(container: Container):
 
 
 @pytest.mark.asyncio
-async def test_calling_async_partials_works_as_expected_with_shared_too(container: Container):
+async def test_calling_async_partials_works_as_expected_with_shared_too(
+    container: Container
+):
     @bind_to_container(container, shared=[Something])
     async def example_async_function(message: str) -> str:
         return message
