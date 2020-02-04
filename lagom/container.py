@@ -53,6 +53,13 @@ class Container:
         )
         bound_func = functools.partial(func, **bindable_deps)
 
+        if inspect.iscoroutinefunction(bound_func.func):
+
+            async def _async_wrapper(*args, **kwargs):
+                return await bound_func(*args, **kwargs)  # type: ignore
+
+            return _async_wrapper
+
         # This function exists so that binding can be used in places
         # that rely on `inspect.is_function` to return True.
         # The output from functools.partial will evaluate to False so we

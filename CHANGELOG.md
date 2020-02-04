@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.5.2 (2020-02-04)
+
+### Enhancements
+* Async defs are now bindable.
+
+### Bug fixes
+None
+
+### Backwards incompatible changes
+None
+
 ## 0.5.1 (2020-02-04)
 
 ### Enhancements

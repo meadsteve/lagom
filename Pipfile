@@ -11,6 +11,7 @@ flit = "~=1.3"
 pytest-cov = "*"
 
 [packages]
+pytest-asyncio = "*"
 
 [requires]
 python_version = "3.7"
