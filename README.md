@@ -183,6 +183,32 @@ def test_something(container_fixture: Container):
     # TODO: act & assert on something
 ```
 
+## Integrations
+
+### Starlette (https://www.starlette.io/)
+To make integration with starlette simpler a special container is provided
+that can generate starlette routes.
+
+Starlette endpoints are defined in the normal way. Any extra arguments are
+then provided by the container:
+```python
+async def homepage(request, db: DBConnection):
+    user = db.fetch_data_for_user(request.user)
+    return PlainTextResponse(f"Hello {user.name}")
+
+
+container = StarletteContainer()
+container[DBConnection] = DB("DSN_CONNECTION_GOES_HERE")
+
+
+routes = [
+    # This function takes the same arguments as starlette.routing.Route
+    container.route("/", endpoint=homepage),
+]
+
+app = Starlette(routes=routes)
+```
+
 ## Developing/Contributing
 Contributions and PRS are welcome. For any large changes please open
 an issue to discuss first. All PRs should pass the tests, type checking
