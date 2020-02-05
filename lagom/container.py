@@ -12,8 +12,6 @@ UNRESOLVABLE_TYPES = [str, int, float, bool]
 
 X = TypeVar("X")
 
-DepDefinition = Any
-
 
 class Container:
     _registered_types: Dict[Type, SpecialDepDefinition]
