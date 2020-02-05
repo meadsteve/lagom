@@ -1,4 +1,15 @@
 # Changelog
+## 0.6.4 (2020-02-04)
+
+### Enhancements
+* Added explicit support for python 3.6 (required no actual code changes)
+
+### Bug fixes
+None
+
+### Backwards incompatible changes
+None
+
 ## 0.6.3 (2020-02-04)
 
 ### Enhancements
