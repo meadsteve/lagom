@@ -1,7 +1,7 @@
 import functools
 import inspect
 from copy import copy
-from typing import Dict, Type, Union, Any, TypeVar, Callable, Set, List
+from typing import Dict, Type, Union, Any, TypeVar, Callable, Set, List, Optional
 
 from .interfaces import SpecialDepDefinition
 from .exceptions import UnresolvableType, DuplicateDefinition
@@ -19,9 +19,11 @@ class Container:
     _registered_types: Dict[Type, SpecialDepDefinition]
     _explicitly_registered_types: Set[Type]
 
-    def __init__(self):
+    def __init__(self, container: Optional["Container"] = None):
         self._registered_types = {}
         self._explicitly_registered_types = set()
+        if container:
+            self._registered_types = copy(container._registered_types)
 
     def define(
         self,
@@ -76,15 +78,7 @@ class Container:
         return _compatibility_wrapper
 
     def clone(self):
-        new_container = Container()
-        new_container._registered_types = copy(self._registered_types)
-
-        # Even though the new container has the type definitions we want
-        # them all to be overridable so the clone can have updated
-        # definitions
-        new_container._explicitly_registered_types = set()
-
-        return new_container
+        return Container(self)
 
     def __getitem__(self, dep: Type[X]) -> X:
         return self.resolve(dep)
