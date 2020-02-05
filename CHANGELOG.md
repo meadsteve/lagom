@@ -1,4 +1,15 @@
 # Changelog
+## 0.6.3 (2020-02-04)
+
+### Enhancements
+* Provide extended container that integrates well with fastapi.
+
+### Bug fixes
+None
+
+### Backwards incompatible changes
+None
+
 ## 0.6.2 (2020-02-04)
 
 ### Enhancements

@@ -209,6 +209,26 @@ routes = [
 app = Starlette(routes=routes)
 ```
 
+### FastAPI (https://fastapi.tiangolo.com/)
+FastAPI already provides a method for dependency injection however
+if you'd like to use lagom instead a special container is provided.
+
+Calling the method `.depends` will provide a dependency in the format
+that FastAPI expects:
+
+```python
+container = FastApiContainer()
+container[DBConnection] = DB("DSN_CONNECTION_GOES_HERE")
+
+app = FastAPI()
+
+@app.get("/")
+async def homepage(request, db = container.depends(DBConnection)):
+    user = db.fetch_data_for_user(request.user)
+    return PlainTextResponse(f"Hello {user.name}")
+
+```
+
 ## Developing/Contributing
 Contributions and PRS are welcome. For any large changes please open
 an issue to discuss first. All PRs should pass the tests, type checking
