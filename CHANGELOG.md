@@ -1,4 +1,15 @@
 # Changelog
+## 0.6.1 (PENDING)
+
+### Enhancements
+* Provide extended container that integrates well with starlette.
+
+### Bug fixes
+None
+
+### Backwards incompatible changes
+None
+
 ## 0.6.0 (2020-02-04)
 
 ### Enhancements
