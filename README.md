@@ -3,6 +3,22 @@
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/meadsteve/lagom/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/meadsteve/lagom/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/meadsteve/lagom/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/meadsteve/lagom/?branch=master)
 ![PyPI](https://img.shields.io/pypi/v/lagom.svg?style=plastic)
+
+## What
+Lagom is a dependency injection container designed to give you "just enough"
+help with building your dependencies. The intention is that almost
+all of your code does't know about or rely on lagom. Lagom will
+only be involved at the top level to pull everything together.
+
+An example usage can be found here: [github.com/meadsteve/lagom-example-repo](https://github.com/meadsteve/lagom-example-repo)
+
+## Installation
+```bash
+pip install lagom
+# or: 
+# pipenv install lagom
+# poetry add lagom
+```
 ## Usage
 Everything in Lagom is based on types. To create an object
 you pass the type to the container:
@@ -169,9 +185,22 @@ def test_something(container_fixture: Container):
     # TODO: act & assert on something
 ```
 
-## Design Goals
+## Developing/Contributing
+Contributions and PRS are welcome. For any large changes please open
+an issue to discuss first. All PRs should pass the tests, type checking
+and styling. To get development setup locally:
+```bash
+pipenv install --dev
+```
+then 
+```bash
+./scripts/format.sh # To format the code
+./scripts/test.sh # To make sure the build will pass
+```
+
+### Design Goals
 * The API should expose sensible typing (for use in pycharm/mypy)
 * Everything should be done by type. No reliance on names.
 * All domain code should remain unmodified. No special decorators.
-* Usage of the container should make code testable without monkey patching.
-* Make use of modern python features (3.7 at the time of creation)
+* Usage of the container should encourage code to be testable without monkey patching.
+* Embrace modern python features (3.7 at the time of creation)
