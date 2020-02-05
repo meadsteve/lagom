@@ -129,9 +129,7 @@ from lagom import Container
 # Here is an example of some classes your application may be built from
 
 
-@dataclass
-class DiceApiUrl:
-    url: str
+DiceApiUrl = NewType("DiceApiUrl", str)
 
 
 class RateLimitingConfig:

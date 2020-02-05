@@ -9,9 +9,8 @@ mypy = "==0.701"
 black = "==19.3b0"
 flit = "~=1.3"
 pytest-cov = "*"
-
-[packages]
 pytest-asyncio = "*"
+typing-extensions = "*"
 
 [requires]
 python_version = "3.7"
