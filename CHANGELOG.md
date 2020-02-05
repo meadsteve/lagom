@@ -1,5 +1,16 @@
 # Changelog
-## 0.6.1 (PENDING)
+## 0.6.2 (2020-02-04)
+
+### Enhancements
+* Better error messages if a List[X] like type can't be fufilled.
+
+### Bug fixes
+None
+
+### Backwards incompatible changes
+None
+
+## 0.6.1 (2020-02-04)
 
 ### Enhancements
 * Provide extended container that integrates well with starlette.
