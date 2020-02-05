@@ -16,4 +16,3 @@ def test_the_fast_api_container_can_return_a_fastapi_dependency():
     dependency_injection = fac.depends(ComplexDep)
     assert isinstance(dependency_injection, Depends)
     assert dependency_injection.dependency() == ComplexDep("testing")
-
