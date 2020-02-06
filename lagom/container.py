@@ -7,7 +7,7 @@ from .interfaces import SpecialDepDefinition
 from .exceptions import UnresolvableType, DuplicateDefinition
 from .definitions import normalise, Singleton, Construction
 from .util.reflection import RETURN_ANNOTATION
-from .wrapping import decorated_wrapper
+from .wrapping import bound_function
 
 UNRESOLVABLE_TYPES = [str, int, float, bool]
 
@@ -60,20 +60,7 @@ class Container:
             )
             return functools.partial(func, **bindable_deps)
 
-        if inspect.iscoroutinefunction(func):
-
-            async def _compatibility_wrapper(*args, **kwargs):
-                return await _bind_func()(*args, **kwargs)  # type: ignore
-
-        else:
-            # This function exists so that binding can be used in places
-            # that rely on `inspect.is_function` to return True.
-            # The output from functools.partial will evaluate to False so we
-            # need to wrap the call.
-            def _compatibility_wrapper(*args, **kwargs):
-                return _bind_func()(*args, **kwargs)
-
-        return decorated_wrapper(_compatibility_wrapper, func)
+        return bound_function(_bind_func, func)
 
     def clone(self):
         return Container(self)
@@ -130,18 +117,8 @@ class Container:
                 )
             return temp_container
 
-        if inspect.iscoroutinefunction(func):
+        def _bind_func():
+            temp_container = _cloned_container()
+            return temp_container.partial(func, shared=[])
 
-            async def _wrapped_function(*args, **kwargs):
-                temp_container = _cloned_container()
-                temp_bound_func = temp_container.partial(func, shared=[])
-                return await temp_bound_func(*args, **kwargs)
-
-        else:
-
-            def _wrapped_function(*args, **kwargs):
-                temp_container = _cloned_container()
-                temp_bound_func = temp_container.partial(func, shared=[])
-                return temp_bound_func(*args, **kwargs)
-
-        return decorated_wrapper(_wrapped_function, func)
+        return bound_function(_bind_func, func)
