@@ -230,18 +230,25 @@ async def homepage(request, db = container.depends(DBConnection)):
 ```
 
 ### Flask API (https://www.flaskapi.org/)
-Flask API doesn't need any special code. Using the `bind_to_container` decorator
-is enough:
-```python
+A special container is provided for flask. It takes the flask app
+then provides a wrapped `route` decorator to use:
 
-@app.route("/save_it/<string:thing_to_save>", methods=['POST'])
-@bind_to_container(container)
+```python
+app = Flask(__name__)
+container = FlaskContainer(app)
+container[Database] = Singleton(lambda: Database("connection details"))
+
+
+@container.route("/save_it/<string:thing_to_save>", methods=['POST'])
 def save_to_db(thing_to_save, db: Database):
     db.save(thing_to_save)
     return 'saved'
 
 ```
 (taken from https://github.com/meadsteve/lagom-flask-example/)
+
+The decorator leaves the original function unaltered so it can be
+used directly in tests.
 
 ## Developing/Contributing
 Contributions and PRS are welcome. For any large changes please open

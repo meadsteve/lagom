@@ -1,4 +1,16 @@
 # Changelog
+## 0.6.5 (2020-02-06)
+
+### Enhancements
+* Flask integration provided
+
+### Bug fixes
+None
+
+### Backwards incompatible changes
+None
+
+
 ## 0.6.4 (2020-02-04)
 
 ### Enhancements
