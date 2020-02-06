@@ -10,14 +10,19 @@ X = TypeVar("X")
 
 
 class Construction(SpecialDepDefinition[X]):
-    constructor: Callable[[], X]
+    constructor: Union[Callable[[], X], Callable[[Any], X]]
 
     def __init__(self, constructor):
         self.constructor = constructor
 
-    def get_instance(self, _build_func) -> X:
-        call = self.constructor  # type: ignore
-        return call()
+    def get_instance(self, _build_func, container) -> X:
+        resolver = self.constructor
+        artiy = arity(resolver)
+        if artiy == 0:
+            return resolver()  # type: ignore
+        if artiy == 1:
+            return resolver(container)  # type: ignore
+        raise InvalidDependencyDefinition(f"Arity {arity} functions are not supported")
 
 
 class Alias(SpecialDepDefinition[X]):
@@ -26,19 +31,19 @@ class Alias(SpecialDepDefinition[X]):
     def __init__(self, alias_type):
         self.alias_type = alias_type
 
-    def get_instance(self, build_func) -> X:
+    def get_instance(self, build_func, _container) -> X:
         return build_func(self.alias_type)
 
 
 class Singleton(SpecialDepDefinition[X]):
-    singleton_type: Union[Type[X], Construction[X]]
+    singleton_type: Any
     _instance: Optional[X]
 
-    def __init__(self, singleton_type: Union[Type[X], Construction[X]]):
-        self.singleton_type = singleton_type
+    def __init__(self, singleton_type):
+        self.singleton_type = normalise(singleton_type)
         self._instance = None
 
-    def get_instance(self, build_func) -> X:
+    def get_instance(self, build_func, _container) -> X:
         if self._has_instance:
             return self._instance  # type: ignore
         return self._set_instance(build_func(self.singleton_type))
@@ -52,21 +57,16 @@ class Singleton(SpecialDepDefinition[X]):
         return instance
 
 
-def normalise(resolver: Any, container) -> SpecialDepDefinition:
+def normalise(resolver: Any) -> SpecialDepDefinition:
     if isinstance(resolver, SpecialDepDefinition):
         return resolver
     elif inspect.isfunction(resolver):
-        return _build_lambda_constructor(resolver, container)
+        if arity(resolver) > 1:
+            raise InvalidDependencyDefinition(
+                f"Arity {arity} functions are not supported"
+            )
+        return Construction(resolver)
     elif not inspect.isclass(resolver):
         return Singleton(lambda: resolver)  # type: ignore
     else:
         return Alias(resolver)
-
-
-def _build_lambda_constructor(resolver: Callable, container) -> Construction:
-    artiy = arity(resolver)
-    if artiy == 0:
-        return Construction(resolver)
-    if artiy == 1:
-        return Construction(functools.partial(resolver, container))
-    raise InvalidDependencyDefinition(f"Arity {arity} functions are not supported")

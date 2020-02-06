@@ -6,5 +6,5 @@ X = TypeVar("X")
 
 class SpecialDepDefinition(ABC, Generic[X]):
     @abstractmethod
-    def get_instance(self, build_func) -> X:
+    def get_instance(self, build_func, container) -> X:
         pass

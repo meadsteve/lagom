@@ -33,7 +33,7 @@ class Container:
     ) -> None:
         if dep in self._explicitly_registered_types:
             raise DuplicateDefinition()
-        self._registered_types[dep] = normalise(resolver, self)
+        self._registered_types[dep] = normalise(resolver)
         self._explicitly_registered_types.add(dep)
 
     def resolve(self, dep_type: Type[X], suppress_error=False) -> X:
@@ -79,7 +79,7 @@ class Container:
 
     def _build(self, dep_type: Any) -> Any:
         if isinstance(dep_type, SpecialDepDefinition):
-            return dep_type.get_instance(self._build)
+            return dep_type.get_instance(self._build, self)
         return self._reflection_build(dep_type)
 
     def _reflection_build(self, dep_type: Type[X]) -> X:
