@@ -229,6 +229,20 @@ async def homepage(request, db = container.depends(DBConnection)):
 
 ```
 
+### Flask API (https://www.flaskapi.org/)
+Flask API doesn't need any special code. Using the `bind_to_container` decorator
+is enough:
+```python
+
+@app.route("/save_it/<string:thing_to_save>", methods=['POST'])
+@bind_to_container(container)
+def save_to_db(thing_to_save, db: Database):
+    db.save(thing_to_save)
+    return 'saved'
+
+```
+(taken from https://github.com/meadsteve/lagom-flask-example/)
+
 ## Developing/Contributing
 Contributions and PRS are welcome. For any large changes please open
 an issue to discuss first. All PRs should pass the tests, type checking
