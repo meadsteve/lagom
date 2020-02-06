@@ -1,4 +1,15 @@
 # Changelog
+## 0.6.6 (2020-02-06)
+
+### Enhancements
+* Basic introspection properties are kept in bound functions
+
+### Bug fixes
+None
+
+### Backwards incompatible changes
+None
+
 ## 0.6.5 (2020-02-06)
 
 ### Enhancements
@@ -9,7 +20,6 @@ None
 
 ### Backwards incompatible changes
 None
-
 
 ## 0.6.4 (2020-02-04)
 

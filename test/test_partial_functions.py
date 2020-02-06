@@ -29,6 +29,9 @@ def example_generator(message: str, resolved: MyDep) -> Generator[str, Any, Any]
 
 @bind_to_container(container)
 def another_example_function(message: str, resolved: MyDep) -> str:
+    """
+    I am DOCS
+    """
     return resolved.value + message
 
 
@@ -84,3 +87,8 @@ def test_deps_are_loaded_at_call_time_not_definition_time():
         return resolved.value + message
 
     assert not MyDep.loaded
+
+
+def test_name_and_docs_are_kept():
+    assert another_example_function.__name__ == "another_example_function"
+    assert another_example_function.__doc__ == "\n    I am DOCS\n    "

@@ -7,6 +7,7 @@ from .interfaces import SpecialDepDefinition
 from .exceptions import UnresolvableType, DuplicateDefinition
 from .definitions import normalise, Singleton, Construction
 from .util.reflection import RETURN_ANNOTATION
+from .wrapping import decorated_wrapper
 
 UNRESOLVABLE_TYPES = [str, int, float, bool]
 
@@ -61,19 +62,18 @@ class Container:
 
         if inspect.iscoroutinefunction(func):
 
-            async def _async_wrapper(*args, **kwargs):
+            async def _compatibility_wrapper(*args, **kwargs):
                 return await _bind_func()(*args, **kwargs)  # type: ignore
 
-            return _async_wrapper
+        else:
+            # This function exists so that binding can be used in places
+            # that rely on `inspect.is_function` to return True.
+            # The output from functools.partial will evaluate to False so we
+            # need to wrap the call.
+            def _compatibility_wrapper(*args, **kwargs):
+                return _bind_func()(*args, **kwargs)
 
-        # This function exists so that binding can be used in places
-        # that rely on `inspect.is_function` to return True.
-        # The output from functools.partial will evaluate to False so we
-        # need to wrap the call.
-        def _compatibility_wrapper(*args, **kwargs):
-            return _bind_func()(*args, **kwargs)
-
-        return _compatibility_wrapper
+        return decorated_wrapper(_compatibility_wrapper, func)
 
     def clone(self):
         return Container(self)
@@ -132,17 +132,16 @@ class Container:
 
         if inspect.iscoroutinefunction(func):
 
-            async def _async_function(*args, **kwargs):
+            async def _wrapped_function(*args, **kwargs):
                 temp_container = _cloned_container()
                 temp_bound_func = temp_container.partial(func, shared=[])
                 return await temp_bound_func(*args, **kwargs)
 
-            return _async_function
         else:
 
-            def _function(*args, **kwargs):
+            def _wrapped_function(*args, **kwargs):
                 temp_container = _cloned_container()
                 temp_bound_func = temp_container.partial(func, shared=[])
                 return temp_bound_func(*args, **kwargs)
 
-            return _function
+        return decorated_wrapper(_wrapped_function, func)

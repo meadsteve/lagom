@@ -14,7 +14,6 @@ class FlaskContainer(Container):
         def decorator(f):
             endpoint = options.pop("endpoint", None)
             injected_func = self.partial(f)
-            injected_func.__name__ = f.__name__
             self.flask_app.add_url_rule(rule, endpoint, injected_func, **options)
             return f
 
