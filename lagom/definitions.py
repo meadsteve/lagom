@@ -13,6 +13,10 @@ class Construction(SpecialDepDefinition[X]):
     constructor: Union[Callable[[], X], Callable[[Any], X]]
 
     def __init__(self, constructor):
+        if arity(constructor) > 1:
+            raise InvalidDependencyDefinition(
+                f"Arity {arity} functions are not supported"
+            )
         self.constructor = constructor
 
     def get_instance(self, _build_func, container) -> X:
@@ -22,7 +26,7 @@ class Construction(SpecialDepDefinition[X]):
             return resolver()  # type: ignore
         if artiy == 1:
             return resolver(container)  # type: ignore
-        raise InvalidDependencyDefinition(f"Arity {arity} functions are not supported")
+        raise Exception("The constructor should have stopped us getting here")
 
 
 class Alias(SpecialDepDefinition[X]):
@@ -61,10 +65,6 @@ def normalise(resolver: Any) -> SpecialDepDefinition:
     if isinstance(resolver, SpecialDepDefinition):
         return resolver
     elif inspect.isfunction(resolver):
-        if arity(resolver) > 1:
-            raise InvalidDependencyDefinition(
-                f"Arity {arity} functions are not supported"
-            )
         return Construction(resolver)
     elif not inspect.isclass(resolver):
         return Singleton(lambda: resolver)  # type: ignore
