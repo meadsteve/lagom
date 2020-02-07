@@ -1,45 +1,30 @@
-import typing
+from typing import List, Type, Callable, Optional
 
-from starlette.routing import Route as StarletteRoute
+from starlette.routing import Route
 
 from .. import Container
 
 
-class Route(StarletteRoute):
-    def __init__(
-        self,
-        container: Container,
-        path: str,
-        endpoint: typing.Callable,
-        *,
-        methods: typing.List[str] = None,
-        name: str = None,
-        include_in_schema: bool = True,
-    ):
-        wrapped_endpoint = container.partial(endpoint)
-        super().__init__(
-            path,
-            wrapped_endpoint,
-            methods=methods,
-            name=name,
-            include_in_schema=include_in_schema,
-        )
-
-
 class StarletteContainer(Container):
+    _request_singletons: List[Type]
+
+    def __init__(self, request_singletons: Optional[List[Type]] = None, container=None):
+        self._request_singletons = request_singletons or []
+        super().__init__(container)
+
     def route(
         self,
         path: str,
-        endpoint: typing.Callable,
+        endpoint: Callable,
         *,
-        methods: typing.List[str] = None,
+        methods: List[str] = None,
         name: str = None,
         include_in_schema: bool = True,
     ) -> Route:
+        wrapped_endpoint = self.partial(endpoint, shared=self._request_singletons)
         return Route(
-            self,
             path,
-            endpoint,
+            wrapped_endpoint,
             methods=methods,
             name=name,
             include_in_schema=include_in_schema,

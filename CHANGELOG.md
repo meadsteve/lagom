@@ -1,8 +1,8 @@
 # Changelog
-## 0.6.7 (PENDING)
+## 0.6.7 (2020-02-07)
 
 ### Enhancements
-None
+* Request level singletons are enabled for starlette & flask integrations.
 
 ### Bug fixes
 * Fix bug that meant singleton construction couldn't reference container.
