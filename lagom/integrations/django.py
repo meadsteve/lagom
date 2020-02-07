@@ -27,7 +27,7 @@ class DjangoContainer(Container):
     ):
         super().__init__(container)
         for model in models or []:
-            self[DjangoModel[model]] = lambda: DjangoModel(model)  # type: ignore
+            self.define(DjangoModel[model], lambda: DjangoModel(model))  # type: ignore
 
     def view(self, view):
         if isinstance(view, types.FunctionType):
