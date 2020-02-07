@@ -25,17 +25,23 @@ class DjangoModel(Generic[M]):
 
 
 class DjangoContainer(Container):
+    _request_singletons: List[Type]
+
     def __init__(
-        self, models: Optional[List[Type[Model]]] = None, container: Container = None
+        self,
+        models: Optional[List[Type[Model]]] = None,
+        request_singletons: Optional[List[Type]] = None,
+        container: Container = None,
     ):
         super().__init__(container)
+        self._request_singletons = request_singletons or []
         for model in models or []:
             self.define(DjangoModel[model], DjangoModel(model))  # type: ignore
 
     def view(self, view):
         if isinstance(view, types.FunctionType):
             # Plain old function can be bound to the container
-            return self.partial(view)
+            return self.partial(view, shared=self._request_singletons)
         if issubclass(view, View):
             # For django class based view each method needs to be bound
             # to the container
@@ -46,4 +52,10 @@ class DjangoContainer(Container):
     def _bind_view_methods_to_container(self, view):
         for method in View.http_method_names:
             if hasattr(view, method):
-                setattr(view, method, self.partial(getattr(view, method)))
+                setattr(
+                    view,
+                    method,
+                    self.partial(
+                        getattr(view, method), shared=self._request_singletons
+                    ),
+                )
