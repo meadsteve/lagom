@@ -15,7 +15,10 @@ class DjangoModel(Generic[M]):
 
     def __init__(self, model: Type[M]):
         self.model = model
-        self.objects = model.objects  # type: ignore
+
+    @property
+    def objects(self):
+        return self.model.objects  # type: ignore
 
     def new(self, **kwargs) -> M:
         return self.model(**kwargs)
@@ -27,7 +30,7 @@ class DjangoContainer(Container):
     ):
         super().__init__(container)
         for model in models or []:
-            self.define(DjangoModel[model], lambda: DjangoModel(model))  # type: ignore
+            self.define(DjangoModel[model], DjangoModel(model))  # type: ignore
 
     def view(self, view):
         if isinstance(view, types.FunctionType):
