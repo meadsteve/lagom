@@ -1,12 +1,12 @@
 import types
-from typing import TypeVar, Generic
+from typing import TypeVar, Generic, List, Type, Optional
 
-from django.db.models import Manager
+from django.db.models import Manager, Model
 from django.views import View
 
 from lagom import Container
 
-M = TypeVar("M")
+M = TypeVar("M", bound=Model)
 
 
 class DjangoModel(Generic[M]):
@@ -22,10 +22,12 @@ class DjangoModel(Generic[M]):
 
 
 class DjangoContainer(Container):
-    def __init__(self, models=None, container: Container = None):
+    def __init__(
+        self, models: Optional[List[Type[Model]]] = None, container: Container = None
+    ):
         super().__init__(container)
         for model in models or []:
-            self[DjangoModel[model]] = lambda: DjangoModel(model)
+            self[DjangoModel[model]] = lambda: DjangoModel(model)  # type: ignore
 
     def view(self, view):
         if isinstance(view, types.FunctionType):
