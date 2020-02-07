@@ -1,4 +1,15 @@
 # Changelog
+## 0.6.7 (PENDING)
+
+### Enhancements
+None
+
+### Bug fixes
+* Fix bug that meant singleton construction couldn't reference container.
+
+### Backwards incompatible changes
+None
+
 ## 0.6.6 (2020-02-06)
 
 ### Enhancements

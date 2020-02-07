@@ -54,6 +54,18 @@ def test_definition_functions_get_an_instance_of_the_container(container: Contai
     assert container[WrapperOfSomeKind].inner == container[MyComplexDep]
 
 
+def test_singleton_definition_functions_get_an_instance_of_the_container(
+    container: Container
+):
+    container[MyComplexDep] = MyComplexDep(some_number=3)
+
+    @dependency_definition(container, singleton=True)
+    def my_constructor(c: Container) -> WrapperOfSomeKind:
+        return WrapperOfSomeKind(c[MyComplexDep])
+
+    assert container[WrapperOfSomeKind].inner == container[MyComplexDep]
+
+
 def test_functions_that_are_not_typed_raise_an_error(container: Container):
 
     with pytest.raises(SyntaxError):
