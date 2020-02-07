@@ -1,4 +1,3 @@
-import functools
 import inspect
 from typing import Union, Type, Optional, Callable, TypeVar, Any
 
@@ -67,6 +66,6 @@ def normalise(resolver: Any) -> SpecialDepDefinition:
     elif inspect.isfunction(resolver):
         return Construction(resolver)
     elif not inspect.isclass(resolver):
-        return Singleton(lambda: resolver)  # type: ignore
+        return Singleton(lambda: resolver)
     else:
         return Alias(resolver)
