@@ -6,3 +6,6 @@ venv
 /.coverage
 /coverage.xml
 /htmlcov
+
+/html
+/.mutmut-cache
