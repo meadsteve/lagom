@@ -7,7 +7,7 @@
 ## What
 Lagom is a dependency injection container designed to give you "just enough"
 help with building your dependencies. The intention is that almost
-all of your code does't know about or rely on lagom. Lagom will
+all of your code doesn't know about or rely on lagom. Lagom will
 only be involved at the top level to pull everything together.
 
 An example usage can be found here: [github.com/meadsteve/lagom-example-repo](https://github.com/meadsteve/lagom-example-repo)
