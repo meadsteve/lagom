@@ -29,7 +29,7 @@ def test_works_for_registered_types(container_with_simple_dep):
 
 
 def test_works_if_every_item_in_the_constructor_can_be_figured_out(
-    container_with_simple_dep
+    container_with_simple_dep,
 ):
     resolved = container_with_simple_dep.resolve(MyMoreComplicatedDep)
     assert resolved.stuff == "complicated Top stuff"

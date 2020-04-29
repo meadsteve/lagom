@@ -55,7 +55,7 @@ def test_definition_functions_get_an_instance_of_the_container(container: Contai
 
 
 def test_singleton_definition_functions_get_an_instance_of_the_container(
-    container: Container
+    container: Container,
 ):
     container[MyComplexDep] = MyComplexDep(some_number=3)
 

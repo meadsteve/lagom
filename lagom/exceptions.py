@@ -7,16 +7,19 @@ from typing import Type
 
 class InvalidDependencyDefinition(ValueError):
     """The provided construction logic is not valid"""
+
     pass
 
 
 class DuplicateDefinition(ValueError):
     """The type has already been defined somewhere else"""
+
     pass
 
 
 class UnresolvableType(ValueError):
     """The type cannot be constructed"""
+
     dep_type: str
 
     def __init__(self, dep_type: Type):

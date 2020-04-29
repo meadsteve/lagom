@@ -77,7 +77,7 @@ def test_that_shared_types_are_lazy_loaded(container: Container):
 
 
 def test_partial_application_returns_something_that_is_considered_a_function(
-    container: Container
+    container: Container,
 ):
     @bind_to_container(container, shared=[SomeCache])
     def example_function_with_shared():

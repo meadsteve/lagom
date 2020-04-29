@@ -10,7 +10,7 @@ class Something:
 
 
 def test_partial_application_async_functions_pass_iscoroutinefunction(
-    container: Container
+    container: Container,
 ):
     @bind_to_container(container)
     async def example_async_function(message: str) -> str:
@@ -20,7 +20,7 @@ def test_partial_application_async_functions_pass_iscoroutinefunction(
 
 
 def test_partial_application_async_functions_with_shared_pass_iscoroutinefunction(
-    container: Container
+    container: Container,
 ):
     @bind_to_container(container, shared=[Something])
     async def example_async_function(message: str) -> str:
@@ -40,7 +40,7 @@ async def test_calling_async_partials_works_as_expected(container: Container):
 
 @pytest.mark.asyncio
 async def test_calling_async_partials_works_as_expected_with_shared_too(
-    container: Container
+    container: Container,
 ):
     @bind_to_container(container, shared=[Something])
     async def example_async_function(message: str) -> str:

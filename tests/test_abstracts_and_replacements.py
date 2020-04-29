@@ -47,7 +47,7 @@ def test_registered_concrete_class_is_loaded(container_with_abc: Container):
 
 
 def test_registered_concrete_class_is_used_for_other_objects(
-    container_with_abc: Container
+    container_with_abc: Container,
 ):
     resolved = container_with_abc.resolve(MyMoreComplicatedDep)
     assert resolved.stuff == "hooray"
