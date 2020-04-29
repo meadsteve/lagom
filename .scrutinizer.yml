@@ -6,11 +6,10 @@ build:
     coverage:
       dependencies:
         before:
-          - pip install pipenv
-          - pipenv install --dev
+          - make setup
       tests:
         override:
-          - command: './scripts/coverage.sh'
+          - command: make coverage
             coverage:
               file: '.coverage'
               format: 'py-cc'
