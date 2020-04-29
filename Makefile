@@ -1,8 +1,12 @@
-.PHONY: setup test test_mypy test_unit test_format publish mutate format
+.PHONY: setup setup_pipenv install test test_mypy test_unit test_format publish mutate format
 PIPENV_VERBOSITY=-1
 
-setup:
+setup: setup_pipenv install
+
+setup_pipenv:
 	pip install pipenv
+
+install:
 	pipenv install --dev
 
 test: test_mypy test_unit test_format

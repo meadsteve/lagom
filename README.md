@@ -255,12 +255,12 @@ Contributions and PRS are welcome. For any large changes please open
 an issue to discuss first. All PRs should pass the tests, type checking
 and styling. To get development setup locally:
 ```bash
-pipenv install --dev
+make install # sets up the pipenv virtualenv
 ```
 then 
 ```bash
-./scripts/format.sh # To format the code
-./scripts/test.sh # To make sure the build will pass
+make format # To format the code
+make test # To make sure the build will pass
 ```
 
 ### Design Goals
