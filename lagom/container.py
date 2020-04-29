@@ -23,10 +23,21 @@ Resolver = Union[
 
 
 class Container:
+    """ Dependency injection container
+
+    Lagom is a dependency injection container designed to give you "just enough"
+    help with building your dependencies. The intention is that almost
+    all of your code doesn't know about or rely on lagom. Lagom will
+    only be involved at the top level to pull everything together.
+    """
+
     _registered_types: Dict[Type, SpecialDepDefinition]
     _explicitly_registered_types: Set[Type]
 
     def __init__(self, container: Optional["Container"] = None):
+        """
+        :param container: Optional container if provided the existing definitions will be copied
+        """
         self._registered_types = {}
         self._explicitly_registered_types = set()
         if container:
