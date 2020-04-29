@@ -13,6 +13,14 @@ UNRESOLVABLE_TYPES = [str, int, float, bool]
 
 X = TypeVar("X")
 
+Resolver = Union[
+    Type[X],  # An alias from one type to the next
+    Callable[[], X],  # A resolution function
+    Callable[["Container"], X],  # A resolution function that takes the container
+    SpecialDepDefinition[X],  # From the definitions module
+    X,  # Just an instance of the type - A singleton
+]
+
 
 class Container:
     _registered_types: Dict[Type, SpecialDepDefinition]
@@ -24,13 +32,7 @@ class Container:
         if container:
             self._registered_types = copy(container._registered_types)
 
-    def define(
-        self,
-        dep: Type[X],
-        resolver: Union[
-            Type[X], Callable[[], X], Callable[[Any], X], SpecialDepDefinition[X], X
-        ],
-    ) -> None:
+    def define(self, dep: Type[X], resolver: Resolver[X]) -> None:
         if dep in self._explicitly_registered_types:
             raise DuplicateDefinition()
         self._registered_types[dep] = normalise(resolver)
@@ -68,13 +70,7 @@ class Container:
     def __getitem__(self, dep: Type[X]) -> X:
         return self.resolve(dep)
 
-    def __setitem__(
-        self,
-        dep: Type[X],
-        resolver: Union[
-            Type[X], Callable[[], X], Callable[[Any], X], SpecialDepDefinition[X], X
-        ],
-    ):
+    def __setitem__(self, dep: Type[X], resolver: Resolver[X]):
         self.define(dep, resolver)
 
     def _build(self, dep_type: Any) -> Any:
