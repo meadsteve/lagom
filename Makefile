@@ -1,4 +1,4 @@
-.PHONY: setup setup_pipenv install test test_mypy test_unit test_format publish mutate format
+.PHONY: setup setup_pipenv install test test_mypy test_unit test_format publish mutate format enforce_docs
 PIPENV_VERBOSITY=-1
 
 setup: setup_pipenv install
@@ -9,7 +9,7 @@ setup_pipenv:
 install:
 	pipenv install --dev
 
-test: test_mypy test_unit test_format
+test: test_mypy test_unit test_format enforce_docs
 
 test_mypy:
 	pipenv run mypy --ignore-missing-imports --strict-optional --check-untyped-defs tests lagom
@@ -29,7 +29,10 @@ mutate:
 	xdg-open ./html/index.html
 
 coverage:
-	pytest tests -vv --cov=lagom --cov-report=html
+	pipenv run pytest tests -vv --cov=lagom --cov-report=html
 
 format:
 	pipenv run black tests lagom
+
+enforce_docs:
+	pipenv run interrogate --ignore-semiprivate --ignore-magic --ignore-private --fail-under 25 -vv lagom

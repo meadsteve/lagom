@@ -13,11 +13,11 @@ pytest = "~=5.4.1"
 pytest-cov = "*"
 pytest-asyncio = "*"
 typing-extensions = "*"
-
 # Needed for the integrations only
 starlette = "~=0.12.9"
 fastapi = "~=0.48.0"
 flask = "~=1.1"
+interrogate = "*"
 
 [requires]
 python_version = "3.7"

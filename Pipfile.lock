@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "6f3887f84a464b34f56e7de778943b89d8c4d238752765e42bc970775f6beb52"
+            "sha256": "28fdc50979dc2862d33195ea430129feb0f138f3ffa33279b099b31a7de35434"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -110,6 +110,13 @@
             ],
             "version": "==5.1"
         },
+        "decorator": {
+            "hashes": [
+                "sha256:41fa54c2a0cc4ba648be4fd43cff00aedf5b9465c9bf18d64325bc225f08f760",
+                "sha256:e3a62f0520172440ca0dcc823749319382e377f37f140a0b99ef45fecb84bfe7"
+            ],
+            "version": "==4.4.2"
+        },
         "docutils": {
             "hashes": [
                 "sha256:0c5b78adfbf7762415433f5515cd5c9e762339e23369dbe8000d84a4bf4ab3af",
@@ -168,6 +175,14 @@
             ],
             "markers": "python_version < '3.8'",
             "version": "==1.6.0"
+        },
+        "interrogate": {
+            "hashes": [
+                "sha256:8908e2d2f2abdb92869cec436a005a93f24b0255dc649e81e4280339266d3132",
+                "sha256:c716065c4e6d846d8a78cad2f7e4ed769b378910cfa4c53da15527ce016de095"
+            ],
+            "index": "pypi",
+            "version": "==1.1.2"
         },
         "itsdangerous": {
             "hashes": [
@@ -267,6 +282,13 @@
                 "sha256:2d82818f5bb3e369420cb3c4060a7970edba416647068eb4c5343488a6c604a8"
             ],
             "version": "==0.4.3"
+        },
+        "networkx": {
+            "hashes": [
+                "sha256:cdfbf698749a5014bf2ed9db4a07a5295df1d3a53bf80bf3cbd61edf9df05fa1",
+                "sha256:f8f4ff0b6f96e4f9b16af6b84622597b5334bf9cae8cf9b2e42e7985d5c95c64"
+            ],
+            "version": "==2.4"
         },
         "packaging": {
             "hashes": [
@@ -382,6 +404,13 @@
             ],
             "index": "pypi",
             "version": "==0.12.9"
+        },
+        "tabulate": {
+            "hashes": [
+                "sha256:ac64cb76d53b1231d364babcd72abbb16855adac7de6665122f97b593f1eb2ba",
+                "sha256:db2723a20d04bcda8522165c73eea7c300eda74e0ce852d9022e0159d7895007"
+            ],
+            "version": "==0.8.7"
         },
         "toml": {
             "hashes": [

@@ -1,3 +1,6 @@
+"""
+Classes representing specific ways of representing dependencies
+"""
 import inspect
 from typing import Union, Type, Optional, Callable, TypeVar, Any
 
@@ -9,6 +12,7 @@ X = TypeVar("X")
 
 
 class Construction(SpecialDepDefinition[X]):
+    """Wraps a callable for constructing a type"""
     constructor: Union[Callable[[], X], Callable[[Any], X]]
 
     def __init__(self, constructor):
@@ -29,6 +33,7 @@ class Construction(SpecialDepDefinition[X]):
 
 
 class Alias(SpecialDepDefinition[X]):
+    """When one class is asked for the other should be returned"""
     alias_type: Type[X]
 
     def __init__(self, alias_type):
@@ -39,6 +44,7 @@ class Alias(SpecialDepDefinition[X]):
 
 
 class Singleton(SpecialDepDefinition[X]):
+    """Builds only once then saves the built instance"""
     singleton_type: Any
     _instance: Optional[X]
 
@@ -61,6 +67,11 @@ class Singleton(SpecialDepDefinition[X]):
 
 
 def normalise(resolver: Any) -> SpecialDepDefinition:
+    """
+
+    :param resolver:
+    :return:
+    """
     if isinstance(resolver, SpecialDepDefinition):
         return resolver
     elif inspect.isfunction(resolver):
