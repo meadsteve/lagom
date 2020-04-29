@@ -9,15 +9,17 @@ black = "==19.3b0"
 flit = "~=1.3"
 mutmut = "~=2.0.0"
 hammett = "~=0.5.0"
+interrogate = "~=1.1.2"
 pytest = "~=5.4.1"
 pytest-cov = "*"
 pytest-asyncio = "*"
 typing-extensions = "*"
+
 # Needed for the integrations only
 starlette = "~=0.12.9"
 fastapi = "~=0.48.0"
 flask = "~=1.1"
-interrogate = "*"
+
 
 [requires]
 python_version = "3.7"
