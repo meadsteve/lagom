@@ -1,4 +1,4 @@
-.PHONY: setup setup_pipenv install test test_mypy test_unit test_format publish mutate format enforce_docs
+.PHONY: setup setup_pipenv install test test_mypy test_unit test_format test_doctests publish mutate format enforce_docs
 PIPENV_VERBOSITY=-1
 
 setup: setup_pipenv install
@@ -9,7 +9,7 @@ setup_pipenv:
 install:
 	pipenv install --dev
 
-test: test_mypy test_unit test_format enforce_docs
+test: test_mypy test_unit enforce_docs test_doctests test_format
 
 test_mypy:
 	pipenv run mypy --ignore-missing-imports --strict-optional --check-untyped-defs tests lagom
@@ -19,6 +19,9 @@ test_unit:
 
 test_format:
 	pipenv run black --check tests lagom
+
+test_doctests:
+	pipenv run  pytest --doctest-modules lagom
 
 publish:
 	./scripts/publish.sh
