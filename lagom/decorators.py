@@ -22,6 +22,7 @@ def bind_to_container(container: Container, shared: List[Type] = None):
     'hello from <tests.examples.SomeClass object at ...>'
 
     """
+
     def decorator(func):
         return container.partial(func, shared=shared)
 
@@ -42,6 +43,7 @@ def dependency_definition(container: Container, singleton: bool = False):
     <tests.examples.SomeExtendedClass object at ...>
 
     """
+
     def decorator(func):
         try:
             arg_spec = inspect.getfullargspec(func)
