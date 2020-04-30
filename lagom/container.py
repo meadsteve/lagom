@@ -29,6 +29,27 @@ class Container:
     help with building your dependencies. The intention is that almost
     all of your code doesn't know about or rely on lagom. Lagom will
     only be involved at the top level to pull everything together.
+
+    >>> from tests.examples import SomeClass
+    >>> c = Container()
+    >>> c[SomeClass]
+    <tests.examples.SomeClass object at ...>
+
+    Objects are constructed as they are needed
+
+    >>> from tests.examples import SomeClass
+    >>> c = Container()
+    >>> first = c[SomeClass]
+    >>> second = c[SomeClass]
+    >>> first != second
+    True
+
+    And construction logic can be defined
+    >>> from tests.examples import SomeClass, SomeExtendedClass
+    >>> c = Container()
+    >>> c[SomeClass] = SomeExtendedClass
+    >>> c[SomeClass]
+    <tests.examples.SomeExtendedClass object at ...>
     """
 
     _registered_types: Dict[Type, SpecialDepDefinition]
@@ -44,12 +65,43 @@ class Container:
             self._registered_types = copy(container._registered_types)
 
     def define(self, dep: Type[X], resolver: Resolver[X]) -> None:
+        """Register how to construct an object of type X
+
+        >>> from tests.examples import SomeClass
+        >>> c = Container()
+        >>> c.define(SomeClass, lambda: SomeClass())
+
+        :param dep: The type to be constructed
+        :param resolver: A definition of how to construct it
+        :return:
+        """
         if dep in self._explicitly_registered_types:
             raise DuplicateDefinition()
         self._registered_types[dep] = normalise(resolver)
         self._explicitly_registered_types.add(dep)
 
     def resolve(self, dep_type: Type[X], suppress_error=False) -> X:
+        """Constructs an object of type X
+
+         If the object can't be constructed an exception will be raised unless
+         supress errors is true
+
+        >>> from tests.examples import SomeClass
+        >>> c = Container()
+        >>> c.resolve(SomeClass)
+        <tests.examples.SomeClass object at ...>
+
+        >>> from tests.examples import SomeClass
+        >>> c = Container()
+        >>> c.resolve(int)
+        Traceback (most recent call last):
+        ...
+        lagom.exceptions.UnresolvableType: ...
+
+        :param dep_type: The type of object to construct
+        :param suppress_error: if true returns None on failure
+        :return:
+        """
         try:
             if dep_type in UNRESOLVABLE_TYPES:
                 raise UnresolvableType(dep_type)
@@ -63,6 +115,22 @@ class Container:
     def partial(
         self, func: Callable[..., X], keys_to_skip=None, shared: List[Type] = None
     ) -> Callable[..., X]:
+        """Takes a callable and returns a callable bound to the container
+        When invoking the new callable if any arguments can be constructed by the container
+        then they can be ommited.
+        >>> from tests.examples import SomeClass
+        >>> c = Container()
+        >>> def my_func(something: SomeClass):
+        ...   return f"Successfully called with {something}"
+        >>> bound_func = c.partial(my_func)
+        >>> bound_func()
+        'Successfully called with <tests.examples.SomeClass object at ...>'
+
+        :param func:
+        :param keys_to_skip:
+        :param shared:
+        :return:
+        """
         if shared:
             return self._partial_with_shared_singletons(func, shared)
         spec = inspect.getfullargspec(func)
@@ -76,6 +144,9 @@ class Container:
         return bound_function(_bind_func, func)
 
     def clone(self):
+        """ returns a copy of the container
+        :return:
+        """
         return Container(self)
 
     def __getitem__(self, dep: Type[X]) -> X:
