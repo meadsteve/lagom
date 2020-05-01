@@ -23,10 +23,10 @@ def bind_to_container(container: Container, shared: List[Type] = None):
 
     """
 
-    def decorator(func):
+    def _decorator(func):
         return container.partial(func, shared=shared)
 
-    return decorator
+    return _decorator
 
 
 def dependency_definition(container: Container, singleton: bool = False):
@@ -44,7 +44,7 @@ def dependency_definition(container: Container, singleton: bool = False):
 
     """
 
-    def decorator(func):
+    def _decorator(func):
         try:
             arg_spec = inspect.getfullargspec(func)
             return_type = arg_spec.annotations[RETURN_ANNOTATION]
@@ -56,4 +56,4 @@ def dependency_definition(container: Container, singleton: bool = False):
             container.define(return_type, func)
         return func
 
-    return decorator
+    return _decorator

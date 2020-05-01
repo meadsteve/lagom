@@ -71,7 +71,6 @@ class Singleton(SpecialDepDefinition[X]):
 
 def normalise(resolver: Any) -> SpecialDepDefinition:
     """
-
     :param resolver:
     :return:
     """
