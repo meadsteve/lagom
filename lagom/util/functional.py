@@ -1,3 +1,5 @@
+"""Code to help understand functions
+"""
 import inspect
 from typing import Callable
 
