@@ -1,4 +1,16 @@
 # Changelog
+## 0.7.0 (2020-05-03)
+
+### Enhancements
+* Tidied up logic around singletons, aliases and constructors.
+* Documentation and doc testing of more methods
+
+### Bug fixes
+None
+
+### Backwards incompatible changes
+* Subtle changes to lots of container interfaces. No "normal" code should require changes.
+
 ## 0.6.7 (2020-02-07)
 
 ### Enhancements

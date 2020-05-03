@@ -1,9 +1,9 @@
 import functools
 import inspect
 from copy import copy
-from typing import Dict, Type, Union, Any, TypeVar, Callable, Set, List, Optional
+from typing import Dict, Type, Any, TypeVar, Callable, Set, List, Optional
 
-from .interfaces import SpecialDepDefinition
+from .interfaces import SpecialDepDefinition, ReadableContainer, TypeResolver
 from .exceptions import UnresolvableType, DuplicateDefinition
 from .definitions import normalise, Singleton, Construction
 from .util.reflection import RETURN_ANNOTATION
@@ -13,16 +13,8 @@ UNRESOLVABLE_TYPES = [str, int, float, bool]
 
 X = TypeVar("X")
 
-Resolver = Union[
-    Type[X],  # An alias from one type to the next
-    Callable[[], X],  # A resolution function
-    Callable[["Container"], X],  # A resolution function that takes the container
-    SpecialDepDefinition[X],  # From the definitions module
-    X,  # Just an instance of the type - A singleton
-]
 
-
-class Container:
+class Container(ReadableContainer):
     """ Dependency injection container
 
     Lagom is a dependency injection container designed to give you "just enough"
@@ -64,7 +56,7 @@ class Container:
         if container:
             self._registered_types = copy(container._registered_types)
 
-    def define(self, dep: Type[X], resolver: Resolver[X]) -> None:
+    def define(self, dep: Type[X], resolver: TypeResolver[X]) -> None:
         """Register how to construct an object of type X
 
         >>> from tests.examples import SomeClass
@@ -80,7 +72,9 @@ class Container:
         self._registered_types[dep] = normalise(resolver)
         self._explicitly_registered_types.add(dep)
 
-    def resolve(self, dep_type: Type[X], suppress_error=False) -> X:
+    def resolve(
+        self, dep_type: Type[X], suppress_error=False, skip_definitions=False
+    ) -> X:
         """Constructs an object of type X
 
          If the object can't be constructed an exception will be raised unless
@@ -100,13 +94,20 @@ class Container:
 
         :param dep_type: The type of object to construct
         :param suppress_error: if true returns None on failure
+        :param skip_definitions:
         :return:
         """
         try:
             if dep_type in UNRESOLVABLE_TYPES:
                 raise UnresolvableType(dep_type)
-            registered_type = self._registered_types.get(dep_type, dep_type)
-            return self._build(registered_type)
+            type_to_build = (
+                self._registered_types.get(dep_type, dep_type)
+                if not skip_definitions
+                else dep_type
+            )
+            if isinstance(type_to_build, SpecialDepDefinition):
+                return type_to_build.get_instance(self)
+            return self._reflection_build(type_to_build)
         except UnresolvableType as inner_error:
             if not suppress_error:
                 raise UnresolvableType(dep_type) from inner_error
@@ -152,13 +153,8 @@ class Container:
     def __getitem__(self, dep: Type[X]) -> X:
         return self.resolve(dep)
 
-    def __setitem__(self, dep: Type[X], resolver: Resolver[X]):
+    def __setitem__(self, dep: Type[X], resolver: TypeResolver[X]):
         self.define(dep, resolver)
-
-    def _build(self, dep_type: Any) -> Any:
-        if isinstance(dep_type, SpecialDepDefinition):
-            return dep_type.get_instance(self._build, self)
-        return self._reflection_build(dep_type)
 
     def _reflection_build(self, dep_type: Type[X]) -> X:
         spec = inspect.getfullargspec(dep_type.__init__)
