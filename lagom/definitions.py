@@ -5,7 +5,7 @@ import inspect
 from typing import Union, Type, Optional, Callable, TypeVar, Any
 
 from .exceptions import InvalidDependencyDefinition
-from .interfaces import SpecialDepDefinition
+from .interfaces import SpecialDepDefinition, ReadableContainer
 from .util.functional import arity
 
 X = TypeVar("X")
@@ -23,7 +23,7 @@ class Construction(SpecialDepDefinition[X]):
             )
         self.constructor = constructor
 
-    def get_instance(self, _build_func, container) -> X:
+    def get_instance(self, container: ReadableContainer) -> X:
         resolver = self.constructor
         artiy = arity(resolver)
         if artiy == 0:
@@ -41,24 +41,25 @@ class Alias(SpecialDepDefinition[X]):
     def __init__(self, alias_type):
         self.alias_type = alias_type
 
-    def get_instance(self, build_func, _container) -> X:
-        return build_func(self.alias_type)
+    def get_instance(self, container: ReadableContainer) -> X:
+        return container.resolve(self.alias_type, skip_definitions=True)
 
 
 class Singleton(SpecialDepDefinition[X]):
     """Builds only once then saves the built instance"""
 
-    singleton_type: Any
+    singleton_type: SpecialDepDefinition
     _instance: Optional[X]
 
     def __init__(self, singleton_type):
         self.singleton_type = normalise(singleton_type)
         self._instance = None
 
-    def get_instance(self, build_func, _container) -> X:
+    def get_instance(self, container: ReadableContainer) -> X:
         if self._has_instance:
             return self._instance  # type: ignore
-        return self._set_instance(build_func(self.singleton_type))
+        instance = self.singleton_type.get_instance(container)
+        return self._set_instance(instance)
 
     @property
     def _has_instance(self):
