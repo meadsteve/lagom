@@ -1,9 +1,9 @@
 import functools
 import inspect
 from copy import copy
-from typing import Dict, Type, Union, Any, TypeVar, Callable, Set, List, Optional
+from typing import Dict, Type, Any, TypeVar, Callable, Set, List, Optional
 
-from .interfaces import SpecialDepDefinition, ReadableContainer
+from .interfaces import SpecialDepDefinition, ReadableContainer, TypeResolver
 from .exceptions import UnresolvableType, DuplicateDefinition
 from .definitions import normalise, Singleton, Construction
 from .util.reflection import RETURN_ANNOTATION
@@ -12,14 +12,6 @@ from .wrapping import bound_function
 UNRESOLVABLE_TYPES = [str, int, float, bool]
 
 X = TypeVar("X")
-
-Resolver = Union[
-    Type[X],  # An alias from one type to the next
-    Callable[[], X],  # A resolution function
-    Callable[[ReadableContainer], X],  # A resolution function that takes the container
-    SpecialDepDefinition[X],  # From the definitions module
-    X,  # Just an instance of the type - A singleton
-]
 
 
 class Container(ReadableContainer):
@@ -64,7 +56,7 @@ class Container(ReadableContainer):
         if container:
             self._registered_types = copy(container._registered_types)
 
-    def define(self, dep: Type[X], resolver: Resolver[X]) -> None:
+    def define(self, dep: Type[X], resolver: TypeResolver[X]) -> None:
         """Register how to construct an object of type X
 
         >>> from tests.examples import SomeClass
@@ -161,7 +153,7 @@ class Container(ReadableContainer):
     def __getitem__(self, dep: Type[X]) -> X:
         return self.resolve(dep)
 
-    def __setitem__(self, dep: Type[X], resolver: Resolver[X]):
+    def __setitem__(self, dep: Type[X], resolver: TypeResolver[X]):
         self.define(dep, resolver)
 
     def _reflection_build(self, dep_type: Type[X]) -> X:

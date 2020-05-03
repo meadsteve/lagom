@@ -2,7 +2,7 @@
 Interfaces shared by modules within the lagom package
 """
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar, Type, Any, Callable
+from typing import Generic, TypeVar, Type, Any, Callable, Union
 
 X = TypeVar("X")
 
@@ -35,3 +35,19 @@ class SpecialDepDefinition(ABC, Generic[X]):
         :return:
         """
         pass
+
+
+T = TypeVar("T")
+
+"""
+The TypeResolver represents the way that lagom can be
+told about how to define a type. Any of these types
+can be assigned to the container.
+"""
+TypeResolver = Union[
+    Type[T],  # An alias from one type to the next
+    Callable[[], T],  # A resolution function
+    Callable[[ReadableContainer], T],  # A resolution function that takes the container
+    SpecialDepDefinition[T],  # From the definitions module
+    T,  # Just an instance of the type - A singleton
+]
