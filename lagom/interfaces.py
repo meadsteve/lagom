@@ -11,14 +11,22 @@ BuildingFunction = Callable[[Any], Any]
 
 
 class ReadableContainer(ABC):
+    """
+    Represents a container that can resolve dependencies
+    """
+
     @abstractmethod
     def resolve(
         self, dep_type: Type[X], suppress_error=False, skip_definitions=False
     ) -> X:
+        """Constructs an object of type X
+        """
         pass
 
     @abstractmethod
     def __getitem__(self, dep: Type[X]) -> X:
+        """Shortcut to calling resolve
+        """
         pass
 
 
