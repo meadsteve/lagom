@@ -1,3 +1,47 @@
+"""
+Django integration.
+
+Usage:
+
+```
+# urls.py
+from django.urls import path
+
+from . import views
+from .dependency_config import container
+
+
+urlpatterns = [
+    path('', container.view(views.index), name='index'),
+    path('extra', container.view(views.CBVexample), name='extra')
+]
+```
+
+```
+#views.py
+
+def index(request, dep: SomeDep, questions: DjangoModel[Question]):
+    new_question = questions.new(question_text="What's next?", pub_date=timezone.now())
+    new_question.save()
+    return HttpResponse(f"plain old function: {dep.message} with {questions.objects.all().count()} questions")
+
+
+class CBVexample(View):
+    def get(self, request, dep: SomeDep):
+        return HttpResponse(f"Class based: {dep.message}")
+
+```
+
+```
+# dependency_config.py
+# a per app dep injection container
+
+# Lists all models that should be available
+container = DjangoContainer(models=[Question], request_singletons= [SomeCache])
+container[SomeService] = SomeService("connection details etc")
+```
+
+"""
 import types
 from typing import TypeVar, Generic, List, Type, Optional
 
@@ -10,20 +54,49 @@ M = TypeVar("M", bound=Model)
 
 
 class DjangoModel(Generic[M]):
+    """Wrapper around a django model for injection hinting
+    Usage:
+        container = DjangoContainer(models=[Question])
+
+        @bind_to_container(container)
+        def load_first_question(questions: DjangoModel[Question]):
+            return questions.objects.first()
+
+    """
+
     model: Type[M]
 
     def __init__(self, model: Type[M]):
+        """
+
+        :param model: The django model class
+        """
         self.model = model
 
     @property
     def objects(self) -> Manager:
+        """ Equivalent to MyModel.objects
+
+        :return:
+        """
         return self.model.objects  # type: ignore
 
     def new(self, **kwargs) -> M:
+        """ Equivalent to MyModel(**kwargs)
+
+        :param kwargs:
+        :return:
+        """
         return self.model(**kwargs)
 
 
 class DjangoContainer(Container):
+    """
+    Same behaviour as the basic container bug provides a view method which
+    should be used in a django urls.py file to wrap a view. Once wrapped
+    the view can reference dependencies which will be auto-wired.
+    """
+
     _request_singletons: List[Type]
 
     def __init__(
@@ -32,12 +105,24 @@ class DjangoContainer(Container):
         request_singletons: Optional[List[Type]] = None,
         container: Container = None,
     ):
+        """
+        :param models: List of models which should be available for injection
+        :param request_singletons:
+        :param container:
+        """
         super().__init__(container)
         self._request_singletons = request_singletons or []
         for model in models or []:
             self.define(DjangoModel[model], DjangoModel(model))  # type: ignore
 
     def view(self, view):
+        """
+        Takes either a plain function view or a class based view
+        binds it to the container then returns something that can
+        be used in a django url definition
+        :param view:
+        :return:
+        """
         if isinstance(view, types.FunctionType):
             # Plain old function can be bound to the container
             return self.partial(view, shared=self._request_singletons)
