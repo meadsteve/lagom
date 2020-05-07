@@ -11,13 +11,12 @@ M = TypeVar("M", bound=Model)
 
 class DjangoModel(Generic[M]):
     model: Type[M]
-    objects: Manager
 
     def __init__(self, model: Type[M]):
         self.model = model
 
     @property
-    def objects(self):
+    def objects(self) -> Manager:
         return self.model.objects  # type: ignore
 
     def new(self, **kwargs) -> M:
