@@ -4,7 +4,11 @@ from copy import copy
 from typing import Dict, Type, Any, TypeVar, Callable, Set, List, Optional
 
 from .interfaces import SpecialDepDefinition, ReadableContainer, TypeResolver
-from .exceptions import UnresolvableType, DuplicateDefinition
+from .exceptions import (
+    UnresolvableType,
+    DuplicateDefinition,
+    InvalidDependencyDefinition,
+)
 from .definitions import normalise, Singleton, Construction
 from .util.reflection import RETURN_ANNOTATION
 from .wrapping import bound_function
@@ -67,6 +71,8 @@ class Container(ReadableContainer):
         :param resolver: A definition of how to construct it
         :return:
         """
+        if dep in UNRESOLVABLE_TYPES:
+            raise InvalidDependencyDefinition()
         if dep in self._explicitly_registered_types:
             raise DuplicateDefinition()
         self._registered_types[dep] = normalise(resolver)
