@@ -1,23 +1,29 @@
 """
 Exceptions raised by the library
 """
-
+from abc import ABC
 from typing import Type
 
 
-class InvalidDependencyDefinition(ValueError):
+class LagomException(Exception, ABC):
+    """All exceptions in this library are instances of a LagomException"""
+
+    pass
+
+
+class InvalidDependencyDefinition(ValueError, LagomException):
     """The provided construction logic is not valid"""
 
     pass
 
 
-class DuplicateDefinition(ValueError):
+class DuplicateDefinition(ValueError, LagomException):
     """The type has already been defined somewhere else"""
 
     pass
 
 
-class UnresolvableType(ValueError):
+class UnresolvableType(ValueError, LagomException):
     """The type cannot be constructed"""
 
     dep_type: str
