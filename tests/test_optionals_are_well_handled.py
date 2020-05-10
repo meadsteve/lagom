@@ -24,7 +24,7 @@ class MyDepWithAnOptional:
 class MyDepWithAnOptionalThatCantBeBuilt:
     success = "yes"
 
-    def __init__(self, dep: Optional[MyComplexDep] = None):
+    def __init__(self, dep: Optional[MyComplexDep] = "weird default"):  # type: ignore
         self.dep = dep
 
 
@@ -33,10 +33,15 @@ def test_missing_optional_dependencies_cause_no_errors(container: Container):
     assert resolved.success == "yes"  # type: ignore
 
 
+def test_defaults_for_optional_types_are_honoured(container: Container):
+    resolved = container.resolve(MyDepWithAnOptionalThatCantBeBuilt)
+    assert resolved.dep == "weird default"  # type: ignore
+
+
 def test_optional_dependencies_are_understood_and_injected(container: Container):
     resolved = container.resolve(MyDepWithAnOptional)
     assert resolved.dep.extra_stuff == "yes"  # type: ignore
 
 
 def test_we_can_ask_for_optional_things_that_cant_be_constructed(container: Container):
-    assert container.resolve(Optional[MyComplexDep]) == None
+    assert container.resolve(Optional[MyComplexDep]) is None
