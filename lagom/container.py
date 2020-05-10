@@ -1,7 +1,7 @@
 import functools
 import inspect
 from copy import copy
-from typing import Dict, Type, Any, TypeVar, Callable, Set, List, Optional
+from typing import Dict, Type, Any, TypeVar, Callable, Set, List, Optional, Union
 
 from .interfaces import SpecialDepDefinition, ReadableContainer, TypeResolver
 from .exceptions import (
@@ -104,6 +104,7 @@ class Container(ReadableContainer):
         :return:
         """
         try:
+            dep_type = _remove_optional_type(dep_type)
             if dep_type in UNRESOLVABLE_TYPES:
                 raise UnresolvableType(dep_type)
             type_to_build = (
@@ -202,3 +203,18 @@ class Container(ReadableContainer):
             return temp_container.partial(func, shared=[])
 
         return bound_function(_bind_func, func)
+
+
+def _remove_optional_type(dep_type: Type) -> Type:
+    """ normalise type so D -> D but Optional[D] -> D
+
+    :param dep_type:
+    :return:
+    """
+    try:
+        # Hacky: an optional type has [T, None] in __args__
+        if len(dep_type.__args__) == 2 and dep_type.__args__[1] == None.__class__:
+            return dep_type.__args__[0]
+    except:
+        pass
+    return dep_type
