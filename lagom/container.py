@@ -98,13 +98,21 @@ class Container(ReadableContainer):
         ...
         lagom.exceptions.UnresolvableType: ...
 
+        Optional wrappers are stripped out to be what is being asked for
+        >>> from tests.examples import SomeClass
+        >>> c = Container()
+        >>> c.resolve(Optional[SomeClass])
+        <tests.examples.SomeClass object at ...>
+
         :param dep_type: The type of object to construct
         :param suppress_error: if true returns None on failure
         :param skip_definitions:
         :return:
         """
         try:
-            dep_type = _remove_optional_type(dep_type)
+            optional_dep_type = _remove_optional_type(dep_type)
+            if optional_dep_type:
+                return self.resolve(optional_dep_type, suppress_error=True)
             if dep_type in UNRESOLVABLE_TYPES:
                 raise UnresolvableType(dep_type)
             type_to_build = (
@@ -205,8 +213,8 @@ class Container(ReadableContainer):
         return bound_function(_bind_func, func)
 
 
-def _remove_optional_type(dep_type: Type) -> Type:
-    """ normalise type so D -> D but Optional[D] -> D
+def _remove_optional_type(dep_type):
+    """ if the Type is Optional[T] returns T else None
 
     :param dep_type:
     :return:
@@ -217,4 +225,4 @@ def _remove_optional_type(dep_type: Type) -> Type:
             return dep_type.__args__[0]
     except:
         pass
-    return dep_type
+    return None

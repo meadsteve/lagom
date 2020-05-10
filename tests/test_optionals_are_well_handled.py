@@ -36,3 +36,7 @@ def test_missing_optional_dependencies_cause_no_errors(container: Container):
 def test_optional_dependencies_are_understood_and_injected(container: Container):
     resolved = container.resolve(MyDepWithAnOptional)
     assert resolved.dep.extra_stuff == "yes"  # type: ignore
+
+
+def test_we_can_ask_for_optional_things_that_cant_be_constructed(container: Container):
+    assert container.resolve(Optional[MyComplexDep]) == None
