@@ -19,6 +19,3 @@ typing-extensions = "*"
 starlette = "~=0.12.9"
 fastapi = "~=0.48.0"
 flask = "~=1.1"
-
-[requires]
-python_version = "3.7"
