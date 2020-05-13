@@ -3,6 +3,7 @@
 ## PENDING 0.8.0
 ### Enhancements
 * Optional types are now handled. If they can be built they are. If not they are omitted.
+* Add experimental django integration. 
 
 ### Bug fixes
 * Error messages when a generic type couldn't be built in 3.6 now contain the full type name.
