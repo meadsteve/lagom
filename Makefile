@@ -15,7 +15,7 @@ test_mypy:
 	pipenv run mypy --ignore-missing-imports --strict-optional --check-untyped-defs tests lagom
 
 test_unit:
-	pipenv run python -m hammett -x
+	pipenv run pytest tests -vv
 
 test_format:
 	pipenv run black --check tests lagom
