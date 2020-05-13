@@ -1,6 +1,6 @@
 # Changelog
 
-## PENDING 0.8.0
+## 0.8.0 (2020-05-13)
 ### Enhancements
 * Optional types are now handled. If they can be built they are. If not they are omitted.
 * Add experimental django integration. 
