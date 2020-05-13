@@ -1,4 +1,15 @@
 # Changelog
+
+## PENDING 0.8.0
+### Enhancements
+* Optional types are now handled. If they can be built they are. If not they are omitted.
+
+### Bug fixes
+None
+
+### Backwards incompatible changes
+None
+
 ## 0.7.1 (2020-05-05)
 ### Enhancements
 * Added an experimental way of defining functions as injected dependencies. This may not be kept and changes will
