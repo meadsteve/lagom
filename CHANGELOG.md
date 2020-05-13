@@ -5,7 +5,7 @@
 * Optional types are now handled. If they can be built they are. If not they are omitted.
 
 ### Bug fixes
-None
+* Error messages when a generic type couldn't be built in 3.6 now contain the full type name.
 
 ### Backwards incompatible changes
 None
