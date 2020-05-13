@@ -1,10 +1,14 @@
 import functools
 import inspect
 from copy import copy
-from typing import Dict, Type, Any, TypeVar, Callable, Set, List, Optional
+from typing import Dict, Type, Any, TypeVar, Callable, Set, List, Optional, Union
 
 from .interfaces import SpecialDepDefinition, ReadableContainer, TypeResolver
-from .exceptions import UnresolvableType, DuplicateDefinition
+from .exceptions import (
+    UnresolvableType,
+    DuplicateDefinition,
+    InvalidDependencyDefinition,
+)
 from .definitions import normalise, Singleton, Construction
 from .util.reflection import RETURN_ANNOTATION
 from .wrapping import bound_function
@@ -67,6 +71,8 @@ class Container(ReadableContainer):
         :param resolver: A definition of how to construct it
         :return:
         """
+        if dep in UNRESOLVABLE_TYPES:
+            raise InvalidDependencyDefinition()
         if dep in self._explicitly_registered_types:
             raise DuplicateDefinition()
         self._registered_types[dep] = normalise(resolver)
@@ -92,12 +98,21 @@ class Container(ReadableContainer):
         ...
         lagom.exceptions.UnresolvableType: ...
 
+        Optional wrappers are stripped out to be what is being asked for
+        >>> from tests.examples import SomeClass
+        >>> c = Container()
+        >>> c.resolve(Optional[SomeClass])
+        <tests.examples.SomeClass object at ...>
+
         :param dep_type: The type of object to construct
         :param suppress_error: if true returns None on failure
         :param skip_definitions:
         :return:
         """
         try:
+            optional_dep_type = _remove_optional_type(dep_type)
+            if optional_dep_type:
+                return self.resolve(optional_dep_type, suppress_error=True)
             if dep_type in UNRESOLVABLE_TYPES:
                 raise UnresolvableType(dep_type)
             type_to_build = (
@@ -196,3 +211,18 @@ class Container(ReadableContainer):
             return temp_container.partial(func, shared=[])
 
         return bound_function(_bind_func, func)
+
+
+def _remove_optional_type(dep_type):
+    """ if the Type is Optional[T] returns T else None
+
+    :param dep_type:
+    :return:
+    """
+    try:
+        # Hacky: an optional type has [T, None] in __args__
+        if len(dep_type.__args__) == 2 and dep_type.__args__[1] == None.__class__:
+            return dep_type.__args__[0]
+    except:
+        pass
+    return None
