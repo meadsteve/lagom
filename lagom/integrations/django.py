@@ -3,29 +3,21 @@ Django integration.
 
 Usage:
 
-```
-# urls.py
-from django.urls import path
-
-from . import views
-from .dependency_config import container
-
-
-urlpatterns = [
-    path('', container.view(views.index), name='index'),
-    path('extra', container.view(views.CBVexample), name='extra')
-]
-```
 
 ```
 #views.py
 
+from .dependency_config import container
+
+
+@container.bind_view
 def index(request, dep: SomeDep, questions: DjangoModel[Question]):
     new_question = questions.new(question_text="What's next?", pub_date=timezone.now())
     new_question.save()
     return HttpResponse(f"plain old function: {dep.message} with {questions.objects.all().count()} questions")
 
 
+@container.bind_view
 class CBVexample(View):
     def get(self, request, dep: SomeDep):
         return HttpResponse(f"Class based: {dep.message}")
@@ -93,7 +85,7 @@ class DjangoModel(Generic[M]):
 class DjangoContainer(Container):
     """
     Same behaviour as the basic container bug provides a view method which
-    should be used in a django urls.py file to wrap a view. Once wrapped
+    should be used as a decorator to wrap views. Once wrapped
     the view can reference dependencies which will be auto-wired.
     """
 
@@ -115,7 +107,7 @@ class DjangoContainer(Container):
         for model in models or []:
             self.define(DjangoModel[model], DjangoModel(model))  # type: ignore
 
-    def view(self, view):
+    def bind_view(self, view):
         """
         Takes either a plain function view or a class based view
         binds it to the container then returns something that can
@@ -126,12 +118,7 @@ class DjangoContainer(Container):
         if isinstance(view, types.FunctionType):
             # Plain old function can be bound to the container
             return self.partial(view, shared=self._request_singletons)
-        if issubclass(view, View):
-            # For django class based view each method needs to be bound
-            # to the container
-            self._bind_view_methods_to_container(view)
-            return view.as_view()
-        raise SyntaxError(f"Container doesn't know how to handle type {type(view)}")
+        return self._bind_view_methods_to_container(view)
 
     def _bind_view_methods_to_container(self, view):
         for method in View.http_method_names:
@@ -143,3 +130,4 @@ class DjangoContainer(Container):
                         getattr(view, method), shared=self._request_singletons
                     ),
                 )
+        return view
