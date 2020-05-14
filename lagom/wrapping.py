@@ -19,8 +19,17 @@ def decorated_wrapper(wrapped: T, original) -> T:
     return wrapped
 
 
+# A function builder is wrapped around a supplied function and
+# bound to the container. When called a new function will be returned
+# which is the same as the original function but with some arguments supplied
+# from the container. The arguments tell the container what it doesn't need to build
+# first argument is a list of kwargs to skip the second the number of positional arguments
+# to ignore.
+FunctionBuilder = Callable[[List[str], int], Callable]
+
+
 def bound_function(
-    function_builder: Callable[[List[str], int], Callable], original_function: Callable
+    function_builder: FunctionBuilder, original_function: Callable
 ):
     if inspect.iscoroutinefunction(original_function):
 
