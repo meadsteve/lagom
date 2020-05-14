@@ -1,5 +1,5 @@
 import inspect
-from typing import TypeVar, Callable
+from typing import TypeVar, Callable, List
 
 INTROSPECTION_ATTRS = (
     "__module__",
@@ -20,16 +20,24 @@ def decorated_wrapper(wrapped: T, original) -> T:
 
 
 def bound_function(
-    function_builder: Callable[[], Callable], original_function: Callable
+    function_builder: Callable[[List[str], int], Callable], original_function: Callable
 ):
     if inspect.iscoroutinefunction(original_function):
 
         async def _wrapped_function(*args, **kwargs):
-            return await function_builder()(*args, **kwargs)
+            named_args_to_skip = list(kwargs.keys())
+            pos_args_to_skip = len(args)
+            return await function_builder(named_args_to_skip, pos_args_to_skip)(
+                *args, **kwargs
+            )
 
     else:
 
         def _wrapped_function(*args, **kwargs):
-            return function_builder()(*args, **kwargs)
+            named_args_to_skip = list(kwargs.keys())
+            pos_args_to_skip = len(args)
+            return function_builder(named_args_to_skip, pos_args_to_skip)(
+                *args, **kwargs
+            )
 
     return decorated_wrapper(_wrapped_function, original_function)
