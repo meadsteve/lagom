@@ -131,8 +131,8 @@ class Container(ReadableContainer):
     def partial(
         self,
         func: Callable[..., X],
-        keys_to_skip=None,
         shared: List[Type] = None,
+        keys_to_skip=None,
         skip_pos_up_to: int = 0,
     ) -> Callable[..., X]:
         """Takes a callable and returns a callable bound to the container
@@ -146,9 +146,10 @@ class Container(ReadableContainer):
         >>> bound_func()
         'Successfully called with <tests.examples.SomeClass object at ...>'
 
-        :param func:
-        :param keys_to_skip:
-        :param shared:
+        :param func: the function to bind to the container
+        :param shared: items which should be considered singletons on a per call level
+        :param keys_to_skip: named arguments which the container shouldnt build
+        :param skip_pos_up_to: positional arguments which the container shouldnt build
         :return:
         """
         if shared:
