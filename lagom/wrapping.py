@@ -28,9 +28,7 @@ def decorated_wrapper(wrapped: T, original) -> T:
 FunctionBuilder = Callable[[List[str], int], Callable]
 
 
-def bound_function(
-    function_builder: FunctionBuilder, original_function: Callable
-):
+def bound_function(function_builder: FunctionBuilder, original_function: Callable):
     if inspect.iscoroutinefunction(original_function):
 
         async def _wrapped_function(*args, **kwargs):
