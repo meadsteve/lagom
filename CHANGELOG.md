@@ -1,6 +1,6 @@
 # Changelog
 
-## PENDING 0.9.0 (2020-05-X)
+## 0.9.0 (2020-05-15)
 ### Enhancements
 None
 
