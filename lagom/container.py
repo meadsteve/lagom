@@ -129,7 +129,11 @@ class Container(ReadableContainer):
             return None  # type: ignore
 
     def partial(
-        self, func: Callable[..., X], keys_to_skip=None, shared: List[Type] = None
+        self,
+        func: Callable[..., X],
+        shared: List[Type] = None,
+        keys_to_skip=None,
+        skip_pos_up_to: int = 0,
     ) -> Callable[..., X]:
         """Takes a callable and returns a callable bound to the container
         When invoking the new callable if any arguments can be constructed by the container
@@ -142,18 +146,24 @@ class Container(ReadableContainer):
         >>> bound_func()
         'Successfully called with <tests.examples.SomeClass object at ...>'
 
-        :param func:
-        :param keys_to_skip:
-        :param shared:
+        :param func: the function to bind to the container
+        :param shared: items which should be considered singletons on a per call level
+        :param keys_to_skip: named arguments which the container shouldnt build
+        :param skip_pos_up_to: positional arguments which the container shouldnt build
         :return:
         """
         if shared:
             return self._partial_with_shared_singletons(func, shared)
         spec = inspect.getfullargspec(func)
 
-        def _bind_func():
+        def _bind_func(extra_keys_to_skip=None, extra_skip_pos_up_to=0):
+            final_keys_to_skip = (keys_to_skip or []) + (extra_keys_to_skip or [])
+            final_skip_pos_up_to = max(skip_pos_up_to, extra_skip_pos_up_to)
             bindable_deps = self._infer_dependencies(
-                spec, suppress_error=True, keys_to_skip=keys_to_skip or []
+                spec,
+                suppress_error=True,
+                keys_to_skip=final_keys_to_skip,
+                skip_pos_up_to=final_skip_pos_up_to,
             )
             return functools.partial(func, **bindable_deps)
 
@@ -180,15 +190,20 @@ class Container(ReadableContainer):
             raise UnresolvableType(dep_type) from type_error
 
     def _infer_dependencies(
-        self, spec: inspect.FullArgSpec, suppress_error=False, keys_to_skip=None
+        self,
+        spec: inspect.FullArgSpec,
+        suppress_error=False,
+        keys_to_skip=None,
+        skip_pos_up_to=0,
     ):
-        keys_to_skip = keys_to_skip or []
+        supplied_arguments = spec.args[0:skip_pos_up_to]
+        keys_to_skip = (keys_to_skip or []) + supplied_arguments
+        annotations = copy(spec.annotations)
+        annotations.pop(RETURN_ANNOTATION, None)
         sub_deps = {
             key: self.resolve(sub_dep_type, suppress_error=suppress_error)
-            for (key, sub_dep_type) in spec.annotations.items()
-            if key != RETURN_ANNOTATION
-            and sub_dep_type != Any
-            and key not in keys_to_skip
+            for (key, sub_dep_type) in annotations.items()
+            if sub_dep_type != Any and key not in keys_to_skip
         }
         filtered_deps = {key: dep for (key, dep) in sub_deps.items() if dep is not None}
         return filtered_deps
@@ -206,9 +221,14 @@ class Container(ReadableContainer):
                 )
             return temp_container
 
-        def _bind_func():
+        def _bind_func(keys_to_skip=None, skip_pos_up_to=0):
             temp_container = _cloned_container()
-            return temp_container.partial(func, shared=[])
+            return temp_container.partial(
+                func,
+                shared=[],
+                keys_to_skip=keys_to_skip,
+                skip_pos_up_to=skip_pos_up_to,
+            )
 
         return bound_function(_bind_func, func)
 

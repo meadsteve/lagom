@@ -50,6 +50,16 @@ def test_partial_application_can_be_applied_to_functions_with_positional_args_fi
     assert partial(" world") == "testing world"
 
 
+def test_passed_in_arguments_are_used_over_container_generated_ones_when_positional():
+    partial = container.partial(example_function)
+    assert partial(" world", MyDep("overridden")) == "overridden world"
+
+
+def test_passed_in_arguments_are_used_over_container_generated_ones_when_named():
+    partial = container.partial(example_function)
+    assert partial(message=" world", resolved=MyDep("overridden")) == "overridden world"
+
+
 def test_a_decorator_can_be_used_to_bind_as_well():
     assert another_example_function(message=" hello") == "testing hello"
 

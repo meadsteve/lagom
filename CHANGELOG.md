@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.9.0 (2020-05-15)
+### Enhancements
+None
+
+### Bug fixes
+* Bound functions now take supplied arguments over container generated ones. 
+
+### Backwards incompatible changes
+* The argument order on Container.partial has changed.
+* Bound functions now take supplied arguments over container generated ones.
+
 ## 0.8.0 (2020-05-13)
 ### Enhancements
 * Optional types are now handled. If they can be built they are. If not they are omitted.
