@@ -1,8 +1,9 @@
 # Changelog
 
-## V-NEXT ()
+## 0.9.2 (2020-05-21)
 ### Enhancements
 * Container has property which exposes list of defined types. 
+* The experimental django integration now provides access to custom `Manager` objects.
 
 ### Bug fixes
 None

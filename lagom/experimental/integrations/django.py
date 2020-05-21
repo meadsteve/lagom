@@ -45,6 +45,23 @@ from lagom import Container
 M = TypeVar("M", bound=Model)
 
 
+class _Managers(Generic[M]):
+    """
+    Wraps around a django model and provides access to the class properties.
+    The intention is that all the Manager objects can be accessed via this.
+    """
+
+    def __init__(self, model: Type[M]):
+        self.model = model
+
+    def __getattr__(self, item) -> Manager:
+        if not hasattr(self.model, item):
+            raise KeyError(
+                f"Django model {self.model.__name__} does not define a property {item}"
+            )
+        return getattr(self.model, item)
+
+
 class DjangoModel(Generic[M]):
     """Wrapper around a django model for injection hinting
     Usage:
@@ -64,6 +81,7 @@ class DjangoModel(Generic[M]):
         :param model: The django model class
         """
         self.model = model
+        self.managers = _Managers(self.model)
 
     @property
     def objects(self) -> Manager:
@@ -71,7 +89,7 @@ class DjangoModel(Generic[M]):
 
         :return:
         """
-        return self.model.objects  # type: ignore
+        return self.managers.objects
 
     def new(self, **kwargs) -> M:
         """ Equivalent to MyModel(**kwargs)
