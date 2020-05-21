@@ -78,6 +78,14 @@ class Container(ReadableContainer):
         self._registered_types[dep] = normalise(resolver)
         self._explicitly_registered_types.add(dep)
 
+    @property
+    def defined_types(self) -> Set[Type]:
+        """The types the container has explicit build instructions for
+
+        :return:
+        """
+        return set(self._registered_types.keys())
+
     def resolve(
         self, dep_type: Type[X], suppress_error=False, skip_definitions=False
     ) -> X:

@@ -10,7 +10,7 @@ class ExplicitContainer(Container):
     def resolve(
         self, dep_type: Type[X], suppress_error=False, skip_definitions=False
     ) -> X:
-        if dep_type not in self._registered_types:
+        if dep_type not in self.defined_types:
             if suppress_error:
                 return None  # type: ignore
             raise DependencyNotDefined(

@@ -2,7 +2,7 @@
 Interfaces shared by modules within the lagom package
 """
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar, Type, Any, Callable, Union
+from typing import Generic, TypeVar, Type, Any, Callable, Union, List, Set
 
 X = TypeVar("X")
 
@@ -26,6 +26,13 @@ class ReadableContainer(ABC):
     @abstractmethod
     def __getitem__(self, dep: Type[X]) -> X:
         """Shortcut to calling resolve
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def defined_types(self) -> Set[Type]:
+        """Set of all the types defined in the container
         """
         pass
 

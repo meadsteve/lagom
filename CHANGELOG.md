@@ -1,5 +1,15 @@
 # Changelog
 
+## V-NEXT ()
+### Enhancements
+* Container has property which exposes list of defined types. 
+
+### Bug fixes
+None
+
+### Backwards incompatible changes
+None
+
 ## 0.9.1 (2020-05-21)
 ### Enhancements
 * Experimental explict container added. Requires a definition for every dependency (implements #38)
