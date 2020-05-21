@@ -74,6 +74,7 @@ class DjangoModel(Generic[M]):
     """
 
     model: Type[M]
+    managers: _Managers[M]
 
     def __init__(self, model: Type[M]):
         """
