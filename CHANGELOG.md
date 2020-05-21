@@ -1,8 +1,8 @@
 # Changelog
 
-## V NEXT
+## 0.9.1 (2020-05-21)
 ### Enhancements
-None
+* Experimental explict container added. Requires a definition for every dependency (implements #38)
 
 ### Bug fixes
 * Extracted bare exception into the namespaced exceptions (fixes #39)
