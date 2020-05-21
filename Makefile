@@ -1,4 +1,4 @@
-.PHONY: setup setup_pipenv install test test_mypy test_unit test_format test_doctests test_package_safety publish mutate format enforce_docs
+.PHONY: setup setup_pipenv install update test test_mypy test_unit test_format test_doctests test_package_safety publish mutate format enforce_docs
 PIPENV_VERBOSITY=-1
 
 setup: setup_pipenv install
@@ -8,6 +8,11 @@ setup_pipenv:
 
 install:
 	pipenv install --dev
+
+update:
+	pipenv update --dev
+	pipenv clean
+	pipenv run  pip list --outdated
 
 test: test_mypy test_unit enforce_docs test_doctests test_format test_package_safety
 
