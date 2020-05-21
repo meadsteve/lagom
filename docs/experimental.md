@@ -50,8 +50,8 @@ urlpatterns = [
 ```
 
 ### Django models
-Django models are usual referenced statically some extra code is provided to
-make these injectable.
+Django models are usually referenced statically. Some extra code is provided to
+make these injectable instead.
 
 When defining the container list all the models that should be available via the container:
 
