@@ -250,6 +250,10 @@ def save_to_db(thing_to_save, db: Database):
 The decorator leaves the original function unaltered so it can be
 used directly in tests.
 
+### Django (https://www.djangoproject.com/)
+A django integration is currently under beta in the experimental module.
+See documentation here: [Django Integration Docs](docs/experimental.md#django-container)
+
 ## Developing/Contributing
 Contributions and PRS are welcome. For any large changes please open
 an issue to discuss first. All PRs should pass the tests, type checking
