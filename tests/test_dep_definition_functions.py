@@ -4,6 +4,7 @@ import pytest
 
 from lagom import Container
 from lagom.decorators import dependency_definition
+from lagom.exceptions import MissingReturnType
 
 
 @dataclass
@@ -68,7 +69,7 @@ def test_singleton_definition_functions_get_an_instance_of_the_container(
 
 def test_functions_that_are_not_typed_raise_an_error(container: Container):
 
-    with pytest.raises(SyntaxError):
+    with pytest.raises(MissingReturnType):
 
         @dependency_definition(container)
         def my_constructor():

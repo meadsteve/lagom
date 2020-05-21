@@ -1,5 +1,15 @@
 # Changelog
 
+## V NEXT
+### Enhancements
+None
+
+### Bug fixes
+* Extracted bare exception into the namespaced exceptions (fixes #39)
+
+### Backwards incompatible changes
+None
+
 ## 0.9.0 (2020-05-15)
 ### Enhancements
 None

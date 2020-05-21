@@ -7,6 +7,7 @@ from typing import List, Type
 
 from .definitions import Singleton
 from .container import Container
+from .exceptions import MissingReturnType
 from .util.reflection import RETURN_ANNOTATION
 
 
@@ -49,7 +50,9 @@ def dependency_definition(container: Container, singleton: bool = False):
             arg_spec = inspect.getfullargspec(func)
             return_type = arg_spec.annotations[RETURN_ANNOTATION]
         except KeyError:
-            raise SyntaxError("Function used as a definition must have a return type")
+            raise MissingReturnType(
+                f"Function {func.__name__} used as a definition must have a return type"
+            )
         if singleton:
             container.define(return_type, Singleton(func))
         else:

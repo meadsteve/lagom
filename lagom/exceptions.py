@@ -19,6 +19,12 @@ class InvalidDependencyDefinition(ValueError, LagomException):
     pass
 
 
+class MissingReturnType(SyntaxError, LagomException):
+    """The function provided doesnt type hint a return"""
+
+    pass
+
+
 class DuplicateDefinition(ValueError, LagomException):
     """The type has already been defined somewhere else"""
 
