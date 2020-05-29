@@ -272,4 +272,5 @@ make test # To make sure the build will pass
 * Everything should be done by type. No reliance on names.
 * All domain code should remain unmodified. No special decorators.
 * Usage of the container should encourage code to be testable without monkey patching.
+* Usage of the container should remove the need to depend on global state.
 * Embrace modern python features (3.7 at the time of creation)
