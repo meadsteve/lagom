@@ -49,14 +49,23 @@ def dependency_definition(container: Container, singleton: bool = False):
         try:
             arg_spec = inspect.getfullargspec(func)
             return_type = arg_spec.annotations[RETURN_ANNOTATION]
+            if inspect.isgeneratorfunction(func):
+                # Since this is a generator we need to request a value when loading
+                def loading_func():
+                    return next(func())
+
+                return_type = return_type.__args__[0]  # todo: something less hacky
+            else:
+                # if it's not a generator we can use the actual function itself
+                loading_func = func
         except KeyError:
             raise MissingReturnType(
                 f"Function {func.__name__} used as a definition must have a return type"
             )
         if singleton:
-            container.define(return_type, Singleton(func))
+            container.define(return_type, Singleton(loading_func))
         else:
-            container.define(return_type, func)
+            container.define(return_type, loading_func)
         return func
 
     return _decorator

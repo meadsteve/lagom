@@ -1,10 +1,14 @@
 from dataclasses import dataclass
+from typing import Generator, Any
 
 import pytest
 
 from lagom import Container
 from lagom.decorators import dependency_definition
 from lagom.exceptions import MissingReturnType
+
+global finally_was_executed
+finally_was_executed = False
 
 
 @dataclass
@@ -33,6 +37,31 @@ def test_the_functions_return_new_instances_each_time(container: Container):
     first = container[MyComplexDep]
     second = container[MyComplexDep]
     assert first is not second
+
+
+def test_definition_functions_can_yield_instead_of_returning(container: Container):
+    @dependency_definition(container)
+    def my_constructor() -> Generator[MyComplexDep, Any, Any]:
+        yield MyComplexDep(some_number=5)
+
+    first = container[MyComplexDep]
+    assert first.some_number == 5
+
+
+def test_when_yielding_finally_can_be_used(container: Container):
+    global finally_was_executed
+    finally_was_executed = False
+
+    @dependency_definition(container)
+    def my_constructor() -> Generator[MyComplexDep, Any, Any]:
+        global finally_was_executed
+        try:
+            yield MyComplexDep(some_number=5)
+        finally:
+            finally_was_executed = True
+
+    container.resolve(MyComplexDep)
+    assert finally_was_executed is True
 
 
 def test_functions_can_be_made_into_singletons(container: Container):
@@ -68,7 +97,6 @@ def test_singleton_definition_functions_get_an_instance_of_the_container(
 
 
 def test_functions_that_are_not_typed_raise_an_error(container: Container):
-
     with pytest.raises(MissingReturnType):
 
         @dependency_definition(container)
