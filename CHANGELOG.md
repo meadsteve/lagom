@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.10.0 (2020-05-30)
+### Enhancements
+* Add an experimental class to wrap up os.environ (built on on pydantic)
+* allow dependency defition functions to yield instead of return
+
+### Bug fixes
+None
+
+### Backwards incompatible changes
+None
+
+
 ## 0.9.2 (2020-05-21)
 ### Enhancements
 * Container has property which exposes list of defined types. 
