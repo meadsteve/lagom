@@ -116,6 +116,11 @@ def handle_some_request(request: typing.Dict, game: Game):
 # need
 func_with_injection = container.partial(handle_some_request)
 ```
+
+### Loading environment variables
+An experimental helper class is under beta in the experimental module.
+See documentation here: [Env loading](docs/experimental.md#environment-variables)
+
 ## Full Example
 
 ### App setup
