@@ -93,3 +93,31 @@ view function has no global state dependency. We can call the view functions dir
 in tests passing in whatever we want to `questions`. This enables the dependency on 
 the DB to be switched out without any monkey patching at all.
 
+## Environment variables
+
+This module provides code to automatically load environment variables from the container.
+It is built on top of (and requires) pydantic.
+
+At first one or more classes representing the required environment variables are defined.
+All environment variables are assumed to be all uppercase and are automatically lowercased.
+```python
+class MyWebEnv(Env):
+    port: str
+    host: str
+
+class DBEnv(Env):
+    db_host: str
+    db_password: str
+```
+
+Now that these env classes are defined they can be injected
+as usual:
+```python
+@bind_to_container(c)
+def some_function(env: DBEnv):
+    do_something(env.db_host, env.db_password)
+```
+
+For testing a manual constructed Env class can be passed in.
+At runtime the class will be populated automatically from
+the environment.
