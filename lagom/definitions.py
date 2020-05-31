@@ -14,6 +14,8 @@ X = TypeVar("X")
 class Construction(SpecialDepDefinition[X]):
     """Wraps a callable for constructing a type"""
 
+    __slots__ = "constructor"
+
     constructor: Union[Callable[[], X], Callable[[Any], X]]
 
     def __init__(self, constructor):
@@ -36,6 +38,8 @@ class Construction(SpecialDepDefinition[X]):
 class Alias(SpecialDepDefinition[X]):
     """When one class is asked for the other should be returned"""
 
+    __slots__ = "alias_type"
+
     alias_type: Type[X]
 
     def __init__(self, alias_type):
@@ -47,6 +51,8 @@ class Alias(SpecialDepDefinition[X]):
 
 class Singleton(SpecialDepDefinition[X]):
     """Builds only once then saves the built instance"""
+
+    __slots__ = "singleton_type", "_instance"
 
     singleton_type: SpecialDepDefinition
     _instance: Optional[X]

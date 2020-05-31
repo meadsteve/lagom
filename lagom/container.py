@@ -48,6 +48,8 @@ class Container(ReadableContainer):
     <tests.examples.SomeExtendedClass object at ...>
     """
 
+    __slots__ = "_registered_types", "_explicitly_registered_types"
+
     _registered_types: Dict[Type, SpecialDepDefinition]
     _explicitly_registered_types: Set[Type]
 
