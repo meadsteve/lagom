@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.11.0 (2020-06-01)
+### Enhancements
+* All reflection results are now cached to improve perfomance
+
+### Bug fixes
+None
+
+### Backwards incompatible changes
+* Possible that any code that changed signatures dynamically is now broken as
+  the cache will only ever return the original reflection.
+
 ## 0.10.0 (2020-05-30)
 ### Enhancements
 * Add an experimental class to wrap up os.environ (built on on pydantic)
