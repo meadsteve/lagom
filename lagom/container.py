@@ -1,7 +1,8 @@
 import functools
 import inspect
+from collections import namedtuple
 from copy import copy
-from typing import Dict, Type, Any, TypeVar, Callable, Set, List, Optional, Union
+from typing import Dict, Type, Any, TypeVar, Callable, Set, List, Optional, Union, Tuple
 
 from .interfaces import SpecialDepDefinition, ReadableContainer, TypeResolver
 from .exceptions import (
@@ -16,6 +17,9 @@ from .wrapping import bound_function
 UNRESOLVABLE_TYPES = [str, int, float, bool]
 
 X = TypeVar("X")
+
+
+_ConstructorDescription = namedtuple('ConstructorDescription', ['args', 'annotations'])
 
 
 class Container(ReadableContainer):
@@ -50,6 +54,7 @@ class Container(ReadableContainer):
 
     _registered_types: Dict[Type, SpecialDepDefinition]
     _explicitly_registered_types: Set[Type]
+    _reflection_cache: Dict
 
     def __init__(self, container: Optional["Container"] = None):
         """
@@ -57,6 +62,8 @@ class Container(ReadableContainer):
         """
         self._registered_types = {}
         self._explicitly_registered_types = set()
+        self._reflection_cache = {}
+
         if container:
             self._registered_types = copy(container._registered_types)
 
@@ -162,7 +169,7 @@ class Container(ReadableContainer):
         """
         if shared:
             return self._partial_with_shared_singletons(func, shared)
-        spec = inspect.getfullargspec(func)
+        spec = self._get_arg_spec(func)
 
         def _bind_func(extra_keys_to_skip=None, extra_skip_pos_up_to=0):
             final_keys_to_skip = (keys_to_skip or []) + (extra_keys_to_skip or [])
@@ -189,8 +196,15 @@ class Container(ReadableContainer):
     def __setitem__(self, dep: Type[X], resolver: TypeResolver[X]):
         self.define(dep, resolver)
 
+    def _get_arg_spec(self, func) -> _ConstructorDescription:
+        if func not in self._reflection_cache:
+            spec = inspect.getfullargspec(func)
+            spec.annotations.pop(RETURN_ANNOTATION, None)
+            self._reflection_cache[func] = _ConstructorDescription(spec.args, spec.annotations)
+        return self._reflection_cache[func]
+
     def _reflection_build(self, dep_type: Type[X]) -> X:
-        spec = inspect.getfullargspec(dep_type.__init__)
+        spec = self._get_arg_spec(dep_type.__init__)
         sub_deps = self._infer_dependencies(spec)
         try:
             return dep_type(**sub_deps)  # type: ignore
@@ -199,18 +213,16 @@ class Container(ReadableContainer):
 
     def _infer_dependencies(
         self,
-        spec: inspect.FullArgSpec,
+        spec: _ConstructorDescription,
         suppress_error=False,
         keys_to_skip=None,
         skip_pos_up_to=0,
     ):
         supplied_arguments = spec.args[0:skip_pos_up_to]
         keys_to_skip = (keys_to_skip or []) + supplied_arguments
-        annotations = copy(spec.annotations)
-        annotations.pop(RETURN_ANNOTATION, None)
         sub_deps = {
             key: self.resolve(sub_dep_type, suppress_error=suppress_error)
-            for (key, sub_dep_type) in annotations.items()
+            for (key, sub_dep_type) in spec.annotations.items()
             if sub_dep_type != Any and key not in keys_to_skip
         }
         filtered_deps = {key: dep for (key, dep) in sub_deps.items() if dep is not None}
