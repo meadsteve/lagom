@@ -55,12 +55,14 @@ class Container(ReadableContainer):
         """
         :param container: Optional container if provided the existing definitions will be copied
         """
-        self._registered_types = {}
         self._explicitly_registered_types = set()
-        self._reflector = CachingReflector()
 
         if container:
             self._registered_types = copy(container._registered_types)
+            self._reflector = container._reflector
+        else:
+            self._registered_types = {}
+            self._reflector = CachingReflector()
 
     def define(self, dep: Type[X], resolver: TypeResolver[X]) -> None:
         """Register how to construct an object of type X

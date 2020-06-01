@@ -18,19 +18,18 @@ class AThingIMightNeed:
 
 
 container = Container()
-container[SomeService] = Singleton(SomeService)
 
 
-@bind_to_container(container)
+@bind_to_container(container, shared=[SomeService])
 def do_work(thing: AThingIMightNeed):
     thing.do_it()
 
 
 if __name__ == "__main__":
     start = time.perf_counter()
-    for i in range(0, 100_000):
+    for i in range(0, 800_00):
         do_work()
     end = time.perf_counter()
     print(f"Time taken {end - start}")
 
-# 3.5875363860000107
+# 9.7
