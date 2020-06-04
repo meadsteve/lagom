@@ -1,10 +1,9 @@
 import inspect
 from random import random
-from typing import Generator, Any, ClassVar
+from typing import Any, ClassVar
 
-import pytest
 
-from lagom import Container, bind_to_container
+from lagom import Container, bind_to_container, Singleton
 
 
 class SomeCache:
@@ -84,3 +83,20 @@ def test_partial_application_returns_something_that_is_considered_a_function(
         return "ok"
 
     inspect.isfunction(example_function_with_shared)
+
+
+def test_invocation_level_singletons_respect_container_singletons(container: Container):
+
+    container[SomeCache] = Singleton(SomeCache)
+
+    @bind_to_container(container, shared=[SomeCache])
+    def example_function_with_invocation_level_sharing(
+        dep_one: MyDepOne, dep_two: MyDepTwo
+    ):
+        return {"a": dep_one.value, "b": dep_two.other_value}
+
+    result_one = example_function_with_invocation_level_sharing()
+    result_two = example_function_with_invocation_level_sharing()
+
+    assert result_one["a"] == result_one["b"]
+    assert result_one["a"] == result_two["a"]
