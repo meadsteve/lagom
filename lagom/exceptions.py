@@ -31,6 +31,19 @@ class DuplicateDefinition(ValueError, LagomException):
     pass
 
 
+class UnableToInvokeBoundFunction(TypeError, LagomException):
+    """A function bound to the container could not be invoked"""
+
+    unresolvable_deps: typing.List[Type]
+
+    def __init__(self, msg, unresolvable_deps):
+        self.unresolvable_deps = unresolvable_deps
+        unresolvable_string_list = ",".join(d.__name__ for d in unresolvable_deps)
+        super().__init__(
+            f"{msg}. The container could not construct the following types: {unresolvable_string_list}"
+        )
+
+
 class UnresolvableType(ValueError, LagomException):
     """The type cannot be constructed"""
 

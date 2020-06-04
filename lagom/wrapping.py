@@ -1,6 +1,9 @@
 import inspect
 from typing import TypeVar, Callable, List
 
+from lagom.exceptions import UnableToInvokeBoundFunction
+from lagom.util.reflection import FunctionSpec
+
 INTROSPECTION_ATTRS = (
     "__module__",
     "__name__",
@@ -48,3 +51,26 @@ def bound_function(function_builder: FunctionBuilder, original_function: Callabl
             )
 
     return decorated_wrapper(_wrapped_function, original_function)
+
+
+def wrap_func_in_error_handling(func: Callable, spec: FunctionSpec):
+    """
+    Takes a func and its spec and returns a function that's the same
+    but with more useful TypeError messages
+    :param func:
+    :param spec:
+    :return:
+    """
+
+    def _error_handling_func(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except TypeError as error:
+            unresolvable_deps = [
+                dep_type
+                for (name, dep_type) in spec.annotations.items()
+                if name not in kwargs.keys()
+            ]
+            raise UnableToInvokeBoundFunction(str(error), unresolvable_deps)
+
+    return _error_handling_func

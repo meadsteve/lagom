@@ -7,10 +7,11 @@ from .exceptions import (
     UnresolvableType,
     DuplicateDefinition,
     InvalidDependencyDefinition,
+    UnableToInvokeBoundFunction,
 )
 from .definitions import normalise, Singleton, Construction
 from .util.reflection import FunctionSpec, CachingReflector
-from .wrapping import bound_function
+from .wrapping import bound_function, wrap_func_in_error_handling
 
 UNRESOLVABLE_TYPES = [str, int, float, bool]
 
@@ -177,7 +178,9 @@ class Container(ReadableContainer):
                 keys_to_skip=final_keys_to_skip,
                 skip_pos_up_to=final_skip_pos_up_to,
             )
-            return functools.partial(func, **bindable_deps)
+            return functools.partial(
+                wrap_func_in_error_handling(func, spec), **bindable_deps
+            )
 
         return bound_function(_bind_func, func)
 
