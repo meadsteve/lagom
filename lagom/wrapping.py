@@ -66,6 +66,7 @@ def wrap_func_in_error_handling(func: Callable, spec: FunctionSpec):
         try:
             return func(*args, **kwargs)
         except TypeError as error:
+            # if it wasn't in kwargs the container couldn't build it
             unresolvable_deps = [
                 dep_type
                 for (name, dep_type) in spec.annotations.items()
