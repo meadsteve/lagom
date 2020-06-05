@@ -7,9 +7,8 @@ from .exceptions import (
     UnresolvableType,
     DuplicateDefinition,
     InvalidDependencyDefinition,
-    UnableToInvokeBoundFunction,
 )
-from .definitions import normalise, Singleton, Construction
+from .definitions import normalise, Singleton, construction
 from .util.reflection import FunctionSpec, CachingReflector
 from .wrapping import bound_function, wrap_func_in_error_handling
 
@@ -224,14 +223,14 @@ class Container(ReadableContainer):
     def _partial_with_shared_singletons(
         self, func: Callable[..., X], shared: List[Type]
     ):
+        loaders = {dep: construction(lambda: self.resolve(dep)) for dep in shared}
+
         def _cloned_container():
             temp_container = self.clone()
             # For each of the shared dependencies resolve before invocation
             # and replace with a singleton
-            for type_def in shared:
-                temp_container[type_def] = Singleton(
-                    Construction(lambda: self.resolve(type_def))
-                )
+            for (dep, loader) in loaders.items():
+                temp_container[dep] = Singleton(loader)
             return temp_container
 
         def _bind_func(keys_to_skip=None, skip_pos_up_to=0):

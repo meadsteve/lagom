@@ -1,6 +1,6 @@
 import pytest
 
-from lagom import Singleton, Construction, Container
+from lagom import Container
 from lagom.exceptions import InvalidDependencyDefinition
 
 

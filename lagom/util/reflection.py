@@ -14,11 +14,13 @@ class FunctionSpec:
     args: List
     annotations: Dict[str, Type]
     return_type: Type
+    arity: int
 
     def __init__(self, args, annotations, return_type):
         self.args = args
         self.annotations = annotations
         self.return_type = return_type
+        self.arity = len(args)
 
 
 class CachingReflector:

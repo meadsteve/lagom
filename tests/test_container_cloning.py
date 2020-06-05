@@ -1,4 +1,4 @@
-from lagom import Construction, Container, Singleton
+from lagom import Container, Singleton
 
 
 class InitialDep:
@@ -15,16 +15,16 @@ class SomeOtherMockForTesting(InitialDep):
 
 def test_container_can_be_cloned_and_maintains_separate_deps(container: Container):
     new_container = container.clone()
-    new_container.define(InitialDep, Construction(lambda: SomeMockForTesting()))
+    new_container.define(InitialDep, lambda: SomeMockForTesting())
 
     assert isinstance(new_container[InitialDep], SomeMockForTesting)
     assert isinstance(container[InitialDep], InitialDep)
 
 
 def test_a_cloned_container_can_have_deps_overwritten(container: Container):
-    container.define(InitialDep, Construction(lambda: SomeMockForTesting()))
+    container.define(InitialDep, lambda: SomeMockForTesting())
     new_container = container.clone()
-    new_container.define(InitialDep, Construction(lambda: SomeOtherMockForTesting()))
+    new_container.define(InitialDep, lambda: SomeOtherMockForTesting())
 
     assert isinstance(new_container[InitialDep], SomeOtherMockForTesting)
 

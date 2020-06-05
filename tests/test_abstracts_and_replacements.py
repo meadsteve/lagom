@@ -1,9 +1,7 @@
 from abc import ABC
-from typing import List
-
 import pytest
 
-from lagom import Construction, Container, Alias
+from lagom import Container, Alias
 
 
 class MySimpleAbc(ABC):
@@ -37,7 +35,7 @@ class AnotherConcrete(AnotherAbc):
 
 @pytest.fixture
 def container_with_abc(container: Container):
-    container.define(MySimpleAbc, Construction(lambda: MySimpleDep("hooray")))
+    container.define(MySimpleAbc, lambda: MySimpleDep("hooray"))
     return container
 
 

@@ -1,3 +1,7 @@
+"""
+Code in this module is used to wrap and decorate functions that have been
+bound to a container
+"""
 import inspect
 from typing import TypeVar, Callable, List
 

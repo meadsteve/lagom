@@ -1,7 +1,4 @@
-import pytest
-
-from lagom import Construction, Container, Singleton
-from lagom.exceptions import DuplicateDefinition
+from lagom import Container, Singleton
 
 
 class InitialDep:
