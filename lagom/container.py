@@ -7,10 +7,11 @@ from .exceptions import (
     UnresolvableType,
     DuplicateDefinition,
     InvalidDependencyDefinition,
+    UnableToInvokeBoundFunction,
 )
 from .definitions import normalise, Singleton, Construction
 from .util.reflection import FunctionSpec, CachingReflector
-from .wrapping import bound_function
+from .wrapping import bound_function, wrap_func_in_error_handling
 
 UNRESOLVABLE_TYPES = [str, int, float, bool]
 
@@ -168,6 +169,8 @@ class Container(ReadableContainer):
             return self._partial_with_shared_singletons(func, shared)
         spec = self._reflector.get_function_spec(func)
 
+        func_with_error_handling = wrap_func_in_error_handling(func, spec)
+
         def _bind_func(extra_keys_to_skip=None, extra_skip_pos_up_to=0):
             final_keys_to_skip = (keys_to_skip or []) + (extra_keys_to_skip or [])
             final_skip_pos_up_to = max(skip_pos_up_to, extra_skip_pos_up_to)
@@ -177,7 +180,7 @@ class Container(ReadableContainer):
                 keys_to_skip=final_keys_to_skip,
                 skip_pos_up_to=final_skip_pos_up_to,
             )
-            return functools.partial(func, **bindable_deps)
+            return functools.partial(func_with_error_handling, **bindable_deps)
 
         return bound_function(_bind_func, func)
 

@@ -4,6 +4,7 @@ from typing import Generator, Any, ClassVar
 import pytest
 
 from lagom import Container, bind_to_container
+from lagom.exceptions import UnableToInvokeBoundFunction
 
 
 class MyDep:
@@ -13,6 +14,11 @@ class MyDep:
     def __init__(self, value="testing"):
         MyDep.loaded = True
         self.value = value
+
+
+class CantBeAutoConstructed:
+    def __init__(self, something):
+        pass
 
 
 container = Container()
@@ -33,6 +39,11 @@ def another_example_function(message: str, resolved: MyDep) -> str:
     I am DOCS
     """
     return resolved.value + message
+
+
+@bind_to_container(container)
+def failing_to_construct_function(try_to_resolve: CantBeAutoConstructed) -> str:
+    return "doesnt matter"
 
 
 def test_partial_application_can_be_applied_to_functions_with_named_args():
@@ -75,10 +86,27 @@ def test_container_values_can_be_overridden():
     )
 
 
+def test_missing_call_arguments_results_in_sensible_error_messages():
+    with pytest.raises(TypeError) as err:
+        another_example_function()
+    assert "another_example_function() missing 1 required positional argument" in str(
+        err.value
+    )
+
+
 def test_incorrect_arguments_are_handled_well():
     with pytest.raises(TypeError) as err:
         another_example_function(not_the_message=" no")
     assert "unexpected keyword argument 'not_the_message'" in str(err.value)
+
+
+def test_if_a_typed_argument_cant_be_constructed_a_helpful_exception_is_returned():
+    with pytest.raises(UnableToInvokeBoundFunction) as err:
+        failing_to_construct_function()
+    assert (
+        "The container could not construct the following types: CantBeAutoConstructed"
+        in str(err.value)
+    )
 
 
 def test_partial_application_can_be_applied_to_generators():
