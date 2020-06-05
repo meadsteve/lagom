@@ -32,4 +32,4 @@ if __name__ == "__main__":
     end = time.perf_counter()
     print(f"Time taken {end - start}")
 
-# 2.6
+# 2.0

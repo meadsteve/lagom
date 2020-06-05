@@ -165,7 +165,12 @@ class Container(ReadableContainer):
         :return:
         """
         if shared:
-            return self._partial_with_shared_singletons(func, shared)
+            container_loader = self._container_with_singletons_builder(shared)
+        else:
+
+            def container_loader():
+                return self
+
         spec = self._reflector.get_function_spec(func)
 
         func_with_error_handling = wrap_func_in_error_handling(func, spec)
@@ -173,7 +178,7 @@ class Container(ReadableContainer):
         def _bind_func(extra_keys_to_skip=None, extra_skip_pos_up_to=0):
             final_keys_to_skip = (keys_to_skip or []) + (extra_keys_to_skip or [])
             final_skip_pos_up_to = max(skip_pos_up_to, extra_skip_pos_up_to)
-            bindable_deps = self._infer_dependencies(
+            bindable_deps = container_loader()._infer_dependencies(
                 spec,
                 suppress_error=True,
                 keys_to_skip=final_keys_to_skip,
@@ -220,12 +225,10 @@ class Container(ReadableContainer):
         filtered_deps = {key: dep for (key, dep) in sub_deps.items() if dep is not None}
         return filtered_deps
 
-    def _partial_with_shared_singletons(
-        self, func: Callable[..., X], shared: List[Type]
-    ):
-        loaders = {dep: construction(lambda: self.resolve(dep)) for dep in shared}
+    def _container_with_singletons_builder(self, singletons: List[Type]):
+        loaders = {dep: construction(lambda: self.resolve(dep)) for dep in singletons}
 
-        def _cloned_container():
+        def _clone_container():
             temp_container = self.clone()
             # For each of the shared dependencies resolve before invocation
             # and replace with a singleton
@@ -233,16 +236,7 @@ class Container(ReadableContainer):
                 temp_container[dep] = Singleton(loader)
             return temp_container
 
-        def _bind_func(keys_to_skip=None, skip_pos_up_to=0):
-            temp_container = _cloned_container()
-            return temp_container.partial(
-                func,
-                shared=[],
-                keys_to_skip=keys_to_skip,
-                skip_pos_up_to=skip_pos_up_to,
-            )
-
-        return bound_function(_bind_func, func)
+        return _clone_container
 
 
 def _remove_optional_type(dep_type):
