@@ -5,8 +5,8 @@ bound to a container
 import inspect
 from typing import TypeVar, Callable, List
 
-from lagom.exceptions import UnableToInvokeBoundFunction
-from lagom.util.reflection import FunctionSpec
+from .exceptions import UnableToInvokeBoundFunction
+from .util.reflection import FunctionSpec
 
 INTROSPECTION_ATTRS = (
     "__module__",

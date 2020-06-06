@@ -1,4 +1,4 @@
-from lagom.exceptions import LagomException
+from ..exceptions import LagomException
 
 
 class DependencyNotDefined(ValueError, LagomException):

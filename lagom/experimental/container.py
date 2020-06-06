@@ -1,7 +1,7 @@
 from typing import Type, TypeVar
 
-from lagom import Container
-from lagom.experimental.exceptions import DependencyNotDefined
+from .. import Container
+from .exceptions import DependencyNotDefined
 
 X = TypeVar("X")
 

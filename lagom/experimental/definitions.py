@@ -1,5 +1,5 @@
-from lagom.definitions import X
-from lagom.interfaces import SpecialDepDefinition, ReadableContainer
+from ..definitions import X
+from ..interfaces import SpecialDepDefinition, ReadableContainer
 
 
 class PlainFunction(SpecialDepDefinition[X]):

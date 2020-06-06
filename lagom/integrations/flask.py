@@ -5,7 +5,7 @@ from typing import Type, List, Optional
 
 from flask import Flask
 
-from lagom import Container
+from ..container import Container
 
 
 class FlaskContainer(Container):
