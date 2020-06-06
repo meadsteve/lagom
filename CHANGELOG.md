@@ -1,4 +1,15 @@
 # Changelog
+## (PENDING) 0.12.0 
+### Enhancements
+* More useful error messages when invocation of bound functions fails.
+* Performance improvements around bound functions. Less invocation time reflection.
+
+### Bug fixes
+None
+
+### Backwards incompatible changes
+* Construction definition class has been removed (split into two classes but these should not be used externally)
+
 ## 0.11.1 (2020-06-01)
 ### Enhancements
 None
