@@ -22,7 +22,10 @@ def some_function(env: DBEnv):
 import os
 from abc import ABC
 
-from pydantic.main import BaseModel
+try:
+    from pydantic.main import BaseModel
+except ImportError as error:
+    raise ImportError("Using Env requires pydantic to be installed") from error
 
 
 class Env(ABC, BaseModel):
