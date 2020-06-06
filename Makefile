@@ -49,4 +49,4 @@ format:
 	pipenv run black tests lagom
 
 enforce_docs:
-	pipenv run interrogate --ignore-semiprivate --ignore-magic --ignore-private --fail-under 75 -vv lagom
+	pipenv run interrogate --ignore-semiprivate --ignore-magic --ignore-private --fail-under 70 -vv lagom

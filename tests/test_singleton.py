@@ -1,6 +1,6 @@
 import pytest
 
-from lagom import Singleton, Construction, Container
+from lagom import Singleton, Container
 
 
 class MyBasicDep:
@@ -21,9 +21,7 @@ class MyCompositeDep:
 @pytest.fixture
 def container_with_deps(container: Container):
     container.define(MyBasicDep, Singleton(MyBasicDep))
-    container.define(
-        MyMoreComplicatedDep, Singleton(Construction(lambda: MyMoreComplicatedDep(5)))
-    )
+    container.define(MyMoreComplicatedDep, Singleton(lambda: MyMoreComplicatedDep(5)))
     container.define(MyCompositeDep, Singleton(MyCompositeDep))
     return container
 

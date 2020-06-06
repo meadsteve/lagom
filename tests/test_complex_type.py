@@ -2,7 +2,7 @@ from typing import List
 
 import pytest
 
-from lagom import Construction, Container
+from lagom import Container
 
 
 class MySimpleDep:
@@ -22,8 +22,7 @@ class MyMoreComplicatedDep:
 @pytest.fixture
 def container_with_list(container: Container):
     container.define(
-        List[MySimpleDep],
-        Construction(lambda: [MySimpleDep("One"), MySimpleDep("Two")]),
+        List[MySimpleDep], lambda: [MySimpleDep("One"), MySimpleDep("Two")],
     )
     return container
 

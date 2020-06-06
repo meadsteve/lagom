@@ -1,6 +1,6 @@
 import pytest
 
-from lagom import Construction, Container
+from lagom import Container
 
 
 class MySimpleDep:
@@ -19,7 +19,7 @@ class MyMoreComplicatedDep:
 
 @pytest.fixture
 def container_with_simple_dep(container: Container):
-    container.define(MySimpleDep, Construction(lambda: MySimpleDep("Top stuff")))
+    container.define(MySimpleDep, lambda: MySimpleDep("Top stuff"))
     return container
 
 

@@ -11,26 +11,43 @@ from .util.functional import arity
 X = TypeVar("X")
 
 
-class Construction(SpecialDepDefinition[X]):
+class ConstructionWithoutContainer(SpecialDepDefinition[X]):
     """Wraps a callable for constructing a type"""
 
-    constructor: Union[Callable[[], X], Callable[[Any], X]]
-
     def __init__(self, constructor):
-        if arity(constructor) > 1:
-            raise InvalidDependencyDefinition(
-                f"Arity {arity} functions are not supported"
-            )
         self.constructor = constructor
 
     def get_instance(self, container: ReadableContainer) -> X:
         resolver = self.constructor
-        artiy = arity(resolver)
-        if artiy == 0:
-            return resolver()  # type: ignore
-        if artiy == 1:
-            return resolver(container)  # type: ignore
-        raise Exception("The constructor should have stopped us getting here")
+        return resolver()
+
+
+class ConstructionWithContainer(SpecialDepDefinition[X]):
+    """Wraps a callable for constructing a type"""
+
+    def __init__(self, constructor):
+        self.constructor = constructor
+
+    def get_instance(self, container: ReadableContainer) -> X:
+        resolver = self.constructor
+        return resolver(container)
+
+
+def construction(
+    resolver: Callable,
+) -> Union[ConstructionWithContainer, ConstructionWithoutContainer]:
+    """
+    Takes a callable and returns a type definition
+    :param reflector:
+    :param resolver:
+    :return:
+    """
+    func_arity = arity(resolver)
+    if func_arity == 0:
+        return ConstructionWithoutContainer(resolver)
+    if func_arity == 1:
+        return ConstructionWithContainer(resolver)
+    raise InvalidDependencyDefinition(f"Arity {func_arity} functions are not supported")
 
 
 class Alias(SpecialDepDefinition[X]):
@@ -78,7 +95,7 @@ def normalise(resolver: Any) -> SpecialDepDefinition:
     if isinstance(resolver, SpecialDepDefinition):
         return resolver
     elif inspect.isfunction(resolver):
-        return Construction(resolver)
+        return construction(resolver)
     elif not inspect.isclass(resolver):
         return Singleton(lambda: resolver)
     else:

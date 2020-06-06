@@ -1,9 +1,6 @@
 from abc import ABC
-from typing import List
 
-import pytest
-
-from lagom import Construction, Container
+from lagom import Container
 
 
 class MySimpleDep:
@@ -29,7 +26,7 @@ class AnotherConcrete(AnotherAbc):
 
 
 def test_deps_can_be_referenced_by_square_brackets(container: Container):
-    container[MySimpleDep] = Construction(lambda: MySimpleDep("hooray"))
+    container[MySimpleDep] = lambda: MySimpleDep("hooray")
     resolved = container[MySimpleDep]
     assert resolved.stuff == "hooray"
 
