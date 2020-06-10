@@ -1,5 +1,5 @@
 # Changelog
-## (PENDING) 0.12.0 
+## 0.12.0 (2020-06-10)
 ### Enhancements
 * More useful error messages when invocation of bound functions fails.
 * Performance improvements around bound functions. Less invocation time reflection.
