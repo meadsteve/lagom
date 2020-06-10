@@ -90,6 +90,10 @@ class Container(ReadableContainer):
         """
         return set(self._registered_types.keys())
 
+    @property
+    def reflection_cache_overview(self) -> Dict[str, str]:
+        return self._reflector.overview_of_cache
+
     def resolve(
         self, dep_type: Type[X], suppress_error=False, skip_definitions=False
     ) -> X:

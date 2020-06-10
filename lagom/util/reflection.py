@@ -22,6 +22,16 @@ class FunctionSpec:
         self.return_type = return_type
         self.arity = len(args)
 
+    def __repr__(self):
+        def _arg_type_string(arg):
+            return self.annotations[arg].__name__ if arg in self.annotations else "?"
+
+        signature = ", ".join(_arg_type_string(arg) for arg in self.args)
+        if self.return_type:
+            return f"({signature}) -> {self.return_type.__name__}"
+        else:
+            return f"({signature})"
+
 
 class CachingReflector:
     """
@@ -35,6 +45,10 @@ class CachingReflector:
 
     def __init__(self):
         self._reflection_cache = {}
+
+    @property
+    def overview_of_cache(self) -> Dict[str, str]:
+        return {k.__qualname__: repr(v) for (k, v) in self._reflection_cache.items()}
 
     def get_function_spec(self, func) -> FunctionSpec:
         """

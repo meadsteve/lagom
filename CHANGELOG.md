@@ -1,4 +1,14 @@
 # Changelog
+## 0.13.0 (2020-06-10)
+### Enhancements
+* Add a property to the container and reflector giving debug information about what's been reflected.
+
+### Bug fixes
+None
+
+### Backwards incompatible changes
+None
+
 ## 0.12.0 (2020-06-10)
 ### Enhancements
 * More useful error messages when invocation of bound functions fails.
