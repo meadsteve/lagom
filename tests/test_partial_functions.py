@@ -28,6 +28,10 @@ def example_function(message: str, resolved: MyDep) -> str:
     return resolved.value + message
 
 
+def example_function_with_to_injectables(one: MyDep, two: MyDep) -> str:
+    return one.value + two.value
+
+
 def example_generator(message: str, resolved: MyDep) -> Generator[str, Any, Any]:
     yield resolved.value + message
     yield resolved.value + " finished"
@@ -69,6 +73,11 @@ def test_passed_in_arguments_are_used_over_container_generated_ones_when_positio
 def test_passed_in_arguments_are_used_over_container_generated_ones_when_named():
     partial = container.partial(example_function)
     assert partial(message=" world", resolved=MyDep("overridden")) == "overridden world"
+
+
+def test_injected_arguments_can_be_skipped():
+    partial = container.partial(example_function_with_to_injectables)
+    assert partial(two=MyDep(" 2nd")) == "testing 2nd"
 
 
 def test_a_decorator_can_be_used_to_bind_as_well():
