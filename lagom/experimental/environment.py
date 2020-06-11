@@ -21,6 +21,7 @@ def some_function(env: DBEnv):
 """
 import os
 from abc import ABC
+from typing import ClassVar, Optional
 
 try:
     from pydantic.main import BaseModel
@@ -34,10 +35,18 @@ class Env(ABC, BaseModel):
     variables.
     """
 
+    PREFIX: ClassVar[Optional[str]] = None
+
     def __init__(self, **kwargs):
         if len(kwargs) == 0:
+            prefix = f"{self.PREFIX}_" if self.PREFIX else ""
+            envs = os.environ.items()
             super().__init__(
-                **{key.lower(): value for (key, value) in os.environ.items()}
+                **{
+                    key.replace(prefix, "").lower(): value
+                    for (key, value) in envs
+                    if key.startswith(prefix)
+                }
             )
         else:
             super().__init__(**kwargs)
