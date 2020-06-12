@@ -3,12 +3,14 @@ This module provides decorators for hooking an
 application into the container.s
 """
 import inspect
-from typing import List, Type
+from typing import List, Type, Callable, Tuple, TypeVar, Union, Any, Generator
 
 from .definitions import Singleton
 from .container import Container
 from .exceptions import MissingReturnType
 from .util.reflection import RETURN_ANNOTATION
+
+T = TypeVar("T")
 
 
 def bind_to_container(container: Container, shared: List[Type] = None):
@@ -46,26 +48,36 @@ def dependency_definition(container: Container, singleton: bool = False):
     """
 
     def _decorator(func):
-        try:
-            arg_spec = inspect.getfullargspec(func)
-            return_type = arg_spec.annotations[RETURN_ANNOTATION]
-            if inspect.isgeneratorfunction(func):
-                # Since this is a generator we need to request a value when loading
-                def loading_func():
-                    return next(func())
+        definition_func, return_type = _extract_definition_func_and_type(func)  # type: ignore
 
-                return_type = return_type.__args__[0]  # todo: something less hacky
-            else:
-                # if it's not a generator we can use the actual function itself
-                loading_func = func
-        except KeyError:
-            raise MissingReturnType(
-                f"Function {func.__name__} used as a definition must have a return type"
-            )
         if singleton:
-            container.define(return_type, Singleton(loading_func))
+            container.define(return_type, Singleton(definition_func))
         else:
-            container.define(return_type, loading_func)
+            container.define(return_type, definition_func)
         return func
 
     return _decorator
+
+
+def _extract_definition_func_and_type(func,) -> Tuple[Callable[[], T], Type[T]]:
+    """
+    Takes a function or a generator and returns a function and the return type.
+    :param func:
+    :return:
+    """
+    try:
+        arg_spec = inspect.getfullargspec(func)
+        return_type = arg_spec.annotations[RETURN_ANNOTATION]
+    except KeyError:
+        raise MissingReturnType(
+            f"Function {func.__name__} used as a definition must have a return type"
+        )
+
+    if not inspect.isgeneratorfunction(func):
+        return func, return_type
+
+    # it's  a generator we need to request a value when loading
+    def value_from_gen():
+        return next(func())
+
+    return value_from_gen, return_type.__args__[0]  # todo: something less hacky
