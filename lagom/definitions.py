@@ -2,10 +2,10 @@
 Classes representing specific ways of representing dependencies
 """
 import inspect
-from typing import Union, Type, Optional, Callable, TypeVar, Any
+from typing import Union, Type, Optional, Callable, TypeVar
 
 from .exceptions import InvalidDependencyDefinition
-from .interfaces import SpecialDepDefinition, ReadableContainer
+from .interfaces import SpecialDepDefinition, ReadableContainer, TypeResolver
 from .util.functional import arity
 
 X = TypeVar("X")
@@ -14,7 +14,7 @@ X = TypeVar("X")
 class ConstructionWithoutContainer(SpecialDepDefinition[X]):
     """Wraps a callable for constructing a type"""
 
-    def __init__(self, constructor):
+    def __init__(self, constructor: Callable[[], X]):
         self.constructor = constructor
 
     def get_instance(self, container: ReadableContainer) -> X:
@@ -25,7 +25,7 @@ class ConstructionWithoutContainer(SpecialDepDefinition[X]):
 class ConstructionWithContainer(SpecialDepDefinition[X]):
     """Wraps a callable for constructing a type"""
 
-    def __init__(self, constructor):
+    def __init__(self, constructor: Callable[[ReadableContainer], X]):
         self.constructor = constructor
 
     def get_instance(self, container: ReadableContainer) -> X:
@@ -68,7 +68,7 @@ class Singleton(SpecialDepDefinition[X]):
     singleton_type: SpecialDepDefinition
     _instance: Optional[X]
 
-    def __init__(self, singleton_type):
+    def __init__(self, singleton_type: TypeResolver):
         self.singleton_type = normalise(singleton_type)
         self._instance = None
 
@@ -87,7 +87,7 @@ class Singleton(SpecialDepDefinition[X]):
         return instance
 
 
-def normalise(resolver: Any) -> SpecialDepDefinition:
+def normalise(resolver: TypeResolver) -> SpecialDepDefinition:
     """
     :param resolver:
     :return:
