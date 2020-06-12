@@ -148,7 +148,7 @@ class Container(ReadableContainer):
         self,
         func: Callable[..., X],
         shared: List[Type] = None,
-        keys_to_skip=None,
+        keys_to_skip: List[str] = None,
         skip_pos_up_to: int = 0,
     ) -> Callable[..., X]:
         """Takes a callable and returns a callable bound to the container
@@ -216,7 +216,7 @@ class Container(ReadableContainer):
         self,
         spec: FunctionSpec,
         suppress_error=False,
-        keys_to_skip=None,
+        keys_to_skip: List[str] = None,
         skip_pos_up_to=0,
     ):
         supplied_arguments = spec.args[0:skip_pos_up_to]
