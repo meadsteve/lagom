@@ -3,12 +3,12 @@ This module provides decorators for hooking an
 application into the container.s
 """
 import inspect
-from typing import List, Type, Callable, Tuple, TypeVar, Union, Any, Generator
+from typing import List, Type, Callable, Tuple, TypeVar
 
 from .definitions import Singleton
 from .container import Container
 from .exceptions import MissingReturnType
-from .util.reflection import RETURN_ANNOTATION
+from .util.reflection import reflect
 
 T = TypeVar("T")
 
@@ -65,10 +65,9 @@ def _extract_definition_func_and_type(func,) -> Tuple[Callable[[], T], Type[T]]:
     :param func:
     :return:
     """
-    try:
-        arg_spec = inspect.getfullargspec(func)
-        return_type = arg_spec.annotations[RETURN_ANNOTATION]
-    except KeyError:
+
+    return_type = reflect(func).return_type
+    if not return_type:
         raise MissingReturnType(
             f"Function {func.__name__} used as a definition must have a return type"
         )
