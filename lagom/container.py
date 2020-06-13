@@ -206,7 +206,7 @@ class Container(ReadableContainer):
 
     def _reflection_build(self, dep_type: Type[X]) -> X:
         spec = self._reflector.get_function_spec(dep_type.__init__)
-        sub_deps = self._infer_dependencies(spec)
+        sub_deps = self._infer_dependencies(spec, types_to_skip={dep_type})
         try:
             return dep_type(**sub_deps)  # type: ignore
         except TypeError as type_error:
@@ -218,13 +218,17 @@ class Container(ReadableContainer):
         suppress_error=False,
         keys_to_skip: List[str] = None,
         skip_pos_up_to=0,
+        types_to_skip: Set[Type] = None,
     ):
         supplied_arguments = spec.args[0:skip_pos_up_to]
         keys_to_skip = (keys_to_skip or []) + supplied_arguments
+        types_to_skip = types_to_skip or set()
         sub_deps = {
             key: self.resolve(sub_dep_type, suppress_error=suppress_error)
             for (key, sub_dep_type) in spec.annotations.items()
-            if sub_dep_type != Any and key not in keys_to_skip
+            if sub_dep_type != Any
+            and (key not in keys_to_skip)
+            and (sub_dep_type not in types_to_skip)
         }
         filtered_deps = {key: dep for (key, dep) in sub_deps.items() if dep is not None}
         return filtered_deps

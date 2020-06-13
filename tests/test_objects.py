@@ -26,6 +26,11 @@ class SomethingDefinedLater:
     pass
 
 
+class TypedSelf:
+    def __init__(self: "TypedSelf"):
+        pass
+
+
 @pytest.fixture
 def container_with_simple_dep(container: Container):
     container.define(MySimpleDep, lambda: MySimpleDep("Top stuff"))
@@ -54,3 +59,8 @@ def test_dependencies_are_built_each_request(container_with_simple_dep: Containe
 def test_forward_refs_are_fine(container: Container):
     resolved = container.resolve(DepAsAForwardRef)
     assert isinstance(resolved, DepAsAForwardRef)
+
+
+def test_explicitly_typing_self_doesnt_cause_problems(container: Container):
+    resolved = container.resolve(TypedSelf)
+    assert isinstance(resolved, TypedSelf)
