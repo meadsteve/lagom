@@ -125,24 +125,7 @@ class Container(ReadableContainer):
         :param skip_definitions:
         :return:
         """
-        try:
-            optional_dep_type = _remove_optional_type(dep_type)
-            if optional_dep_type:
-                return self.resolve(optional_dep_type, suppress_error=True)
-            if dep_type in UNRESOLVABLE_TYPES:
-                raise UnresolvableType(dep_type)
-            type_to_build = (
-                self._registered_types.get(dep_type, dep_type)
-                if not skip_definitions
-                else dep_type
-            )
-            if isinstance(type_to_build, SpecialDepDefinition):
-                return type_to_build.get_instance(self)
-            return self._reflection_build(type_to_build)
-        except UnresolvableType as inner_error:
-            if not suppress_error:
-                raise UnresolvableType(dep_type) from inner_error
-            return None  # type: ignore
+        return self._resolve(dep_type, suppress_error, skip_definitions)
 
     def partial(
         self,
@@ -184,6 +167,7 @@ class Container(ReadableContainer):
             final_skip_pos_up_to = max(skip_pos_up_to, extra_skip_pos_up_to)
             bindable_deps = container_loader()._infer_dependencies(
                 spec,
+                types_to_skip=set(),
                 suppress_error=True,
                 keys_to_skip=final_keys_to_skip,
                 skip_pos_up_to=final_skip_pos_up_to,
@@ -204,9 +188,41 @@ class Container(ReadableContainer):
     def __setitem__(self, dep: Type[X], resolver: TypeResolver[X]):
         self.define(dep, resolver)
 
-    def _reflection_build(self, dep_type: Type[X]) -> X:
+    def _resolve(
+        self,
+        dep_type: Type[X],
+        suppress_error=False,
+        skip_definitions=False,
+        types_to_skip: Set[Type] = None,
+    ):
+        types_to_skip = (types_to_skip or set()).union({dep_type})
+        try:
+            optional_dep_type = _remove_optional_type(dep_type)
+            if optional_dep_type:
+                return self._resolve(
+                    optional_dep_type,
+                    skip_definitions=skip_definitions,
+                    suppress_error=True,
+                    types_to_skip=types_to_skip,
+                )
+            if dep_type in UNRESOLVABLE_TYPES:
+                raise UnresolvableType(dep_type)
+            type_to_build = (
+                self._registered_types.get(dep_type, dep_type)
+                if not skip_definitions
+                else dep_type
+            )
+            if isinstance(type_to_build, SpecialDepDefinition):
+                return type_to_build.get_instance(self)
+            return self._reflection_build(type_to_build, types_to_skip)
+        except UnresolvableType as inner_error:
+            if not suppress_error:
+                raise UnresolvableType(dep_type) from inner_error
+            return None  # type: ignore
+
+    def _reflection_build(self, dep_type: Type[X], types_to_skip: Set[Type]) -> X:
         spec = self._reflector.get_function_spec(dep_type.__init__)
-        sub_deps = self._infer_dependencies(spec, types_to_skip={dep_type})
+        sub_deps = self._infer_dependencies(spec, types_to_skip=types_to_skip)
         try:
             return dep_type(**sub_deps)  # type: ignore
         except TypeError as type_error:
@@ -215,16 +231,19 @@ class Container(ReadableContainer):
     def _infer_dependencies(
         self,
         spec: FunctionSpec,
+        types_to_skip: Set[Type],
         suppress_error=False,
         keys_to_skip: List[str] = None,
         skip_pos_up_to=0,
-        types_to_skip: Set[Type] = None,
     ):
         supplied_arguments = spec.args[0:skip_pos_up_to]
         keys_to_skip = (keys_to_skip or []) + supplied_arguments
-        types_to_skip = types_to_skip or set()
         sub_deps = {
-            key: self.resolve(sub_dep_type, suppress_error=suppress_error)
+            key: self._resolve(
+                sub_dep_type,
+                suppress_error=suppress_error,
+                types_to_skip=types_to_skip.union({sub_dep_type}),
+            )
             for (key, sub_dep_type) in spec.annotations.items()
             if sub_dep_type != Any
             and (key not in keys_to_skip)
