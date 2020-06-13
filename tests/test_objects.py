@@ -17,6 +17,15 @@ class MyMoreComplicatedDep:
         self.stuff = "complicated " + dep.stuff
 
 
+class DepAsAForwardRef:
+    def __init__(self, dep: "SomethingDefinedLater") -> None:
+        pass
+
+
+class SomethingDefinedLater:
+    pass
+
+
 @pytest.fixture
 def container_with_simple_dep(container: Container):
     container.define(MySimpleDep, lambda: MySimpleDep("Top stuff"))
@@ -40,3 +49,8 @@ def test_dependencies_are_built_each_request(container_with_simple_dep: Containe
     first = container_with_simple_dep.resolve(dep)
     second = container_with_simple_dep.resolve(dep)
     assert first is not second
+
+
+def test_forward_refs_are_fine(container: Container):
+    resolved = container.resolve(DepAsAForwardRef)
+    assert isinstance(resolved, DepAsAForwardRef)

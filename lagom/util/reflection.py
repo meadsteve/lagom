@@ -1,7 +1,7 @@
 """Extra information about the reflection API
 """
 import inspect
-from typing import Dict, Type, List, Callable
+from typing import Dict, Type, List, Callable, get_type_hints
 
 RETURN_ANNOTATION = "return"
 
@@ -58,8 +58,7 @@ class CachingReflector:
         """
         if func not in self._reflection_cache:
             spec = inspect.getfullargspec(func)
-            ret = spec.annotations.pop(RETURN_ANNOTATION, None)
-            self._reflection_cache[func] = FunctionSpec(
-                spec.args, spec.annotations, ret
-            )
+            annotations = get_type_hints(func)
+            ret = annotations.pop(RETURN_ANNOTATION, None)
+            self._reflection_cache[func] = FunctionSpec(spec.args, annotations, ret)
         return self._reflection_cache[func]
