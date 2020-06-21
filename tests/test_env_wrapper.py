@@ -1,7 +1,7 @@
 from typing import Optional, ClassVar
 
 from lagom import Container
-from lagom.experimental.environment import Env
+from lagom.environment import Env
 
 
 class MyEnv(Env):

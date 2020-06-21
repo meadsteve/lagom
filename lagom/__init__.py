@@ -3,7 +3,7 @@ from .version import __version__
 from .definitions import Singleton, Alias
 from .container import Container
 from .decorators import bind_to_container, dependency_definition
-from . import integrations, experimental, exceptions
+from . import integrations, environment, experimental, exceptions
 
 __all__ = [
     "__version__",
@@ -15,4 +15,5 @@ __all__ = [
     "integrations",
     "experimental",
     "exceptions",
+    "environment",
 ]

@@ -26,7 +26,9 @@ from typing import ClassVar, Optional
 try:
     from pydantic.main import BaseModel
 except ImportError as error:
-    raise ImportError("Using Env requires pydantic to be installed. Try `pip install lagom[env]`") from error
+    raise ImportError(
+        "Using Env requires pydantic to be installed. Try `pip install lagom[env]`"
+    ) from error
 
 
 class Env(ABC, BaseModel):

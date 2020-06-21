@@ -1,4 +1,14 @@
 # Changelog
+## 0.15.0 (?????)
+### Enhancements
+* Moved the env loading out of experimental.
+
+### Bug fixes
+None
+
+### Backwards incompatible changes
+* Env now no longer exists in the experimental module.
+
 ## 0.14.0 (2020-06-21)
 ### Enhancements
 * Added extra requirements for env under `pip install lagom[env]`
