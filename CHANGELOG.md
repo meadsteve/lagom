@@ -1,4 +1,16 @@
 # Changelog
+## 0.14.0 (2020-06-21)
+### Enhancements
+* Added extra requirements for env under `pip install lagom[env]`
+
+
+### Bug fixes
+* Fixed a bug that meant forward refs weren't handled 05a73109b4fe7b80c8cf2eee552a78f7535a56cc
+* Fixed bug where typing self caused a loop and a crash d50fabea6f69863800b59fe730bd408432587851
+
+### Backwards incompatible changes
+None
+
 ## 0.13.0 (2020-06-10)
 ### Enhancements
 * Add a property to the container and reflector giving debug information about what's been reflected.
