@@ -96,6 +96,8 @@ def normalise(resolver: TypeResolver) -> SpecialDepDefinition:
         return resolver
     elif inspect.isfunction(resolver):
         return construction(resolver)
+    elif inspect.iscoroutinefunction(resolver):
+        return construction(resolver)
     elif not inspect.isclass(resolver):
         return Singleton(lambda: resolver)
     else:
