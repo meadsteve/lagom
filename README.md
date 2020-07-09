@@ -129,9 +129,7 @@ def handle_some_request(request: typing.Dict, game: Game):
 func_with_injection = container.partial(handle_some_request)
 ```
 
-### Loading environment variables
-
-## Environment variables (requires pydantic to be installed)
+### Loading environment variables (requires pydantic to be installed)
 
 This module provides code to automatically load environment variables from the container.
 It is built on top of (and requires) pydantic.
