@@ -58,6 +58,17 @@ def my_constructor() -> MyComplexDep:
     return MyComplexDep(some_number=5)
 ```
 
+### Defining an async loaded type
+```python
+@dependency_definition(container)
+async def my_constructor() -> MyComplexDep:
+    # await some stuff or any other async things
+    return MyComplexDep(some_number=5)
+
+my_thing = await container[Awaitable[MyComplexDep]]
+
+```
+
 ### Alias a concrete instance to an ABC
 ```python
 container[SomeAbc] = ConcreteClass
@@ -119,8 +130,35 @@ func_with_injection = container.partial(handle_some_request)
 ```
 
 ### Loading environment variables
-An experimental helper class is under beta in the experimental module.
-See documentation here: [Env loading](docs/experimental.md#environment-variables)
+
+## Environment variables (requires pydantic to be installed)
+
+This module provides code to automatically load environment variables from the container.
+It is built on top of (and requires) pydantic.
+
+At first one or more classes representing the required environment variables are defined.
+All environment variables are assumed to be all uppercase and are automatically lowercased.
+```python
+class MyWebEnv(Env):
+    port: str
+    host: str
+
+class DBEnv(Env):
+    db_host: str
+    db_password: str
+```
+
+Now that these env classes are defined they can be injected
+as usual:
+```python
+@bind_to_container(c)
+def some_function(env: DBEnv):
+    do_something(env.db_host, env.db_password)
+```
+
+For testing a manual constructed Env class can be passed in.
+At runtime the class will be populated automatically from
+the environment.
 
 ## Full Example
 

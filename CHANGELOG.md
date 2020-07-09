@@ -1,7 +1,8 @@
 # Changelog
-## 0.15.0 (?????)
+## 0.15.0 (2020-07-09)
 ### Enhancements
 * Moved the env loading out of experimental.
+* Async dependencies can be loaded using await
 
 ### Bug fixes
 None
