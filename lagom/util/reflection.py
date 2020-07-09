@@ -1,7 +1,7 @@
 """Extra information about the reflection API
 """
 import inspect
-from typing import Dict, Type, List, Callable, get_type_hints, Optional
+from typing import Dict, Type, List, Callable, get_type_hints, Optional, Awaitable
 
 RETURN_ANNOTATION = "return"
 
@@ -65,4 +65,6 @@ def reflect(func: Callable) -> FunctionSpec:
     spec = inspect.getfullargspec(func)
     annotations = get_type_hints(func)
     ret = annotations.pop(RETURN_ANNOTATION, None)
+    if ret and inspect.iscoroutinefunction(func):
+        ret = Awaitable[ret]  # type: ignore # todo: figure this out
     return FunctionSpec(spec.args, annotations, ret)
