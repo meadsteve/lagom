@@ -13,6 +13,13 @@ from .util.reflection import reflect
 T = TypeVar("T")
 
 
+def bind_to_container(container: Container):
+    def _decorator(func):
+        return func
+
+    return _decorator
+
+
 def magic_bind_to_container(container: Container, shared: List[Type] = None):
     """Decorates the function so that it's uses the container to construct things
 
