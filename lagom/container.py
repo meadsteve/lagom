@@ -144,7 +144,7 @@ class Container(ReadableContainer):
                 raise UnresolvableType(dep_type) from inner_error
             return None  # type: ignore
 
-    def partial(
+    def magic_partial(
         self,
         func: Callable[..., X],
         shared: List[Type] = None,
@@ -158,7 +158,7 @@ class Container(ReadableContainer):
         >>> c = Container()
         >>> def my_func(something: SomeClass):
         ...   return f"Successfully called with {something}"
-        >>> bound_func = c.partial(my_func)
+        >>> bound_func = c.magic_partial(my_func)
         >>> bound_func()
         'Successfully called with <tests.examples.SomeClass object at ...>'
 

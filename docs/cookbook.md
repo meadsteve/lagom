@@ -7,7 +7,7 @@ Common patterns and usages are documented here.
 from datetime import datetime
 from typing import NewType
 
-from lagom import Container, bind_to_container
+from lagom import Container, magic_bind_to_container
 
 container = Container()
 
@@ -16,7 +16,7 @@ Now = NewType("Now", datetime)
 container[Now] = lambda: datetime.now()
 
 
-@bind_to_container(container)
+@magic_bind_to_container(container)
 def month_as_a_string(now: Now):
     return now.strftime("%B")
 
@@ -38,7 +38,7 @@ import concurrent
 from concurrent.futures.thread import ThreadPoolExecutor
 from typing import NewType
 
-from lagom import Container, bind_to_container
+from lagom import Container, magic_bind_to_container
 
 container = Container()
 
@@ -51,7 +51,7 @@ container[IOBoundExecutor] = lambda : ThreadPoolExecutor(max_workers=MAX_WORKERS
 # This function now doesn't need to know details of the
 # system it's running on (CPU count). All it needs to know
 # is if the task is IO bound or not.
-@bind_to_container(container)
+@magic_bind_to_container(container)
 async def do_some_work(io_bound_executor: IOBoundExecutor):
     with io_bound_executor as executor:
         futures = {executor.submit(process_message, n) for n in range(0, 20)}

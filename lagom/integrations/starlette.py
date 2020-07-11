@@ -42,7 +42,7 @@ class StarletteContainer(Container):
         :param include_in_schema:
         :return:
         """
-        wrapped_endpoint = self.partial(endpoint, shared=self._request_singletons)
+        wrapped_endpoint = self.magic_partial(endpoint, shared=self._request_singletons)
         return Route(
             path,
             wrapped_endpoint,

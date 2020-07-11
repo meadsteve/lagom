@@ -39,7 +39,7 @@ class FlaskContainer(Container):
 
         def _decorator(f):
             endpoint = options.pop("endpoint", None)
-            injected_func = self.partial(f, shared=self._request_singletons)
+            injected_func = self.magic_partial(f, shared=self._request_singletons)
             self.flask_app.add_url_rule(rule, endpoint, injected_func, **options)
             return f
 

@@ -126,7 +126,7 @@ def handle_some_request(request: typing.Dict, game: Game):
 
 # This new function can be bound to a route or used wherever
 # need
-func_with_injection = container.partial(handle_some_request)
+func_with_injection = container.magic_partial(handle_some_request)
 ```
 
 ### Loading environment variables (requires pydantic to be installed)

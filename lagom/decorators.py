@@ -13,12 +13,12 @@ from .util.reflection import reflect
 T = TypeVar("T")
 
 
-def bind_to_container(container: Container, shared: List[Type] = None):
+def magic_bind_to_container(container: Container, shared: List[Type] = None):
     """Decorates the function so that it's uses the container to construct things
 
     >>> from tests.examples import SomeClass
     >>> c = Container()
-    >>> @bind_to_container(c)
+    >>> @magic_bind_to_container(c)
     ... def say_hello_from(sayer: SomeClass):
     ...    return f"hello from {sayer}"
     >>> say_hello_from()
@@ -27,7 +27,7 @@ def bind_to_container(container: Container, shared: List[Type] = None):
     """
 
     def _decorator(func):
-        return container.partial(func, shared=shared)
+        return container.magic_partial(func, shared=shared)
 
     return _decorator
 

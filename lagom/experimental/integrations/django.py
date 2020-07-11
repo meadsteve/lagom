@@ -136,7 +136,7 @@ class DjangoContainer(Container):
         """
         if isinstance(view, types.FunctionType):
             # Plain old function can be bound to the container
-            return self.partial(view, shared=self._request_singletons)
+            return self.magic_partial(view, shared=self._request_singletons)
         return self._bind_view_methods_to_container(view)
 
     def _bind_view_methods_to_container(self, view):
@@ -145,7 +145,7 @@ class DjangoContainer(Container):
                 setattr(
                     view,
                     method,
-                    self.partial(
+                    self.magic_partial(
                         getattr(view, method), shared=self._request_singletons
                     ),
                 )
