@@ -1,3 +1,5 @@
+import pytest
+
 from lagom import Container, bind_to_container, injectable
 
 
@@ -16,5 +18,15 @@ def example_function(message: str, resolved: MyDep = injectable) -> str:
     return resolved.value + message
 
 
+@bind_to_container(container)
+async def async_example_function(message: str, resolved: MyDep = injectable) -> str:
+    return resolved.value + message
+
+
 def test_functions_decorated_get_the_correct_argument():
     assert example_function(message=" world") == "testing world"
+
+
+@pytest.mark.asyncio
+async def test_async_functions_decorated_get_the_correct_argument():
+    assert await async_example_function(message=" world") == "testing world"
