@@ -8,6 +8,7 @@ from .exceptions import (
     DuplicateDefinition,
     InvalidDependencyDefinition,
 )
+from .markers import injectable
 from .definitions import normalise, Singleton, construction
 from .util.reflection import FunctionSpec, CachingReflector
 from .wrapping import bound_function, wrap_func_in_error_handling
@@ -145,6 +146,43 @@ class Container(ReadableContainer):
             return None  # type: ignore
 
     def partial(
+        self, func: Callable[..., X], shared: List[Type] = None,
+    ) -> Callable[..., X]:
+        """Takes a callable and returns a callable bound to the container
+        When invoking the new callable if any arguments have a default set
+        to the special marker object "injectable" then they will be constructed by
+        the container. For automatic injection without the marker use "magic_partial"
+        >>> from tests.examples import SomeClass
+        >>> c = Container()
+        >>> def my_func(something: SomeClass = injectable):
+        ...     return f"Successfully called with {something}"
+        >>> bound_func = c.magic_partial(my_func)
+        >>> bound_func()
+        'Successfully called with <tests.examples.SomeClass object at ...>'
+
+        :param func: the function to bind to the container
+        :param shared: items which should be considered singletons on a per call level
+        :return:
+        """
+        spec = self._reflector.get_function_spec(func)
+        keys_to_bind = (
+            key for (key, arg) in spec.defaults.items() if arg is injectable
+        )
+        keys_and_types = [(key, spec.annotations[key]) for key in keys_to_bind]
+
+        func_with_error_handling = wrap_func_in_error_handling(func, spec)
+        _container_loader = container_loader(self, shared)
+
+        def _bind_func(*_args):
+            c = _container_loader()
+            bindable_deps = {
+                key: c.resolve(dep_type) for (key, dep_type) in keys_and_types
+            }
+            return functools.partial(func_with_error_handling, **bindable_deps)
+
+        return bound_function(_bind_func, func)
+
+    def magic_partial(
         self,
         func: Callable[..., X],
         shared: List[Type] = None,
@@ -158,7 +196,7 @@ class Container(ReadableContainer):
         >>> c = Container()
         >>> def my_func(something: SomeClass):
         ...   return f"Successfully called with {something}"
-        >>> bound_func = c.partial(my_func)
+        >>> bound_func = c.magic_partial(my_func)
         >>> bound_func()
         'Successfully called with <tests.examples.SomeClass object at ...>'
 
@@ -168,21 +206,16 @@ class Container(ReadableContainer):
         :param skip_pos_up_to: positional arguments which the container shouldnt build
         :return:
         """
-        if shared:
-            container_loader = self._container_with_singletons_builder(shared)
-        else:
-
-            def container_loader():
-                return self
 
         spec = self._reflector.get_function_spec(func)
 
         func_with_error_handling = wrap_func_in_error_handling(func, spec)
+        _container_loader = container_loader(self, shared)
 
         def _bind_func(extra_keys_to_skip=None, extra_skip_pos_up_to=0):
             final_keys_to_skip = (keys_to_skip or []) + (extra_keys_to_skip or [])
             final_skip_pos_up_to = max(skip_pos_up_to, extra_skip_pos_up_to)
-            bindable_deps = container_loader()._infer_dependencies(
+            bindable_deps = _container_loader()._infer_dependencies(
                 spec,
                 suppress_error=True,
                 keys_to_skip=final_keys_to_skip,
@@ -233,19 +266,6 @@ class Container(ReadableContainer):
         filtered_deps = {key: dep for (key, dep) in sub_deps.items() if dep is not None}
         return filtered_deps
 
-    def _container_with_singletons_builder(self, singletons: List[Type]):
-        loaders = {dep: construction(lambda: self.resolve(dep)) for dep in singletons}
-
-        def _clone_container():
-            temp_container = self.clone()
-            # For each of the shared dependencies resolve before invocation
-            # and replace with a singleton
-            for (dep, loader) in loaders.items():
-                temp_container[dep] = Singleton(loader)
-            return temp_container
-
-        return _clone_container
-
 
 def _remove_optional_type(dep_type):
     """ if the Type is Optional[T] returns T else None
@@ -260,3 +280,28 @@ def _remove_optional_type(dep_type):
     except:
         pass
     return None
+
+
+def container_loader(container, shared):
+    if shared:
+        _container_loader = _container_with_singletons_builder(container, shared)
+    else:
+
+        def _container_loader():
+            return container
+
+    return _container_loader
+
+
+def _container_with_singletons_builder(container: Container, singletons: List[Type]):
+    loaders = {dep: construction(lambda: container.resolve(dep)) for dep in singletons}
+
+    def _clone_container():
+        temp_container = container.clone()
+        # For each of the shared dependencies resolve before invocation
+        # and replace with a singleton
+        for (dep, loader) in loaders.items():
+            temp_container[dep] = Singleton(loader)
+        return temp_container
+
+    return _clone_container

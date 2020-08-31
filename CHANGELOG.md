@@ -1,4 +1,18 @@
 # Changelog
+
+## UNRELEASED 0.16.0
+### Enhancements
+* The decorator `bind_to_container` and the function `partial` are now limited in what
+they can inject. This is a backwards incompatible enhancement.
+
+### Bug fixes
+None
+
+### Backwards incompatible changes
+* The decorator `bind_to_container` and the function `partial` now require arguments
+that are to be injected to be marked explicitly. The old behaviour is available through
+`magic_bind_to_container` and `magic_partial`.   
+
 ## 0.15.0 (2020-07-09)
 ### Enhancements
 * Moved the env loading out of experimental.

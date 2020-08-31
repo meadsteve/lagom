@@ -3,7 +3,7 @@ from random import random
 from typing import Any, ClassVar
 
 
-from lagom import Container, bind_to_container, Singleton
+from lagom import Container, magic_bind_to_container, Singleton
 
 
 class SomeCache:
@@ -32,7 +32,7 @@ class MyDepTwo:
 
 
 def test_by_default_all_resources_are_reconstructed(container: Container):
-    @bind_to_container(container)
+    @magic_bind_to_container(container)
     def example_function(dep_one: MyDepOne, dep_two: MyDepTwo):
         return {"a": dep_one.value, "b": dep_two.other_value}
 
@@ -41,7 +41,7 @@ def test_by_default_all_resources_are_reconstructed(container: Container):
 
 
 def test_invocation_level_singletons_can_be_defined(container: Container):
-    @bind_to_container(container, shared=[SomeCache])
+    @magic_bind_to_container(container, shared=[SomeCache])
     def example_function_with_invocation_level_sharing(
         dep_one: MyDepOne, dep_two: MyDepTwo
     ):
@@ -52,7 +52,7 @@ def test_invocation_level_singletons_can_be_defined(container: Container):
 
 
 def test_invocation_level_singletons_are_not_shared_across_calls(container: Container):
-    @bind_to_container(container, shared=[SomeCache])
+    @magic_bind_to_container(container, shared=[SomeCache])
     def example_function_with_invocation_level_sharing(
         dep_one: MyDepOne, dep_two: MyDepTwo
     ):
@@ -67,7 +67,7 @@ def test_invocation_level_singletons_are_not_shared_across_calls(container: Cont
 def test_that_shared_types_are_lazy_loaded(container: Container):
     SomeCache.loaded = False
 
-    @bind_to_container(container, shared=[SomeCache])
+    @magic_bind_to_container(container, shared=[SomeCache])
     def example_function_that_defines_but_doesnt_use_sharing():
         return "ok"
 
@@ -78,7 +78,7 @@ def test_that_shared_types_are_lazy_loaded(container: Container):
 def test_partial_application_returns_something_that_is_considered_a_function(
     container: Container,
 ):
-    @bind_to_container(container, shared=[SomeCache])
+    @magic_bind_to_container(container, shared=[SomeCache])
     def example_function_with_shared():
         return "ok"
 
@@ -89,7 +89,7 @@ def test_invocation_level_singletons_respect_container_singletons(container: Con
 
     container[SomeCache] = Singleton(SomeCache)
 
-    @bind_to_container(container, shared=[SomeCache])
+    @magic_bind_to_container(container, shared=[SomeCache])
     def example_function_with_invocation_level_sharing(
         dep_one: MyDepOne, dep_two: MyDepTwo
     ):

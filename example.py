@@ -3,7 +3,7 @@ from dataclasses import dataclass
 
 import typing
 
-from lagom import Container, bind_to_container
+from lagom import Container, magic_bind_to_container
 
 
 # Here is an example of some classes your application may be built from
@@ -72,7 +72,7 @@ container[DiceClient] = HttpDiceClient
 # we can partially bind functions to the container we share the
 # PlayerDB so the object can cache data locally but only for the
 # lifetime of a single request
-@bind_to_container(container, shared=[PlayerDb])
+@magic_bind_to_container(container, shared=[PlayerDb])
 def handle_some_request(request: typing.Dict, game: Game, player_db: PlayerDb):
     player_one = player_db.load(request["player_one"])
     player_two = player_db.load(request["player_two"])

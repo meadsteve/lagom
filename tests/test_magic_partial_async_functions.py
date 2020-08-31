@@ -2,7 +2,7 @@ import inspect
 
 import pytest
 
-from lagom import Container, bind_to_container
+from lagom import Container, magic_bind_to_container
 
 
 class Something:
@@ -12,7 +12,7 @@ class Something:
 def test_partial_application_async_functions_pass_iscoroutinefunction(
     container: Container,
 ):
-    @bind_to_container(container)
+    @magic_bind_to_container(container)
     async def example_async_function(message: str) -> str:
         return message
 
@@ -22,7 +22,7 @@ def test_partial_application_async_functions_pass_iscoroutinefunction(
 def test_partial_application_async_functions_with_shared_pass_iscoroutinefunction(
     container: Container,
 ):
-    @bind_to_container(container, shared=[Something])
+    @magic_bind_to_container(container, shared=[Something])
     async def example_async_function(message: str) -> str:
         return message
 
@@ -31,7 +31,7 @@ def test_partial_application_async_functions_with_shared_pass_iscoroutinefunctio
 
 @pytest.mark.asyncio
 async def test_calling_async_partials_works_as_expected(container: Container):
-    @bind_to_container(container)
+    @magic_bind_to_container(container)
     async def example_async_function(message: str) -> str:
         return message
 
@@ -42,7 +42,7 @@ async def test_calling_async_partials_works_as_expected(container: Container):
 async def test_calling_async_partials_works_as_expected_with_shared_too(
     container: Container,
 ):
-    @bind_to_container(container, shared=[Something])
+    @magic_bind_to_container(container, shared=[Something])
     async def example_async_function(message: str) -> str:
         return message
 

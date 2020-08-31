@@ -3,7 +3,7 @@ from typing import Generator, Any, ClassVar
 
 import pytest
 
-from lagom import Container, bind_to_container
+from lagom import Container, magic_bind_to_container
 from lagom.exceptions import UnableToInvokeBoundFunction
 
 
@@ -37,7 +37,7 @@ def example_generator(message: str, resolved: MyDep) -> Generator[str, Any, Any]
     yield resolved.value + " finished"
 
 
-@bind_to_container(container)
+@magic_bind_to_container(container)
 def another_example_function(message: str, resolved: MyDep) -> str:
     """
     I am DOCS
@@ -45,38 +45,38 @@ def another_example_function(message: str, resolved: MyDep) -> str:
     return resolved.value + message
 
 
-@bind_to_container(container)
+@magic_bind_to_container(container)
 def failing_to_construct_function(try_to_resolve: CantBeAutoConstructed) -> str:
     return "doesnt matter"
 
 
 def test_partial_application_can_be_applied_to_functions_with_named_args():
-    partial = container.partial(example_function)
+    partial = container.magic_partial(example_function)
     assert partial(message=" world") == "testing world"
 
 
 def test_partial_application_returns_something_that_is_considered_a_function():
-    partial = container.partial(example_function)
+    partial = container.magic_partial(example_function)
     inspect.isfunction(partial)
 
 
 def test_partial_application_can_be_applied_to_functions_with_positional_args_first():
-    partial = container.partial(example_function)
+    partial = container.magic_partial(example_function)
     assert partial(" world") == "testing world"
 
 
 def test_passed_in_arguments_are_used_over_container_generated_ones_when_positional():
-    partial = container.partial(example_function)
+    partial = container.magic_partial(example_function)
     assert partial(" world", MyDep("overridden")) == "overridden world"
 
 
 def test_passed_in_arguments_are_used_over_container_generated_ones_when_named():
-    partial = container.partial(example_function)
+    partial = container.magic_partial(example_function)
     assert partial(message=" world", resolved=MyDep("overridden")) == "overridden world"
 
 
 def test_injected_arguments_can_be_skipped():
-    partial = container.partial(example_function_with_to_injectables)
+    partial = container.magic_partial(example_function_with_to_injectables)
     assert partial(two=MyDep(" 2nd")) == "testing 2nd"
 
 
@@ -119,7 +119,7 @@ def test_if_a_typed_argument_cant_be_constructed_a_helpful_exception_is_returned
 
 
 def test_partial_application_can_be_applied_to_generators():
-    partial = container.partial(example_generator)
+    partial = container.magic_partial(example_generator)
     results = []
     for result in partial(message=" world"):
         results.append(result)
@@ -129,7 +129,7 @@ def test_partial_application_can_be_applied_to_generators():
 def test_deps_are_loaded_at_call_time_not_definition_time():
     MyDep.loaded = False
 
-    @bind_to_container(container)
+    @magic_bind_to_container(container)
     def some_random_unused_function(message: str, resolved: MyDep) -> str:
         return resolved.value + message
 

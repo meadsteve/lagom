@@ -1,7 +1,7 @@
 """Extra information about the reflection API
 """
 import inspect
-from typing import Dict, Type, List, Callable, get_type_hints, Optional, Awaitable
+from typing import Dict, Type, List, Callable, get_type_hints, Optional, Awaitable, Any
 
 RETURN_ANNOTATION = "return"
 
@@ -13,12 +13,14 @@ class FunctionSpec:
 
     args: List
     annotations: Dict[str, Type]
+    defaults: Dict[str, Any]
     return_type: Optional[Type]
     arity: int
 
-    def __init__(self, args, annotations, return_type):
+    def __init__(self, args, annotations, defaults, return_type):
         self.args = args
         self.annotations = annotations
+        self.defaults = defaults
         self.return_type = return_type
         self.arity = len(args)
 
@@ -64,7 +66,17 @@ class CachingReflector:
 def reflect(func: Callable) -> FunctionSpec:
     spec = inspect.getfullargspec(func)
     annotations = get_type_hints(func)
+    defaults = _get_default_args(func)
     ret = annotations.pop(RETURN_ANNOTATION, None)
     if ret and inspect.iscoroutinefunction(func):
         ret = Awaitable[ret]  # type: ignore # todo: figure this out
-    return FunctionSpec(spec.args, annotations, ret)
+    return FunctionSpec(spec.args, annotations, defaults, ret)
+
+
+def _get_default_args(func):
+    arguments = inspect.signature(func).parameters.items()
+    return {
+        name: argument.default
+        for name, argument in arguments
+        if argument.default is not inspect.Parameter.empty
+    }
