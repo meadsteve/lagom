@@ -6,6 +6,7 @@ class Injectable:
     This class is looked for when analysing function signatures for arguments to
     injected
     """
+
     pass
 
 

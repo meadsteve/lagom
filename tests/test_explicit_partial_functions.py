@@ -18,4 +18,3 @@ def example_function(message: str, resolved: MyDep = injectable) -> str:
 
 def test_functions_decorated_get_the_correct_argument():
     assert example_function(message=" world") == "testing world"
-
