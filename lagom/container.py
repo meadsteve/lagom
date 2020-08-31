@@ -147,7 +147,23 @@ class Container(ReadableContainer):
 
     def partial(
         self, func: Callable[..., X], shared: List[Type] = None,
-    ):
+    ) -> Callable[..., X]:
+        """Takes a callable and returns a callable bound to the container
+        When invoking the new callable if any arguments have a default set
+        to the special marker object "injectable" then they will be constructed by
+        the container. For automatic injection without the marker use "magic_partial"
+        >>> from tests.examples import SomeClass
+        >>> c = Container()
+        >>> def my_func(something: SomeClass = injectable):
+        ...     return f"Successfully called with {something}"
+        >>> bound_func = c.magic_partial(my_func)
+        >>> bound_func()
+        'Successfully called with <tests.examples.SomeClass object at ...>'
+
+        :param func: the function to bind to the container
+        :param shared: items which should be considered singletons on a per call level
+        :return:
+        """
         spec = self._reflector.get_function_spec(func)
         keys_to_bind = (
             key for (key, arg) in spec.defaults.items() if arg is injectable

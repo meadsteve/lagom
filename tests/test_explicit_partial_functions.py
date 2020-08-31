@@ -28,7 +28,7 @@ def test_functions_decorated_get_the_correct_argument():
 
 
 def test_injected_arguments_can_over_overridden():
-    assert example_function(message=" world",  resolved=MyDep("set")) == "set world"
+    assert example_function(message=" world", resolved=MyDep("set")) == "set world"
 
 
 @pytest.mark.asyncio

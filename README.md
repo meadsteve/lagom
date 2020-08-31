@@ -77,7 +77,7 @@ container[SomeAbc] = ConcreteClass
 ### Partially bind a function
 Apply a function decorator to any function.
 ```python
-@bind_to_container(container)
+@magic_bind_to_container(container)
 def handle_some_request(request: typing.Dict, game: Game):
     # do something to the game
     pass
@@ -107,7 +107,7 @@ class AvatarLoader:
     def __init__(self, loader: DataLoader):
         pass
 
-@bind_to_container(container, shared=[DataLoader])
+@magic_bind_to_container(container, shared=[DataLoader])
 def handle_some_request(request: typing.Dict, profile: ProfileLoader, user_avatar: AvatarLoader):
     # do something to the game
     pass
@@ -129,6 +129,17 @@ def handle_some_request(request: typing.Dict, game: Game):
 func_with_injection = container.magic_partial(handle_some_request)
 ```
 
+### Bind only explicit arguments to the container
+Instead of the magic binding described earlier an explicit decorator is 
+provided:
+```python
+@bind_to_container(container)
+def handle_some_request(request: typing.Dict, profile: ProfileLoader = injectable, user_avatar: AvatarLoader = injectable):
+    # do something to the game
+    pass
+```
+In this example lagom will only try and inject the `profile` and `user_avatar` arguments.
+
 ### Loading environment variables (requires pydantic to be installed)
 
 This module provides code to automatically load environment variables from the container.
@@ -149,7 +160,7 @@ class DBEnv(Env):
 Now that these env classes are defined they can be injected
 as usual:
 ```python
-@bind_to_container(c)
+@magic_bind_to_container(c)
 def some_function(env: DBEnv):
     do_something(env.db_host, env.db_password)
 ```

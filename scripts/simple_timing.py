@@ -1,4 +1,4 @@
-from lagom import Container, Singleton, magic_bind_to_container
+from lagom import Container, Singleton, magic_bind_to_container, injectable, bind_to_container
 import time
 
 
@@ -20,17 +20,17 @@ class AThingIMightNeed:
 container = Container()
 
 
-@magic_bind_to_container(container, shared=[SomeService])
-def do_work(thing: AThingIMightNeed):
+@bind_to_container(container, shared=[SomeService])
+def do_work(thing: AThingIMightNeed = injectable):
     thing.do_it()
 
 
 if __name__ == "__main__":
     start = time.perf_counter()
-    for i in range(0, 800_00):
+    for i in range(0, 1_600_00):
         #do_work(AThingIMightNeed(SomeService()))
         do_work()
     end = time.perf_counter()
     print(f"Time taken {end - start}")
 
-# 2.0
+# 4.1
