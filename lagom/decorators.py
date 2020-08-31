@@ -13,10 +13,9 @@ from .util.reflection import reflect
 T = TypeVar("T")
 
 
-def bind_to_container(container: Container):
+def bind_to_container(container: Container, shared: List[Type] = None):
     def _decorator(func):
-        return func
-
+        return container.partial(func, shared=shared)
     return _decorator
 
 

@@ -8,6 +8,7 @@ from .exceptions import (
     DuplicateDefinition,
     InvalidDependencyDefinition,
 )
+from .markers import injectable
 from .definitions import normalise, Singleton, construction
 from .util.reflection import FunctionSpec, CachingReflector
 from .wrapping import bound_function, wrap_func_in_error_handling
@@ -143,6 +144,21 @@ class Container(ReadableContainer):
             if not suppress_error:
                 raise UnresolvableType(dep_type) from inner_error
             return None  # type: ignore
+
+    def partial(self, func: Callable[..., X], shared: List[Type] = None,):
+        spec = self._reflector.get_function_spec(func)
+        keys_to_bind = (key for (key, arg) in spec.defaults.items() if arg is injectable)
+        keys_and_types = [(key, spec.annotations[key]) for key in keys_to_bind]
+
+        func_with_error_handling = wrap_func_in_error_handling(func, spec)
+        _container_loader = container_loader(self, shared)
+
+        def _bind_func(*_args):
+            c = _container_loader()
+            bindable_deps = {key: c.resolve(dep_type) for (key, dep_type) in keys_and_types}
+            return functools.partial(func_with_error_handling, **bindable_deps)
+
+        return bound_function(_bind_func, func)
 
     def magic_partial(
         self,
