@@ -1,6 +1,16 @@
 # Changelog
 
-## UNRELEASED 0.16.0
+## 0.16.1 (2020-08-31)
+### Enhancements
+* Better error on infinte loops in definitions.
+
+### Bug fixes
+None
+
+### Backwards incompatible changes
+None
+
+## 0.16.0 (2020-08-31)
 ### Enhancements
 * The decorator `bind_to_container` and the function `partial` are now limited in what
 they can inject. This is a backwards incompatible enhancement.

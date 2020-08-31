@@ -54,14 +54,35 @@ class UnresolvableType(ValueError, LagomException):
 
         :param dep_type: The type that could not be constructed
         """
-        # This first check makes 3.6 behave the same as 3.7 and later
-        if hasattr(typing, "GenericMeta") and isinstance(dep_type, typing.GenericMeta):
-            self.dep_type = str(dep_type)
-        elif hasattr(dep_type, "__name__"):
-            self.dep_type = dep_type.__name__
-        else:
-            self.dep_type = str(dep_type)
+        self.dep_type = _dep_type_as_string(dep_type)
         super().__init__(
             f"Unable to construct dependency of type {self.dep_type} "
             "The constructor probably has some unresolvable dependencies"
         )
+
+
+class RecursiveDefinitionError(SyntaxError, LagomException):
+    """Whilst trying to resolve the type python exceeded the recursion depth"""
+
+    dep_type: str
+
+    def __init__(self, dep_type: Type):
+        """
+        :param dep_type: The type that could not be constructed
+        """
+        self.dep_type = _dep_type_as_string(dep_type)
+
+        super().__init__(
+            f"When trying to build dependency of type '{self.dep_type}' python hit a recursion limit. "
+            "This could indicate a circular definition somewhere."
+        )
+
+
+def _dep_type_as_string(dep_type: Type):
+    # This first check makes 3.6 behave the same as 3.7 and later
+    if hasattr(typing, "GenericMeta") and isinstance(dep_type, typing.GenericMeta):
+        return str(dep_type)
+    elif hasattr(dep_type, "__name__"):
+        return dep_type.__name__
+
+    return str(dep_type)

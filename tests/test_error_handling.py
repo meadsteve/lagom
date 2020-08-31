@@ -3,7 +3,7 @@ from typing import List
 import pytest
 
 from lagom import Container
-from lagom.exceptions import UnresolvableType
+from lagom.exceptions import UnresolvableType, RecursiveDefinitionError
 
 
 class MyMissingDep:
@@ -43,4 +43,24 @@ def test_composite_type_failures_still_throw_sensible_errors(container):
         str(e_info.value) == "Unable to construct dependency of type "
         "typing.List[tests.test_error_handling.UnfulfilledDeps] "
         "The constructor probably has some unresolvable dependencies"
+    )
+
+
+class A:
+    def __init__(self, b: "B"):
+        pass
+
+
+class B:
+    def __init__(self, a: "A"):
+        pass
+
+
+def test_circular_imports_raise_a_clear_error(container):
+    with pytest.raises(RecursiveDefinitionError) as e_info:
+        container.resolve(A)
+    assert (
+        str(e_info.value)
+        == f"When trying to build dependency of type 'A' python hit a recursion limit. "
+        "This could indicate a circular definition somewhere."
     )

@@ -7,6 +7,7 @@ from .exceptions import (
     UnresolvableType,
     DuplicateDefinition,
     InvalidDependencyDefinition,
+    RecursiveDefinitionError,
 )
 from .markers import injectable
 from .definitions import normalise, Singleton, construction
@@ -144,6 +145,8 @@ class Container(ReadableContainer):
             if not suppress_error:
                 raise UnresolvableType(dep_type) from inner_error
             return None  # type: ignore
+        except RecursionError as recursion_error:
+            raise RecursiveDefinitionError(dep_type) from recursion_error
 
     def partial(
         self, func: Callable[..., X], shared: List[Type] = None,
