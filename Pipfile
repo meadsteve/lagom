@@ -7,7 +7,7 @@ verify_ssl = true
 mypy = "==0.770"
 black = "==19.10b0"
 flit = "~=2.3"
-mutmut = "~=2.0.0"
+mutmut = "~=2.1.0"
 interrogate = "~=1.2"
 safety = "~=1.9.0"
 pytest = "~=5.4.1"
@@ -17,10 +17,10 @@ sybil="~=1.3"
 typing-extensions = "*"
 
 # Needed for the Env class
-pydantic = "~=1.5.1"
+pydantic = "~=1.6.1"
 
 # Needed for the integrations only
-starlette = "~=0.13.2"
-fastapi = "~=0.54.2"
+starlette = "~=0.13.6"
+fastapi = "~=0.61.1"
 flask = "~=1.1"
 django = "~=3.0"
