@@ -33,8 +33,36 @@ class StarletteContainer(Container):
         include_in_schema: bool = True,
     ) -> Route:
         """Returns an instance of a starlette Route
-        The callable endpoint is bound to the cotainer so dependencies can be
-        auto-injected. All other arguments are passed on to starlette.
+        The callable endpoint is bound to the container so dependencies can be
+        injected. All other arguments are passed on to starlette.
+        :param path:
+        :param endpoint:
+        :param methods:
+        :param name:
+        :param include_in_schema:
+        :return:
+        """
+        wrapped_endpoint = self.partial(endpoint, shared=self._request_singletons)
+        return Route(
+            path,
+            wrapped_endpoint,
+            methods=methods,
+            name=name,
+            include_in_schema=include_in_schema,
+        )
+
+    def magic_route(
+        self,
+        path: str,
+        endpoint: Callable,
+        *,
+        methods: List[str] = None,
+        name: str = None,
+        include_in_schema: bool = True,
+    ) -> Route:
+        """Returns an instance of a starlette Route
+        The callable endpoint is bound to the container so dependencies can be
+        auto injected. All other arguments are passed on to starlette.
         :param path:
         :param endpoint:
         :param methods:

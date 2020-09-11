@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.17.0 (UNRELEASED)
+### Enhancements
+* Magic partial and regular partial binding for framework integrations
+
+### Bug fixes
+None
+
+### Backwards incompatible changes
+* All framework binding methods are now non magic by default
+
 ## 0.16.1 (2020-08-31)
 ### Enhancements
 * Better error on infinte loops in definitions.

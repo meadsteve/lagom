@@ -245,7 +245,7 @@ that can generate starlette routes.
 Starlette endpoints are defined in the normal way. Any extra arguments are
 then provided by the container:
 ```python
-async def homepage(request, db: DBConnection):
+async def homepage(request, db: DBConnection = injectable):
     user = db.fetch_data_for_user(request.user)
     return PlainTextResponse(f"Hello {user.name}")
 
@@ -293,7 +293,7 @@ container[Database] = Singleton(lambda: Database("connection details"))
 
 
 @container.route("/save_it/<string:thing_to_save>", methods=['POST'])
-def save_to_db(thing_to_save, db: Database):
+def save_to_db(thing_to_save, db: Database = injectable):
     db.save(thing_to_save)
     return 'saved'
 

@@ -1,6 +1,6 @@
 from starlette.routing import Route
 
-from lagom import Container
+from lagom import Container, injectable
 from lagom.integrations.starlette import StarletteContainer
 
 
@@ -13,11 +13,11 @@ class ComplexDep:
         pass
 
 
-def some_handler(request, dep: MyDep):
+def some_handler(request, dep: MyDep = injectable):
     return "ok"
 
 
-def two_dep_handler(request, dep_one: MyDep, dep_two: MyDep):
+def two_dep_handler(request, dep_one: MyDep = injectable, dep_two: MyDep = injectable):
     return "singleton" if dep_one is dep_two else "new instances"
 
 
