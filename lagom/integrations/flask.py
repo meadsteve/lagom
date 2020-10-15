@@ -35,6 +35,21 @@ class FlaskContainer(Container):
 
     def route(self, rule, **options):
         """Equivalent to the flask @route decorator
+        Injectable arguments should be set by making the default value
+        lagom.injectable
+        """
+
+        def _decorator(f):
+            endpoint = options.pop("endpoint", None)
+            injected_func = self.partial(f, shared=self._request_singletons)
+            self.flask_app.add_url_rule(rule, endpoint, injected_func, **options)
+            return f
+
+        return _decorator
+
+    def magic_route(self, rule, **options):
+        """Equivalent to the flask @route decorator
+        The injection container will try and bind all arguments
         """
 
         def _decorator(f):

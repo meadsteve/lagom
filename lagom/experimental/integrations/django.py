@@ -11,7 +11,7 @@ from .dependency_config import container
 
 
 @container.bind_view
-def index(request, dep: SomeDep, questions: DjangoModel[Question]):
+def index(request, dep: SomeDep=injectable, questions: DjangoModel[Question]=injectable):
     new_question = questions.new(question_text="What's next?", pub_date=timezone.now())
     new_question.save()
     return HttpResponse(f"plain old function: {dep.message} with {questions.objects.all().count()} questions")
@@ -19,7 +19,7 @@ def index(request, dep: SomeDep, questions: DjangoModel[Question]):
 
 @container.bind_view
 class CBVexample(View):
-    def get(self, request, dep: SomeDep):
+    def get(self, request, dep: SomeDep=injectable):
         return HttpResponse(f"Class based: {dep.message}")
 
 ```
@@ -130,6 +130,20 @@ class DjangoContainer(Container):
         """
         Takes either a plain function view or a class based view
         binds it to the container then returns something that can
+        be used in a django url definition. Only arguments with
+        a default of "lagom.injectable" will be bound to the container.
+        :param view:
+        :return:
+        """
+        if isinstance(view, types.FunctionType):
+            # Plain old function can be bound to the container
+            return self.partial(view, shared=self._request_singletons)
+        return self._bind_view_methods_to_container(view)
+
+    def magic_bind_view(self, view):
+        """
+        Takes either a plain function view or a class based view
+        binds it to the container then returns something that can
         be used in a django url definition
         :param view:
         :return:
@@ -137,16 +151,20 @@ class DjangoContainer(Container):
         if isinstance(view, types.FunctionType):
             # Plain old function can be bound to the container
             return self.magic_partial(view, shared=self._request_singletons)
-        return self._bind_view_methods_to_container(view)
+        return self._bind_view_methods_to_container(view, magic=True)
 
-    def _bind_view_methods_to_container(self, view):
+    def _bind_view_methods_to_container(self, view, magic=False):
         for method in View.http_method_names:
             if hasattr(view, method):
-                setattr(
-                    view,
-                    method,
-                    self.magic_partial(
+                if magic:
+                    bound_func = self.magic_partial(
                         getattr(view, method), shared=self._request_singletons
-                    ),
+                    )
+                else:
+                    bound_func = self.partial(
+                        getattr(view, method), shared=self._request_singletons
+                    )
+                setattr(
+                    view, method, bound_func,
                 )
         return view
