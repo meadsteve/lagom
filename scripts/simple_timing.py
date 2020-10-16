@@ -27,7 +27,7 @@ def do_work(thing: AThingIMightNeed = injectable):
 
 if __name__ == "__main__":
     start = time.perf_counter()
-    for i in range(0, 1_600_00):
+    for _ in range(1_600_00):
         #do_work(AThingIMightNeed(SomeService()))
         do_work()
     end = time.perf_counter()

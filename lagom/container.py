@@ -266,8 +266,7 @@ class Container(ReadableContainer):
             and (key not in keys_to_skip)
             and (sub_dep_type not in types_to_skip)
         }
-        filtered_deps = {key: dep for (key, dep) in sub_deps.items() if dep is not None}
-        return filtered_deps
+        return {key: dep for (key, dep) in sub_deps.items() if dep is not None}
 
 
 def _remove_optional_type(dep_type):
