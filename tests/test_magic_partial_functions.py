@@ -120,9 +120,7 @@ def test_if_a_typed_argument_cant_be_constructed_a_helpful_exception_is_returned
 
 def test_partial_application_can_be_applied_to_generators():
     partial = container.magic_partial(example_generator)
-    results = []
-    for result in partial(message=" world"):
-        results.append(result)
+    results = [result for result in partial(message=" world")]
     assert results == ["testing world", "testing finished"]
 
 

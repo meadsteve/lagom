@@ -6,7 +6,6 @@ from lagom.exceptions import InvalidDependencyDefinition
 
 class MyBasicDep:
     basic_value = 5
-    pass
 
 
 class ComplexDep:
