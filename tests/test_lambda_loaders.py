@@ -4,8 +4,6 @@ from lagom import Container
 from lagom.exceptions import InvalidDependencyDefinition
 
 
-
-
 class MyBasicDep:
     basic_value = 5
 
