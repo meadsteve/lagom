@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.17.0 (UNRELEASED)
+## 0.17.0 (2020-10-20)
 ### Enhancements
 * Magic partial and regular partial binding for framework integrations
 * Thread locks for mutable state in the caching reflector and the singletons.
