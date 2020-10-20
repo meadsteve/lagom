@@ -2,6 +2,7 @@
 Classes representing specific ways of representing dependencies
 """
 import inspect
+from threading import Lock
 from typing import Union, Type, Optional, Callable, TypeVar
 
 from .exceptions import InvalidDependencyDefinition
@@ -67,16 +68,22 @@ class Singleton(SpecialDepDefinition[X]):
 
     singleton_type: SpecialDepDefinition
     _instance: Optional[X]
+    _thread_lock: Lock
 
     def __init__(self, singleton_type: TypeResolver):
         self.singleton_type = normalise(singleton_type)
         self._instance = None
+        self._thread_lock = Lock()
 
     def get_instance(self, container: ReadableContainer) -> X:
-        if self._has_instance:
-            return self._instance  # type: ignore
-        instance = self.singleton_type.get_instance(container)
-        return self._set_instance(instance)
+        try:
+            self._thread_lock.acquire()
+            if self._has_instance:
+                return self._instance  # type: ignore
+            instance = self.singleton_type.get_instance(container)
+            return self._set_instance(instance)
+        finally:
+            self._thread_lock.release()
 
     @property
     def _has_instance(self):

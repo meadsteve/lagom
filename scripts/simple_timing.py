@@ -2,7 +2,14 @@ from lagom import Container, Singleton, magic_bind_to_container, injectable, bin
 import time
 
 
+class SomeOtherThingAsAsingleton:
+    pass
+
+
 class SomeService:
+    def __init__(self, other: SomeOtherThingAsAsingleton):
+        pass
+
     def do_it(self):
         pass
 
@@ -18,6 +25,7 @@ class AThingIMightNeed:
 
 
 container = Container()
+container[SomeOtherThingAsAsingleton] = Singleton(SomeOtherThingAsAsingleton)
 
 
 @bind_to_container(container, shared=[SomeService])
