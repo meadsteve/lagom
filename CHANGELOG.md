@@ -3,6 +3,7 @@
 ## 0.17.0 (UNRELEASED)
 ### Enhancements
 * Magic partial and regular partial binding for framework integrations
+* Thread locks for mutable state in the caching reflector and the singletons.
 
 ### Bug fixes
 None

@@ -1,6 +1,7 @@
 """Extra information about the reflection API
 """
 import inspect
+from threading import Lock
 from typing import Dict, Type, List, Callable, get_type_hints, Optional, Awaitable, Any
 
 RETURN_ANNOTATION = "return"
@@ -44,9 +45,11 @@ class CachingReflector:
     """
 
     _reflection_cache: Dict[Callable, FunctionSpec]
+    _thread_lock: Lock
 
     def __init__(self):
         self._reflection_cache = {}
+        self._thread_lock = Lock()
 
     @property
     def overview_of_cache(self) -> Dict[str, str]:
@@ -58,9 +61,13 @@ class CachingReflector:
         :param func:
         :return:
         """
-        if func not in self._reflection_cache:
-            self._reflection_cache[func] = reflect(func)
-        return self._reflection_cache[func]
+        try:
+            self._thread_lock.acquire()
+            if func not in self._reflection_cache:
+                self._reflection_cache[func] = reflect(func)
+            return self._reflection_cache[func]
+        finally:
+            self._thread_lock.release()
 
 
 def reflect(func: Callable) -> FunctionSpec:
