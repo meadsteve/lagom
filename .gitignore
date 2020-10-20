@@ -9,3 +9,5 @@ venv
 
 /html
 /.mutmut-cache
+
+Pipfile.lock
