@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Generator, Any
+from typing import Iterator
 
 import pytest
 
@@ -41,7 +41,7 @@ def test_the_functions_return_new_instances_each_time(container: Container):
 
 def test_definition_functions_can_yield_instead_of_returning(container: Container):
     @dependency_definition(container)
-    def my_constructor() -> Generator[MyComplexDep, Any, Any]:
+    def my_constructor() -> Iterator[MyComplexDep]:
         yield MyComplexDep(some_number=5)
 
     first = container[MyComplexDep]
@@ -53,7 +53,7 @@ def test_when_yielding_finally_can_be_used(container: Container):
     finally_was_executed = False
 
     @dependency_definition(container)
-    def my_constructor() -> Generator[MyComplexDep, Any, Any]:
+    def my_constructor() -> Iterator[MyComplexDep]:
         global finally_was_executed
         try:
             yield MyComplexDep(some_number=5)
