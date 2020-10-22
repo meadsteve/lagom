@@ -1,4 +1,7 @@
 # Changelog
+## 1.0.0
+
+CELEBRATE!
 
 ## 0.17.0 (UNRELEASED)
 ### Enhancements
