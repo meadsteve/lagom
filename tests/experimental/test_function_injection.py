@@ -19,6 +19,6 @@ def add_stuff(x: int, y: int) -> int:
 
 
 def test_ways_of_constructing_functions_can_be_provided(container: Container):
-    container[Callable[[int, int], int]] = PlainFunction(add_stuff)
+    container[Callable[[int, int], int]] = PlainFunction(add_stuff)  # type: ignore
     erm = container[ClassNeedingAFunction]
     assert erm.trigger(2, 3) == 5

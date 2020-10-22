@@ -30,12 +30,12 @@ class MyDepWithAnOptionalThatCantBeBuilt:
 
 def test_missing_optional_dependencies_cause_no_errors(container: Container):
     resolved = container.resolve(MyDepWithAnOptionalThatCantBeBuilt)
-    assert resolved.success == "yes"  # type: ignore
+    assert resolved.success == "yes"
 
 
 def test_defaults_for_optional_types_are_honoured(container: Container):
     resolved = container.resolve(MyDepWithAnOptionalThatCantBeBuilt)
-    assert resolved.dep == "weird default"  # type: ignore
+    assert resolved.dep == "weird default"
 
 
 def test_optional_dependencies_are_understood_and_injected(container: Container):
@@ -44,4 +44,4 @@ def test_optional_dependencies_are_understood_and_injected(container: Container)
 
 
 def test_we_can_ask_for_optional_things_that_cant_be_constructed(container: Container):
-    assert container.resolve(Optional[MyComplexDep]) is None
+    assert container.resolve(Optional[MyComplexDep]) is None  # type: ignore

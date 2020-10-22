@@ -20,4 +20,4 @@ class FakeDjangoModel:
 
 @pytest.fixture(scope="function")
 def django_container():
-    return DjangoContainer(models=[FakeDjangoModel])  # type: ignore
+    return DjangoContainer(models=[FakeDjangoModel])
