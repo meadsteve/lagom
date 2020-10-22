@@ -15,6 +15,9 @@ classifiers = [
   "Programming Language :: Python :: 3.8"
 ]
 
+[tool.flit.sdist]
+include = ["lagom/githash.txt"]
+exclude = ["tests/", "scripts/"]
 
 [tool.flit.metadata.requires-extra]
 env = ["pydantic >=1.0.0,<2.0.0"]

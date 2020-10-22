@@ -5,6 +5,7 @@
 * (internal detail) when a plain object is provided to the container as a definition it is
 no longer wrapped as a Singleton, but stored instead as PlainInstance. This allows the container
 to skip any thread locks added in the singleton logic.
+* add publishing logic to ship git commit hash with package.
 
 ### Bug fixes
 None

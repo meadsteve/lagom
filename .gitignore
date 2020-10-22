@@ -10,3 +10,5 @@ venv
 /html
 
 Pipfile.lock
+
+lagom/githash.txt
