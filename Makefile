@@ -17,7 +17,7 @@ update:
 test: test_mypy test_unit enforce_docs test_doctests test_format test_package_safety
 
 test_mypy:
-	pipenv run mypy --config-file mypy.ini
+	pipenv run mypy --config-file mypy.ini lagom tests
 
 test_unit:
 	pipenv run pytest tests -vv
