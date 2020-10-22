@@ -94,6 +94,18 @@ class Singleton(SpecialDepDefinition[X]):
         return instance
 
 
+class PlainInstance(SpecialDepDefinition[X]):
+    """Wraps an actual object that should just be returned"""
+
+    value: X
+
+    def __init__(self, value):
+        self.value = value
+
+    def get_instance(self, _) -> X:
+        return self.value
+
+
 def normalise(resolver: TypeResolver) -> SpecialDepDefinition:
     """
     :param resolver:
@@ -105,7 +117,7 @@ def normalise(resolver: TypeResolver) -> SpecialDepDefinition:
         return construction(resolver)
     elif inspect.iscoroutinefunction(resolver):
         return construction(resolver)
-    elif not inspect.isclass(resolver):
-        return Singleton(lambda: resolver)
-    else:
+    elif inspect.isclass(resolver):
         return Alias(resolver)
+    else:
+        return PlainInstance(resolver)

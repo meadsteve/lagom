@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.18.0 (PENDING)
+### Enhancements
+* (internal detail) when a plain object is provided to the container as a definition it is
+no longer wrapped as a Singleton, but stored instead as PlainInstance. This allows the container
+to skip any thread locks added in the singleton logic.
+
+### Bug fixes
+None
+
+### Backwards incompatible changes
+None
+
 ## 0.17.0 (2020-10-20)
 ### Enhancements
 * Magic partial and regular partial binding for framework integrations
