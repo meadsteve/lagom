@@ -7,7 +7,6 @@ verify_ssl = true
 mypy = "==0.770"
 black = "==19.10b0"
 flit = "~=3.0"
-mutmut = "~=2.1.0"
 interrogate = "~=1.2"
 safety = "~=1.9.0"
 pytest = "~=5.4.1"

@@ -1,4 +1,4 @@
-.PHONY: setup setup_pipenv install update test test_mypy test_unit test_format test_doctests test_package_safety publish mutate format enforce_docs
+.PHONY: setup setup_pipenv install update test test_mypy test_unit test_format test_doctests test_package_safety publish format enforce_docs
 PIPENV_VERBOSITY=-1
 
 setup: setup_pipenv install
@@ -33,11 +33,6 @@ test_package_safety:
 
 publish:
 	./scripts/publish.sh
-
-mutate:
-	pipenv run mutmut run
-	pipenv run mutmut html
-	xdg-open ./html/index.html
 
 coverage:
 	pipenv run pytest tests -vv --cov=lagom --cov-report=html

@@ -8,6 +8,5 @@ venv
 /htmlcov
 
 /html
-/.mutmut-cache
 
 Pipfile.lock
