@@ -1,6 +1,13 @@
 # Changelog
 
-## 0.18.0 (PENDING)
+## 0.18.1 (2020-10-23)
+### Enhancements
+* Better interface for build version info.
+
+### Bug fixes
+* fix but in retrieving the git hash from the package.
+
+## 0.18.0 (2020-10-23)
 ### Enhancements
 * (internal detail) when a plain object is provided to the container as a definition it is
 no longer wrapped as a Singleton, but stored instead as PlainInstance. This allows the container
