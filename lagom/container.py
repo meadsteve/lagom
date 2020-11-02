@@ -1,4 +1,5 @@
 import functools
+import inspect
 from copy import copy
 from typing import Dict, Type, Any, TypeVar, Callable, Set, List, Optional
 
@@ -176,14 +177,25 @@ class Container(ReadableContainer):
         func_with_error_handling = wrap_func_in_error_handling(func, spec)
         _container_loader = container_loader(self, shared)
 
-        def _bind_func(*_args):
+        def _updated_kwargs(supplied_kwargs):
             c = _container_loader()
-            bindable_deps = {
-                key: c.resolve(dep_type) for (key, dep_type) in keys_and_types
-            }
-            return functools.partial(func_with_error_handling, **bindable_deps)
+            kwargs = {key: c.resolve(dep_type) for (key, dep_type) in keys_and_types}
+            kwargs.update(supplied_kwargs)
+            return kwargs
 
-        return bound_function(_bind_func, func)
+        if inspect.iscoroutinefunction(func):
+
+            @functools.wraps(func)
+            async def _bound_func(*args, **kwargs):
+                return await func_with_error_handling(*args, **_updated_kwargs(kwargs))
+
+        else:
+
+            @functools.wraps(func)
+            def _bound_func(*args, **kwargs):
+                return func_with_error_handling(*args, **_updated_kwargs(kwargs))
+
+        return _bound_func
 
     def magic_partial(
         self,
