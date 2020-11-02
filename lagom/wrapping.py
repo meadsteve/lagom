@@ -2,28 +2,15 @@
 Code in this module is used to wrap and decorate functions that have been
 bound to a container
 """
+import functools
 import inspect
 from typing import TypeVar, Callable, List
 
 from .exceptions import UnableToInvokeBoundFunction
 from .util.reflection import FunctionSpec
 
-INTROSPECTION_ATTRS = (
-    "__module__",
-    "__name__",
-    "__qualname__",
-    "__doc__",
-    "__annotations__",
-)
 
 T = TypeVar("T")
-
-
-def decorated_wrapper(wrapped: T, original) -> T:
-    for attr in INTROSPECTION_ATTRS:
-        if hasattr(original, attr):
-            setattr(wrapped, attr, getattr(original, attr))
-    return wrapped
 
 
 # A function builder is wrapped around a supplied function and
@@ -38,6 +25,7 @@ FunctionBuilder = Callable[[List[str], int], Callable]
 def bound_function(function_builder: FunctionBuilder, original_function: Callable):
     if inspect.iscoroutinefunction(original_function):
 
+        @functools.wraps(original_function)
         async def _wrapped_function(*args, **kwargs):
             named_args_to_skip = list(kwargs.keys())
             pos_args_to_skip = len(args)
@@ -47,6 +35,7 @@ def bound_function(function_builder: FunctionBuilder, original_function: Callabl
 
     else:
 
+        @functools.wraps(original_function)
         def _wrapped_function(*args, **kwargs):
             named_args_to_skip = list(kwargs.keys())
             pos_args_to_skip = len(args)
@@ -54,7 +43,7 @@ def bound_function(function_builder: FunctionBuilder, original_function: Callabl
                 *args, **kwargs
             )
 
-    return decorated_wrapper(_wrapped_function, original_function)
+    return _wrapped_function
 
 
 def wrap_func_in_error_handling(func: Callable, spec: FunctionSpec):
