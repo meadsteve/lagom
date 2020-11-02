@@ -177,23 +177,25 @@ class Container(ReadableContainer):
         func_with_error_handling = wrap_func_in_error_handling(func, spec)
         _container_loader = container_loader(self, shared)
 
-        def _updated_kwargs(supplied_kwargs):
+        def _updated_args(supplied_args, supplied_kwargs):
             c = _container_loader()
             kwargs = {key: c.resolve(dep_type) for (key, dep_type) in keys_and_types}
             kwargs.update(supplied_kwargs)
-            return kwargs
+            return supplied_args, kwargs
 
         if inspect.iscoroutinefunction(func):
 
             @functools.wraps(func)
             async def _bound_func(*args, **kwargs):
-                return await func_with_error_handling(*args, **_updated_kwargs(kwargs))
+                bound_args, bound_kwargs = _updated_args(args, kwargs)
+                return await func_with_error_handling(*bound_args, **bound_kwargs)
 
         else:
 
             @functools.wraps(func)
             def _bound_func(*args, **kwargs):
-                return func_with_error_handling(*args, **_updated_kwargs(kwargs))
+                bound_args, bound_kwargs = _updated_args(args, kwargs)
+                return func_with_error_handling(*bound_args, **bound_kwargs)
 
         return _bound_func
 
