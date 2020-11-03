@@ -4,6 +4,7 @@
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/meadsteve/lagom/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/meadsteve/lagom/?branch=master)
 [![Code Coverage](https://scrutinizer-ci.com/g/meadsteve/lagom/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/meadsteve/lagom/?branch=master)
 ![PyPI](https://img.shields.io/pypi/v/lagom.svg?style=plastic)
+[![Downloads](https://pepy.tech/badge/lagom/month)](https://pepy.tech/project/lagom/month)
 
 ## What
 Lagom is a dependency injection container designed to give you "just enough"
