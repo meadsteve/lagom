@@ -4,49 +4,31 @@ bound to a container
 """
 import functools
 import inspect
-from typing import TypeVar, Callable, List
 
 from .exceptions import UnableToInvokeBoundFunction
 from .util.reflection import FunctionSpec
 
 
-T = TypeVar("T")
+def apply_argument_updater(func, spec: FunctionSpec, argument_updater):
+    func_with_error_handling = wrap_func_in_error_handling(func, spec)
+    if inspect.iscoroutinefunction(func):
 
-
-# A function builder is wrapped around a supplied function and
-# bound to the container. When called a new function will be returned
-# which is the same as the original function but with some arguments supplied
-# from the container. The arguments tell the container what it doesn't need to build
-# first argument is a list of kwargs to skip the second the number of positional arguments
-# to ignore.
-FunctionBuilder = Callable[[List[str], int], Callable]
-
-
-def bound_function(function_builder: FunctionBuilder, original_function: Callable):
-    if inspect.iscoroutinefunction(original_function):
-
-        @functools.wraps(original_function)
-        async def _wrapped_function(*args, **kwargs):
-            named_args_to_skip = list(kwargs.keys())
-            pos_args_to_skip = len(args)
-            return await function_builder(named_args_to_skip, pos_args_to_skip)(
-                *args, **kwargs
-            )
+        @functools.wraps(func)
+        async def _bound_func(*args, **kwargs):
+            bound_args, bound_kwargs = argument_updater(args, kwargs)
+            return await func_with_error_handling(*bound_args, **bound_kwargs)
 
     else:
 
-        @functools.wraps(original_function)
-        def _wrapped_function(*args, **kwargs):
-            named_args_to_skip = list(kwargs.keys())
-            pos_args_to_skip = len(args)
-            return function_builder(named_args_to_skip, pos_args_to_skip)(
-                *args, **kwargs
-            )
+        @functools.wraps(func)
+        def _bound_func(*args, **kwargs):
+            bound_args, bound_kwargs = argument_updater(args, kwargs)
+            return func_with_error_handling(*bound_args, **bound_kwargs)
 
-    return _wrapped_function
+    return _bound_func
 
 
-def wrap_func_in_error_handling(func: Callable, spec: FunctionSpec):
+def wrap_func_in_error_handling(func, spec: FunctionSpec):
     """
     Takes a func and its spec and returns a function that's the same
     but with more useful TypeError messages
@@ -55,6 +37,7 @@ def wrap_func_in_error_handling(func: Callable, spec: FunctionSpec):
     :return:
     """
 
+    @functools.wraps(func)
     def _error_handling_func(*args, **kwargs):
         try:
             return func(*args, **kwargs)
