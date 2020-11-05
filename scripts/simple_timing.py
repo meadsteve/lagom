@@ -1,3 +1,5 @@
+import cProfile
+
 from lagom import Container, Singleton, magic_bind_to_container, injectable, bind_to_container
 import time
 
@@ -33,12 +35,11 @@ def do_work(thing: AThingIMightNeed = injectable):
     thing.do_it()
 
 
-if __name__ == "__main__":
-    start = time.perf_counter()
+def run_test():
     for _ in range(1_600_00):
-        #do_work(AThingIMightNeed(SomeService()))
         do_work()
-    end = time.perf_counter()
-    print(f"Time taken {end - start}")
 
-# 4.1
+
+if __name__ == "__main__":
+    cProfile.run("run_test()")
+
