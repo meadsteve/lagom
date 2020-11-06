@@ -7,7 +7,8 @@ class Injectable:
     injected
     """
 
-    pass
+    def __bool__(self):
+        return False
 
 
 # singleton object used to indicate that an argument should be injected
