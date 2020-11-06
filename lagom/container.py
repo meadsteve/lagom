@@ -1,4 +1,3 @@
-import functools
 from copy import copy
 from typing import Dict, Type, Any, TypeVar, Callable, Set, List, Optional
 
@@ -12,7 +11,7 @@ from .exceptions import (
 from .markers import injectable
 from .definitions import normalise, Singleton, construction
 from .util.reflection import FunctionSpec, CachingReflector
-from .wrapping import bound_function, wrap_func_in_error_handling
+from .wrapping import apply_argument_updater
 
 UNRESOLVABLE_TYPES = [str, int, float, bool]
 
@@ -173,17 +172,15 @@ class Container(ReadableContainer):
         )
         keys_and_types = [(key, spec.annotations[key]) for key in keys_to_bind]
 
-        func_with_error_handling = wrap_func_in_error_handling(func, spec)
         _container_loader = container_loader(self, shared)
 
-        def _bind_func(*_args):
+        def _update_args(supplied_args, supplied_kwargs):
             c = _container_loader()
-            bindable_deps = {
-                key: c.resolve(dep_type) for (key, dep_type) in keys_and_types
-            }
-            return functools.partial(func_with_error_handling, **bindable_deps)
+            kwargs = {key: c.resolve(dep_type) for (key, dep_type) in keys_and_types}
+            kwargs.update(supplied_kwargs)
+            return supplied_args, kwargs
 
-        return bound_function(_bind_func, func)
+        return apply_argument_updater(func, spec, _update_args)
 
     def magic_partial(
         self,
@@ -212,21 +209,21 @@ class Container(ReadableContainer):
 
         spec = self._reflector.get_function_spec(func)
 
-        func_with_error_handling = wrap_func_in_error_handling(func, spec)
         _container_loader = container_loader(self, shared)
 
-        def _bind_func(extra_keys_to_skip=None, extra_skip_pos_up_to=0):
-            final_keys_to_skip = (keys_to_skip or []) + (extra_keys_to_skip or [])
-            final_skip_pos_up_to = max(skip_pos_up_to, extra_skip_pos_up_to)
-            bindable_deps = _container_loader()._infer_dependencies(
+        def _update_args(supplied_args, supplied_kwargs):
+            final_keys_to_skip = (keys_to_skip or []) + list(supplied_kwargs.keys())
+            final_skip_pos_up_to = max(skip_pos_up_to, len(supplied_args))
+            kwargs = _container_loader()._infer_dependencies(
                 spec,
                 suppress_error=True,
                 keys_to_skip=final_keys_to_skip,
                 skip_pos_up_to=final_skip_pos_up_to,
             )
-            return functools.partial(func_with_error_handling, **bindable_deps)
+            kwargs.update(supplied_kwargs)
+            return supplied_args, kwargs
 
-        return bound_function(_bind_func, func)
+        return apply_argument_updater(func, spec, _update_args)
 
     def clone(self):
         """ returns a copy of the container
