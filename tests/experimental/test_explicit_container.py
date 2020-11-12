@@ -1,6 +1,7 @@
 import pytest
 
-from lagom import Container
+from lagom import Container, Singleton
+from lagom.exceptions import InvalidDependencyDefinition
 from lagom.experimental.exceptions import DependencyNotDefined
 
 
@@ -27,22 +28,31 @@ def test_the_error_suppression_flag_is_honoured(explicit_container: Container):
     assert explicit_container.resolve(SomethingToBuild, suppress_error=True) is None
 
 
-def test_an_alias_counts_as_definition(explicit_container: Container):
-    explicit_container[SomethingToBuild] = SomethingToBuild
+def test_an_can_build_with_basic_lambdas(explicit_container: Container):
+    explicit_container[SomethingToBuild] = lambda: SomethingToBuild()
 
     built_object = explicit_container.resolve(SomethingToBuild)
     assert isinstance(built_object, SomethingToBuild)
 
 
-def test_the_explicit_rule_applies_to_inner_objects_too(explicit_container: Container):
-    explicit_container[SomethingBiggerToBuild] = SomethingBiggerToBuild
+def test_aliases_arent_valid_as_they_require_reflection(explicit_container: Container):
 
-    with pytest.raises(DependencyNotDefined) as e_info:
-        explicit_container.resolve(SomethingBiggerToBuild)
+    with pytest.raises(InvalidDependencyDefinition) as e_info:
+        explicit_container[SomethingBiggerToBuild] = SomethingBiggerToBuild
+
+    assert str(e_info.value) == "Aliases are not valid in an explicit container"
+
+
+def test_singletons_with_aliases_arent_valid_as_they_require_reflection(
+    explicit_container: Container,
+):
+
+    with pytest.raises(InvalidDependencyDefinition) as e_info:
+        explicit_container[SomethingBiggerToBuild] = Singleton(SomethingBiggerToBuild)
 
     assert (
         str(e_info.value)
-        == "SomethingToBuild has not been defined. In an explict container all dependencies must be defined"
+        == "Aliases are not valid inside singletons in an explicit container"
     )
 
 

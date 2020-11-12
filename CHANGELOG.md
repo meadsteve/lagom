@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.19.0 (PENDING)
+### Enhancements
+* Experimental ExplicitContainer has been made faster and returns more user friendly
+errors.
+
+### Bug fixes
+None
+
+### Backwards incompatible changes
+None
+
 ## 0.18.1 (2020-10-23)
 ### Enhancements
 * Better interface for build version info.

@@ -65,12 +65,13 @@ class Container(ReadableContainer):
             self._registered_types = {}
             self._reflector = CachingReflector()
 
-    def define(self, dep: Type[X], resolver: TypeResolver[X]) -> None:
+    def define(self, dep: Type[X], resolver: TypeResolver[X]) -> SpecialDepDefinition:
         """Register how to construct an object of type X
 
         >>> from tests.examples import SomeClass
         >>> c = Container()
         >>> c.define(SomeClass, lambda: SomeClass())
+        <lagom.definitions.ConstructionWithoutContainer ...>
 
         :param dep: The type to be constructed
         :param resolver: A definition of how to construct it
@@ -80,8 +81,10 @@ class Container(ReadableContainer):
             raise InvalidDependencyDefinition()
         if dep in self._explicitly_registered_types:
             raise DuplicateDefinition()
-        self._registered_types[dep] = normalise(resolver)
+        definition = normalise(resolver)
+        self._registered_types[dep] = definition
         self._explicitly_registered_types.add(dep)
+        return definition
 
     @property
     def defined_types(self) -> Set[Type]:
