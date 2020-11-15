@@ -1,6 +1,6 @@
 import functools
 from copy import copy
-from typing import Dict, Type, Any, TypeVar, Callable, Set, List, Optional
+from typing import Dict, Type, Any, TypeVar, Callable, Set, List, Optional, Generic
 
 from .interfaces import SpecialDepDefinition, ReadableContainer, TypeResolver
 from .exceptions import (
@@ -101,7 +101,7 @@ class Container(ReadableContainer):
 
     def temporary_singletons(
         self, singletons: List[Type] = None
-    ) -> "_TemporaryInjectionContext":
+    ) -> "_TemporaryInjectionContext[Container]":
         """
         Returns a context that loads a new container with singletons that only exist
         for the context.
@@ -297,11 +297,16 @@ class Container(ReadableContainer):
         return {key: dep for (key, dep) in sub_deps.items() if dep is not None}
 
 
-class _TemporaryInjectionContext:
+C = TypeVar("C", bound=ReadableContainer)
 
-    _base_container: Container
 
-    def __init__(self, container: Container, update_function=None):
+class _TemporaryInjectionContext(Generic[C]):
+
+    _base_container: C
+
+    def __init__(
+        self, container: C, update_function: Optional[Callable[[C], C]] = None
+    ):
         self._base_container = container
         if update_function:
             self._build_temporary_container = lambda: update_function(
@@ -310,7 +315,7 @@ class _TemporaryInjectionContext:
         else:
             self._build_temporary_container = lambda: self._base_container
 
-    def __enter__(self) -> Container:
+    def __enter__(self) -> C:
         return self._build_temporary_container()
 
     def __exit__(self, exc_type, exc_val, exc_tb):
