@@ -4,6 +4,7 @@
 ### Enhancements
 * Experimental ExplicitContainer has been made faster and returns more user friendly
 errors.
+* Context manager for working with temporary singletons added.
 
 ### Bug fixes
 None
