@@ -1,5 +1,6 @@
+import functools
 from copy import copy
-from typing import Dict, Type, Any, TypeVar, Callable, Set, List, Optional
+from typing import Dict, Type, Any, TypeVar, Callable, Set, List, Optional, Generic
 
 from .interfaces import SpecialDepDefinition, ReadableContainer, TypeResolver
 from .exceptions import (
@@ -98,6 +99,30 @@ class Container(ReadableContainer):
     def reflection_cache_overview(self) -> Dict[str, str]:
         return self._reflector.overview_of_cache
 
+    def temporary_singletons(
+        self, singletons: List[Type] = None
+    ) -> "_TemporaryInjectionContext[Container]":
+        """
+        Returns a context that loads a new container with singletons that only exist
+        for the context.
+
+        >>> from tests.examples import SomeClass
+        >>> base_container = Container()
+        >>> def my_func():
+        ...     with base_container.temporary_singletons([SomeClass]) as c:
+        ...         assert c[SomeClass] is c[SomeClass]
+        >>> my_func()
+
+        :param singletons: items which should be considered singletons within the context
+        :return:
+        """
+        updater = (
+            functools.partial(_update_container_singletons, singletons=singletons)
+            if singletons
+            else None
+        )
+        return _TemporaryInjectionContext(self, updater)
+
     def resolve(
         self, dep_type: Type[X], suppress_error=False, skip_definitions=False
     ) -> X:
@@ -175,11 +200,13 @@ class Container(ReadableContainer):
         )
         keys_and_types = [(key, spec.annotations[key]) for key in keys_to_bind]
 
-        _container_loader = container_loader(self, shared)
+        _injection_context = self.temporary_singletons(shared)
 
         def _update_args(supplied_args, supplied_kwargs):
-            c = _container_loader()
-            kwargs = {key: c.resolve(dep_type) for (key, dep_type) in keys_and_types}
+            with _injection_context as c:
+                kwargs = {
+                    key: c.resolve(dep_type) for (key, dep_type) in keys_and_types
+                }
             kwargs.update(supplied_kwargs)
             return supplied_args, kwargs
 
@@ -212,17 +239,18 @@ class Container(ReadableContainer):
 
         spec = self._reflector.get_function_spec(func)
 
-        _container_loader = container_loader(self, shared)
+        _injection_context = self.temporary_singletons(shared)
 
         def _update_args(supplied_args, supplied_kwargs):
             final_keys_to_skip = (keys_to_skip or []) + list(supplied_kwargs.keys())
             final_skip_pos_up_to = max(skip_pos_up_to, len(supplied_args))
-            kwargs = _container_loader()._infer_dependencies(
-                spec,
-                suppress_error=True,
-                keys_to_skip=final_keys_to_skip,
-                skip_pos_up_to=final_skip_pos_up_to,
-            )
+            with _injection_context as c:
+                kwargs = c._infer_dependencies(
+                    spec,
+                    suppress_error=True,
+                    keys_to_skip=final_keys_to_skip,
+                    skip_pos_up_to=final_skip_pos_up_to,
+                )
             kwargs.update(supplied_kwargs)
             return supplied_args, kwargs
 
@@ -269,6 +297,31 @@ class Container(ReadableContainer):
         return {key: dep for (key, dep) in sub_deps.items() if dep is not None}
 
 
+C = TypeVar("C", bound=ReadableContainer)
+
+
+class _TemporaryInjectionContext(Generic[C]):
+
+    _base_container: C
+
+    def __init__(
+        self, container: C, update_function: Optional[Callable[[C], C]] = None
+    ):
+        self._base_container = container
+        if update_function:
+            self._build_temporary_container = lambda: update_function(
+                self._base_container
+            )
+        else:
+            self._build_temporary_container = lambda: self._base_container
+
+    def __enter__(self) -> C:
+        return self._build_temporary_container()
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
+
+
 def _remove_optional_type(dep_type):
     """ if the Type is Optional[T] returns T else None
 
@@ -284,26 +337,9 @@ def _remove_optional_type(dep_type):
     return None
 
 
-def container_loader(container, shared):
-    if shared:
-        _container_loader = _container_with_singletons_builder(container, shared)
-    else:
-
-        def _container_loader():
-            return container
-
-    return _container_loader
-
-
-def _container_with_singletons_builder(container: Container, singletons: List[Type]):
+def _update_container_singletons(container: Container, singletons: List[Type]):
+    new_container = container.clone()
     loaders = {dep: construction(lambda: container.resolve(dep)) for dep in singletons}
-
-    def _clone_container():
-        temp_container = container.clone()
-        # For each of the shared dependencies resolve before invocation
-        # and replace with a singleton
-        for (dep, loader) in loaders.items():
-            temp_container[dep] = Singleton(loader)
-        return temp_container
-
-    return _clone_container
+    for (dep, loader) in loaders.items():
+        new_container[dep] = Singleton(loader)
+    return new_container
