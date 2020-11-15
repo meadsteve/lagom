@@ -53,6 +53,10 @@ class CachingReflector:
 
     @property
     def overview_of_cache(self) -> Dict[str, str]:
+        """
+        Gives a humanish readable representation of what has been reflected on
+        :return:
+        """
         return {k.__qualname__: repr(v) for (k, v) in self._reflection_cache.items()}
 
     def get_function_spec(self, func) -> FunctionSpec:
@@ -77,6 +81,11 @@ class CachingReflector:
 
 
 def reflect(func: Callable) -> FunctionSpec:
+    """
+    Extension to inspect.getfullargspec with a little more.
+    :param func:
+    :return:
+    """
     spec = inspect.getfullargspec(func)
     annotations = get_type_hints(func)
     defaults = _get_default_args(func)

@@ -40,6 +40,14 @@ class Env(ABC, BaseModel):
     PREFIX: ClassVar[Optional[str]] = None
 
     def __init__(self, **kwargs):
+        """
+        For normal usage no arguments should be supplied to the constructor.
+        When this happens all required variables will be loaded from the Environment.
+        For testing you may want to create an instance with variables explicitly set
+        in the constructor.
+
+        :param kwargs:
+        """
         if len(kwargs) == 0:
             prefix = f"{self.PREFIX}_" if self.PREFIX else ""
             envs = os.environ.items()
