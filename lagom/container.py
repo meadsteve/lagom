@@ -99,7 +99,7 @@ class Container(ReadableContainer):
     def reflection_cache_overview(self) -> Dict[str, str]:
         return self._reflector.overview_of_cache
 
-    def with_singletons(
+    def temporary_singletons(
         self, shared: List[Type] = None
     ) -> "_TemporaryInjectionContext":
         """
@@ -191,7 +191,7 @@ class Container(ReadableContainer):
         )
         keys_and_types = [(key, spec.annotations[key]) for key in keys_to_bind]
 
-        _injection_context = self.with_singletons(shared)
+        _injection_context = self.temporary_singletons(shared)
 
         def _update_args(supplied_args, supplied_kwargs):
             with _injection_context as c:
@@ -230,7 +230,7 @@ class Container(ReadableContainer):
 
         spec = self._reflector.get_function_spec(func)
 
-        _injection_context = self.with_singletons(shared)
+        _injection_context = self.temporary_singletons(shared)
 
         def _update_args(supplied_args, supplied_kwargs):
             final_keys_to_skip = (keys_to_skip or []) + list(supplied_kwargs.keys())
