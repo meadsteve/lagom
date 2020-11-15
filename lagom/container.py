@@ -1,7 +1,19 @@
 import functools
 import logging
 from copy import copy
-from typing import Dict, Type, Any, TypeVar, Callable, Set, List, Optional, Generic
+from typing import (
+    Dict,
+    Type,
+    Any,
+    TypeVar,
+    Callable,
+    Set,
+    List,
+    Optional,
+    Generic,
+    cast,
+    Union,
+)
 
 from .interfaces import SpecialDepDefinition, ReadableContainer, TypeResolver
 from .exceptions import (
@@ -57,7 +69,9 @@ class Container(ReadableContainer):
     _undefined_logger: logging.Logger
 
     def __init__(
-        self, container: Optional["Container"] = None, log_undefined_deps=False
+        self,
+        container: Optional["Container"] = None,
+        log_undefined_deps: Union[bool, logging.Logger] = False,
     ):
         """
         :param container: Optional container if provided the existing definitions will be copied
@@ -76,12 +90,8 @@ class Container(ReadableContainer):
             self._undefined_logger = NullLogger()
         elif log_undefined_deps is True:
             self._undefined_logger = logging.getLogger(__name__)
-        elif isinstance(log_undefined_deps, logging.Logger):
-            self._undefined_logger = log_undefined_deps
         else:
-            raise RuntimeError(
-                "Invalid value for log_undefined_deps expected True or a Logger instance"
-            )
+            self._undefined_logger = cast(logging.Logger, log_undefined_deps)
 
     def define(self, dep: Type[X], resolver: TypeResolver[X]) -> SpecialDepDefinition:
         """Register how to construct an object of type X
@@ -277,7 +287,7 @@ class Container(ReadableContainer):
         """ returns a copy of the container
         :return:
         """
-        return Container(self)
+        return Container(self, log_undefined_deps=self._undefined_logger)
 
     def __getitem__(self, dep: Type[X]) -> X:
         return self.resolve(dep)
