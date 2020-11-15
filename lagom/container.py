@@ -100,16 +100,25 @@ class Container(ReadableContainer):
         return self._reflector.overview_of_cache
 
     def temporary_singletons(
-        self, shared: List[Type] = None
+        self, singletons: List[Type] = None
     ) -> "_TemporaryInjectionContext":
         """
-        Returns a conttext
-        :param shared: items which should be considered singletons within the context
+        Returns a context that loads a new container with singletons that only exist
+        for the context.
+
+        >>> from tests.examples import SomeClass
+        >>> base_container = Container()
+        >>> def my_func():
+        ...     with base_container.temporary_singletons([SomeClass]) as c:
+        ...         assert c[SomeClass] is c[SomeClass]
+        >>> my_func()
+
+        :param singletons: items which should be considered singletons within the context
         :return:
         """
         updater = (
-            functools.partial(_update_container_singletons, singletons=shared)
-            if shared
+            functools.partial(_update_container_singletons, singletons=singletons)
+            if singletons
             else None
         )
         return _TemporaryInjectionContext(self, updater)
