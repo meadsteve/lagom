@@ -61,10 +61,16 @@ class CachingReflector:
         :param func:
         :return:
         """
+        if func in self._reflection_cache:
+            return self._reflection_cache[func]
+        return self._perform_reflection(func)
+
+    def _perform_reflection(self, func):
         try:
             self._thread_lock.acquire()
-            if func not in self._reflection_cache:
-                self._reflection_cache[func] = reflect(func)
+            if func in self._reflection_cache:
+                return self._reflection_cache[func]
+            self._reflection_cache[func] = reflect(func)
             return self._reflection_cache[func]
         finally:
             self._thread_lock.release()

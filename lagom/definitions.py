@@ -76,22 +76,23 @@ class Singleton(SpecialDepDefinition[X]):
         self._thread_lock = Lock()
 
     def get_instance(self, container: ReadableContainer) -> X:
-        try:
-            self._thread_lock.acquire()
-            if self._has_instance:
-                return self._instance  # type: ignore
-            instance = self.singleton_type.get_instance(container)
-            return self._set_instance(instance)
-        finally:
-            self._thread_lock.release()
+        if self._has_instance:
+            return self._instance  # type: ignore
+        return self._load_instance(container)
 
     @property
     def _has_instance(self):
         return self._instance is not None
 
-    def _set_instance(self, instance: X):
-        self._instance = instance
-        return instance
+    def _load_instance(self, container):
+        try:
+            self._thread_lock.acquire()
+            if self._has_instance:
+                return self._instance  # type: ignore
+            self._instance = self.singleton_type.get_instance(container)
+            return self._instance  # type: ignore
+        finally:
+            self._thread_lock.release()
 
 
 class PlainInstance(SpecialDepDefinition[X]):
