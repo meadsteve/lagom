@@ -175,7 +175,7 @@ class Container(ReadableContainer):
         )
         keys_and_types = [(key, spec.annotations[key]) for key in keys_to_bind]
 
-        _container_loader = container_loader(self, shared)
+        _container_loader = _make_container_loader(self, shared)
 
         def _update_args(supplied_args, supplied_kwargs):
             c = _container_loader()
@@ -212,7 +212,7 @@ class Container(ReadableContainer):
 
         spec = self._reflector.get_function_spec(func)
 
-        _container_loader = container_loader(self, shared)
+        _container_loader = _make_container_loader(self, shared)
 
         def _update_args(supplied_args, supplied_kwargs):
             final_keys_to_skip = (keys_to_skip or []) + list(supplied_kwargs.keys())
@@ -284,7 +284,7 @@ def _remove_optional_type(dep_type):
     return None
 
 
-def container_loader(container, shared):
+def _make_container_loader(container, shared):
     if shared:
         _container_loader = _container_with_singletons_builder(container, shared)
     else:
