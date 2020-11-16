@@ -8,6 +8,11 @@ class Injectable:
     """
 
     def __bool__(self):
+        """
+        If this is used in an if statement it should be falsy as it indicates the dependency
+        has not been injected.
+        :return:
+        """
         return False
 
 

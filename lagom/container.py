@@ -1,6 +1,19 @@
 import functools
+import logging
 from copy import copy
-from typing import Dict, Type, Any, TypeVar, Callable, Set, List, Optional, Generic
+from typing import (
+    Dict,
+    Type,
+    Any,
+    TypeVar,
+    Callable,
+    Set,
+    List,
+    Optional,
+    Generic,
+    cast,
+    Union,
+)
 
 from .interfaces import SpecialDepDefinition, ReadableContainer, TypeResolver
 from .exceptions import (
@@ -11,6 +24,7 @@ from .exceptions import (
 )
 from .markers import injectable
 from .definitions import normalise, Singleton, construction
+from .util.logging import NullLogger
 from .util.reflection import FunctionSpec, CachingReflector
 from .wrapping import apply_argument_updater
 
@@ -52,10 +66,16 @@ class Container(ReadableContainer):
     _registered_types: Dict[Type, SpecialDepDefinition]
     _explicitly_registered_types: Set[Type]
     _reflector: CachingReflector
+    _undefined_logger: logging.Logger
 
-    def __init__(self, container: Optional["Container"] = None):
+    def __init__(
+        self,
+        container: Optional["Container"] = None,
+        log_undefined_deps: Union[bool, logging.Logger] = False,
+    ):
         """
         :param container: Optional container if provided the existing definitions will be copied
+        :param log_undefined_deps indicates if a log message should be emmited when an undefined dep is loaded
         """
         self._explicitly_registered_types = set()
 
@@ -65,6 +85,13 @@ class Container(ReadableContainer):
         else:
             self._registered_types = {}
             self._reflector = CachingReflector()
+
+        if not log_undefined_deps:
+            self._undefined_logger = NullLogger()
+        elif log_undefined_deps is True:
+            self._undefined_logger = logging.getLogger(__name__)
+        else:
+            self._undefined_logger = cast(logging.Logger, log_undefined_deps)
 
     def define(self, dep: Type[X], resolver: TypeResolver[X]) -> SpecialDepDefinition:
         """Register how to construct an object of type X
@@ -260,7 +287,7 @@ class Container(ReadableContainer):
         """ returns a copy of the container
         :return:
         """
-        return Container(self)
+        return Container(self, log_undefined_deps=self._undefined_logger)
 
     def __getitem__(self, dep: Type[X]) -> X:
         return self.resolve(dep)
@@ -269,6 +296,10 @@ class Container(ReadableContainer):
         self.define(dep, resolver)
 
     def _reflection_build(self, dep_type: Type[X]) -> X:
+        self._undefined_logger.warning(
+            f"Undefined dependency. Using reflection for {dep_type}",
+            extra={"undefined_dependency": dep_type},
+        )
         spec = self._reflector.get_function_spec(dep_type.__init__)
         sub_deps = self._infer_dependencies(spec, types_to_skip={dep_type})
         try:
