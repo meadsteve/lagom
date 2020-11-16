@@ -298,7 +298,7 @@ class Container(ReadableContainer):
     def _reflection_build(self, dep_type: Type[X]) -> X:
         self._undefined_logger.warning(
             f"Undefined dependency. Using reflection for {dep_type}",
-            undefined_dependency=dep_type,
+            extra={"undefined_dependency": dep_type},
         )
         spec = self._reflector.get_function_spec(dep_type.__init__)
         sub_deps = self._infer_dependencies(spec, types_to_skip={dep_type})
