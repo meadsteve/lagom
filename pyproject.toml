@@ -6,6 +6,7 @@ build-backend = "flit.buildapi"
 module = "lagom"
 author = "meadsteve"
 author-email = "meadsteve@gmail.com"
+home-page = "https://lagom-di.readthedocs.io/en/stable/"
 requires-python="~=3.6"
 description-file="README.md"
 classifiers = [

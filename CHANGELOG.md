@@ -1,10 +1,12 @@
 # Changelog
 
-## 0.19.0 (PENDING)
+## 0.19.0 (2020-11-16)
 ### Enhancements
 * Experimental ExplicitContainer has been made faster and returns more user friendly
 errors.
 * Context manager for working with temporary singletons added.
+* Optional logging of reflection usage.
+* Read the docs added.
 
 ### Bug fixes
 None
