@@ -22,3 +22,7 @@ exclude = ["tests/", "scripts/"]
 
 [tool.flit.metadata.requires-extra]
 env = ["pydantic >=1.0.0,<2.0.0"]
+
+[tool.flit.metadata.urls]
+Github = "https://github.com/meadsteve/lagom"
+Issues = "https://github.com/meadsteve/lagom/issues"
