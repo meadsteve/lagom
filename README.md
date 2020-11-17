@@ -27,7 +27,7 @@ container = Container()
 some_thing = container[SomeClass]
 ```
 
-[Full docs here here](docs/index.md)
+[Full docs here here](https://lagom-di.readthedocs.io/en/stable/)
 
 ## Developing/Contributing
 Contributions and PRS are welcome. For any large changes please open
