@@ -1,2 +1,8 @@
 site_name: Lagom - Depdency Injection Container
 theme: readthedocs
+nav:
+  - Getting Started: index.md
+  - Experimental Features: experimental.md
+  - Cookbook & Common Usage Patterns: cookbook.md
+  - Github: https://github.com/meadsteve/lagom
+  - Issue Tracker: https://github.com/meadsteve/lagom/issues
