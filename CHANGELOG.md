@@ -1,6 +1,16 @@
 # Changelog
 
-## 0.19.0 (PENDING)
+## 0.19.1 (2020-10-18)
+### Enhancements
+None
+
+### Bug fixes
+* Fix errors raised when trying to call a partial function with some arguments provided.
+
+### Backwards incompatible changes
+None
+
+## 0.19.0 (2020-10-17)
 ### Enhancements
 * Experimental ExplicitContainer has been made faster and returns more user friendly
 errors.

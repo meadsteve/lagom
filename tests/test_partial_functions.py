@@ -4,7 +4,7 @@ from typing import Generator, Any, ClassVar
 import pytest
 
 from lagom import Container, bind_to_container, injectable
-from lagom.exceptions import UnableToInvokeBoundFunction
+from lagom.exceptions import UnresolvableType
 
 
 class MyDep:
@@ -28,11 +28,15 @@ def example_function(message: str, resolved: MyDep = injectable) -> str:
     return resolved.value + message
 
 
-def example_function_with_to_injectables(one: MyDep = injectable, two: MyDep = injectable) -> str:
+def example_function_with_to_injectables(
+    one: MyDep = injectable, two: MyDep = injectable
+) -> str:
     return one.value + two.value
 
 
-def example_generator(message: str, resolved: MyDep = injectable) -> Generator[str, Any, Any]:
+def example_generator(
+    message: str, resolved: MyDep = injectable
+) -> Generator[str, Any, Any]:
     yield resolved.value + message
     yield resolved.value + " finished"
 
@@ -46,7 +50,9 @@ def another_example_function(message: str, resolved: MyDep = injectable) -> str:
 
 
 @bind_to_container(container)
-def failing_to_construct_function(try_to_resolve: CantBeAutoConstructed = injectable) -> str:
+def failing_to_construct_function(
+    try_to_resolve: CantBeAutoConstructed = injectable,
+) -> str:
     return "doesnt matter"
 
 
@@ -110,11 +116,10 @@ def test_incorrect_arguments_are_handled_well():
 
 
 def test_if_a_typed_argument_cant_be_constructed_a_helpful_exception_is_returned():
-    with pytest.raises(UnableToInvokeBoundFunction) as err:
+    with pytest.raises(UnresolvableType) as err:
         failing_to_construct_function()
-    assert (
-        "The container could not construct the following types: CantBeAutoConstructed"
-        in str(err.value)
+    assert "Unable to construct dependency of type CantBeAutoConstructed" in str(
+        err.value
     )
 
 

@@ -231,16 +231,17 @@ class Container(ReadableContainer):
 
         def _update_args(supplied_args, supplied_kwargs):
             keys_to_skip = set(supplied_kwargs.keys())
-            keys_to_skip.update(spec.args[0:len(supplied_args)])
+            keys_to_skip.update(spec.args[0 : len(supplied_args)])
             with _injection_context as c:
                 kwargs = {
-                    key: c.resolve(dep_type) for (key, dep_type) in keys_and_types
+                    key: c.resolve(dep_type)
+                    for (key, dep_type) in keys_and_types
                     if key not in keys_to_skip
                 }
             kwargs.update(supplied_kwargs)
             return supplied_args, kwargs
 
-        return apply_argument_updater(func, spec, _update_args)
+        return apply_argument_updater(func, _update_args, spec)
 
     def magic_partial(
         self,
@@ -284,7 +285,7 @@ class Container(ReadableContainer):
             kwargs.update(supplied_kwargs)
             return supplied_args, kwargs
 
-        return apply_argument_updater(func, spec, _update_args)
+        return apply_argument_updater(func, _update_args, spec, catch_errors=True)
 
     def clone(self):
         """ returns a copy of the container

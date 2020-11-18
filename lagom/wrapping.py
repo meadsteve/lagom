@@ -9,26 +9,28 @@ from .exceptions import UnableToInvokeBoundFunction
 from .util.reflection import FunctionSpec
 
 
-def apply_argument_updater(func, spec: FunctionSpec, argument_updater):
-    func_with_error_handling = wrap_func_in_error_handling(func, spec)
+def apply_argument_updater(
+    func, argument_updater, spec: FunctionSpec, catch_errors=False
+):
+    inner_func = func if not catch_errors else _wrap_func_in_error_handling(func, spec)
     if inspect.iscoroutinefunction(func):
 
         @functools.wraps(func)
         async def _bound_func(*args, **kwargs):
             bound_args, bound_kwargs = argument_updater(args, kwargs)
-            return await func_with_error_handling(*bound_args, **bound_kwargs)
+            return await inner_func(*bound_args, **bound_kwargs)
 
     else:
 
         @functools.wraps(func)
         def _bound_func(*args, **kwargs):
             bound_args, bound_kwargs = argument_updater(args, kwargs)
-            return func_with_error_handling(*bound_args, **bound_kwargs)
+            return inner_func(*bound_args, **bound_kwargs)
 
     return _bound_func
 
 
-def wrap_func_in_error_handling(func, spec: FunctionSpec):
+def _wrap_func_in_error_handling(func, spec: FunctionSpec):
     """
     Takes a func and its spec and returns a function that's the same
     but with more useful TypeError messages
