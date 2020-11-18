@@ -59,8 +59,6 @@ class B:
 def test_circular_imports_raise_a_clear_error(container):
     with pytest.raises(RecursiveDefinitionError) as e_info:
         container.resolve(A)
-    assert (
-        str(e_info.value)
-        == f"When trying to build dependency of type 'A' python hit a recursion limit. "
-        "This could indicate a circular definition somewhere."
-    )
+    err_string = str(e_info.value)
+    assert "When trying to build dependency of type " in err_string
+    assert "This could indicate a circular definition somewhere." in err_string
