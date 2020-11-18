@@ -1,4 +1,5 @@
 site_name: Lagom - Depdency Injection Container
+repo_url: https://github.com/meadsteve/lagom
 theme: readthedocs
 nav:
   - Getting Started: index.md
