@@ -8,5 +8,6 @@ nav:
   - Experimental Features: experimental.md
   - App Example: full_example.md
   - Cookbook & Common Usage Patterns: cookbook.md
+  - Change Log: CHANGELOG.md
   - Github: https://github.com/meadsteve/lagom
   - Issue Tracker: https://github.com/meadsteve/lagom/issues
