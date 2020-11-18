@@ -230,9 +230,12 @@ class Container(ReadableContainer):
         _injection_context = self.temporary_singletons(shared)
 
         def _update_args(supplied_args, supplied_kwargs):
+            keys_to_skip = set(supplied_kwargs.keys())
+            keys_to_skip.update(spec.args[0:len(supplied_args)])
             with _injection_context as c:
                 kwargs = {
                     key: c.resolve(dep_type) for (key, dep_type) in keys_and_types
+                    if key not in keys_to_skip
                 }
             kwargs.update(supplied_kwargs)
             return supplied_args, kwargs
