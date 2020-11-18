@@ -27,6 +27,30 @@ container = Container()
 some_thing = container[SomeClass]
 ```
 
+You can tell the container that something should be a singleton:
+```python
+container[SomeExpensiveToCreateClass] = SomeExpensiveToCreateClass("up", "left")
+```
+
+You can explicitly tell the container how to construct something by giving it a function:
+
+```python
+container[SomeClass] = lambda: SomeClass("down", "spiral")
+```
+
+All of this is done without modifying any of your classes. This is one of the design goals of
+lagom. 
+
+A decorator is provided to hook top level functions into the container.
+
+```python
+@bind_to_container(container)
+def handle_move_post_request(request: typing.Dict, game: Game = lagom.inject):
+    # do something to the game
+    return Response()
+```
+
+
 [Full docs here here](https://lagom-di.readthedocs.io/en/stable/)
 
 ## Developing/Contributing
