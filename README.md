@@ -45,7 +45,7 @@ A decorator is provided to hook top level functions into the container.
 
 ```python
 @bind_to_container(container)
-def handle_move_post_request(request: typing.Dict, game: Game = lagom.inject):
+def handle_move_post_request(request: typing.Dict, game: Game = lagom.injectable):
     # do something to the game
     return Response()
 ```
