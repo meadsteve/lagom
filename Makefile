@@ -1,4 +1,4 @@
-.PHONY: setup setup_pipenv install docs-serve update test test_mypy test_unit test_format test_doctests test_package_safety publish format enforce_docs
+.PHONY: setup setup_pipenv install docs-serve update test test_mypy test_unit test_format test_doctests assert_package_safety publish format enforce_docs
 PIPENV_VERBOSITY=-1
 
 setup: setup_pipenv install
@@ -17,7 +17,7 @@ update:
 docs_serve:
 	pipenv run mkdocs serve
 
-test: test_mypy test_unit enforce_docs test_doctests test_format test_package_safety
+test: test_mypy test_unit enforce_docs test_doctests test_format
 
 test_mypy:
 	pipenv run mypy --config-file mypy.ini lagom tests
@@ -31,7 +31,7 @@ test_format:
 test_doctests:
 	pipenv run  pytest --doctest-modules lagom
 
-test_package_safety:
+assert_package_safety:
 	pip freeze | safety check --stdin
 
 publish:
