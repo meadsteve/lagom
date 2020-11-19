@@ -3,7 +3,7 @@ In addition to the binding decorators lagom provides a number of integrations to
 popular web frameworks.
 
 ## [Starlette](https://www.starlette.io/)
-To make integration with starlette simpler a special container is provided
+To make integration with starlette simpler an integration is provided
 that can generate starlette routes.
 
 Starlette endpoints are defined in the normal way. Any extra arguments are
@@ -14,13 +14,14 @@ async def homepage(request, db: DBConnection = injectable):
     return PlainTextResponse(f"Hello {user.name}")
 
 
-container = StarletteContainer()
+container = Container()
 container[DBConnection] = DB("DSN_CONNECTION_GOES_HERE")
 
+with_deps = StarletteIntegration(container) 
 
 routes = [
     # This function takes the same arguments as starlette.routing.Route
-    container.route("/", endpoint=homepage),
+    with_deps.route("/", endpoint=homepage),
 ]
 
 app = Starlette(routes=routes)
@@ -28,35 +29,36 @@ app = Starlette(routes=routes)
 
 ## [FastAPI](https://fastapi.tiangolo.com/)
 FastAPI already provides a method for dependency injection however
-if you'd like to use lagom instead a special container is provided.
+if you'd like to use lagom instead an integration is provided.
 
 Calling the method `.depends` will provide a dependency in the format
 that FastAPI expects:
 
 ```python
-container = FastApiContainer()
+container = Container()
 container[DBConnection] = DB("DSN_CONNECTION_GOES_HERE")
 
 app = FastAPI()
+deps = FastApiIntegration(container)
 
 @app.get("/")
-async def homepage(request, db = container.depends(DBConnection)):
+async def homepage(request, db = deps.depends(DBConnection)):
     user = db.fetch_data_for_user(request.user)
     return PlainTextResponse(f"Hello {user.name}")
 
 ```
 
 ## [Flask API](https://www.flaskapi.org/)
-A special container is provided for flask. It takes the flask app
-then provides a wrapped `route` decorator to use:
+An integration is provided for flask. It takes the flask app
+and a container then provides a wrapped `route` decorator to use:
 
 ```python
 app = Flask(__name__)
-container = FlaskContainer(app)
 container[Database] = Singleton(lambda: Database("connection details"))
 
+app_with_deps = FlaskIntegration(app, container)
 
-@container.route("/save_it/<string:thing_to_save>", methods=['POST'])
+@app_with_deps.route("/save_it/<string:thing_to_save>", methods=['POST'])
 def save_to_db(thing_to_save, db: Database = injectable):
     db.save(thing_to_save)
     return 'saved'

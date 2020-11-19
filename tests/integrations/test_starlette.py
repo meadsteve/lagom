@@ -1,7 +1,7 @@
 from starlette.routing import Route
 
 from lagom import Container, injectable
-from lagom.integrations.starlette import StarletteContainer
+from lagom.integrations.starlette import StarletteIntegration
 
 
 class MyDep:
@@ -21,20 +21,14 @@ def two_dep_handler(request, dep_one: MyDep = injectable, dep_two: MyDep = injec
     return "singleton" if dep_one is dep_two else "new instances"
 
 
-def test_a_special_starlette_container_can_be_used_and_provides_routes():
-    sc = StarletteContainer()
+def test_a_special_starlette_container_can_be_used_and_provides_routes(container):
+    sc = StarletteIntegration(container)
     route = sc.route("/", some_handler)
     assert isinstance(route, Route)
     assert route.endpoint({}) == "ok"
 
 
-def test_the_starlette_container_can_define_request_level_singletons():
-    sc = StarletteContainer(request_singletons=[MyDep])
+def test_the_starlette_container_can_define_request_level_singletons(container):
+    sc = StarletteIntegration(container, request_singletons=[MyDep])
     route = sc.route("/two", two_dep_handler)
     assert route.endpoint({}) == "singleton"
-
-
-def test_the_starlette_container_can_wrap_an_existing_container(container: Container):
-    container[ComplexDep] = ComplexDep("")
-    sc = StarletteContainer(container=container)
-    assert isinstance(sc[ComplexDep], ComplexDep)

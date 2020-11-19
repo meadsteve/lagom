@@ -24,6 +24,22 @@ class ReadableContainer(ABC):
         pass
 
     @abstractmethod
+    def partial(
+        self, func: Callable[..., X], shared: List[Type] = None,
+    ) -> Callable[..., X]:
+        pass
+
+    @abstractmethod
+    def magic_partial(
+        self,
+        func: Callable[..., X],
+        shared: List[Type] = None,
+        keys_to_skip: List[str] = None,
+        skip_pos_up_to: int = 0,
+    ) -> Callable[..., X]:
+        pass
+
+    @abstractmethod
     def __getitem__(self, dep: Type[X]) -> X:
         """Shortcut to calling resolve
         """

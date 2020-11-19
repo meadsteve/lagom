@@ -6,16 +6,22 @@ import typing
 
 from fastapi import Depends
 
-from .. import Container
+from ..interfaces import ReadableContainer
 
 T = typing.TypeVar("T")
 
 
-class FastApiContainer(Container):
+class FastApiIntegration:
     """
-    Basic container plus a depends method which is drop in compatible with
+    Integration between a container and the FastAPI framework.
+    Provides a method `Depends` which functions in the same way as
     FastApi `Depends`
     """
+
+    _container: ReadableContainer
+
+    def __init__(self, container: ReadableContainer):
+        self._container = container
 
     def depends(self, dep_type: typing.Type[T]) -> T:
         """Returns a Depends object which FastAPI understands
@@ -23,4 +29,4 @@ class FastApiContainer(Container):
         :param dep_type:
         :return:
         """
-        return Depends(lambda: self.resolve(dep_type))
+        return Depends(lambda: self._container.resolve(dep_type))

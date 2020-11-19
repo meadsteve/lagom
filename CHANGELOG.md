@@ -1,16 +1,17 @@
 # Changelog
 
-## 0.20.0 (Pending)
+## 0.20.0 (2020-11-19)
 ### Enhancements
 * Move explicit container out of the experimental namespace.
+* Integrations are now no longer containers (except django but this may change before release).
 
 ### Bug fixes
 None
 
 ### Backwards incompatible changes
-None
+* Integrations now work in a different way. Code will need to be updated. Refer to docs.
 
-## 0.19.1 (2020-10-18)
+## 0.19.1 (2020-11-18)
 ### Enhancements
 None
 
@@ -20,7 +21,7 @@ None
 ### Backwards incompatible changes
 None
 
-## 0.19.0 (2020-10-17)
+## 0.19.0 (2020-11-17)
 ### Enhancements
 * Experimental ExplicitContainer has been made faster and returns more user friendly
 errors.

@@ -5,33 +5,34 @@ from typing import Type, List, Optional
 
 from flask import Flask
 
-from ..container import Container
+from ..interfaces import ReadableContainer
 
 
-class FlaskContainer(Container):
+class FlaskIntegration:
     """
-    Wraps a flask app so that the container dependencies are provided to
+    Wraps a flask app and a container so that dependencies are provided to
     flask routes
     """
 
     flask_app: Flask
+    _container: ReadableContainer
     _request_singletons: List[Type]
 
     def __init__(
         self,
         app: Flask,
+        container: ReadableContainer,
         request_singletons: Optional[List[Type]] = None,
-        container=None,
     ):
         """
 
         :param app: The flask app to provide dependency injection for
         :param request_singletons: A list of types that should be singletons for a request
-        :param container: an existing container to clone
+        :param container: an existing container to provide dependencies
         """
         self.flask_app = app
+        self._container = container
         self._request_singletons = request_singletons or []
-        super().__init__(container)
 
     def route(self, rule, **options):
         """Equivalent to the flask @route decorator
@@ -41,7 +42,7 @@ class FlaskContainer(Container):
 
         def _decorator(f):
             endpoint = options.pop("endpoint", None)
-            injected_func = self.partial(f, shared=self._request_singletons)
+            injected_func = self._container.partial(f, shared=self._request_singletons)
             self.flask_app.add_url_rule(rule, endpoint, injected_func, **options)
             return f
 
@@ -54,7 +55,9 @@ class FlaskContainer(Container):
 
         def _decorator(f):
             endpoint = options.pop("endpoint", None)
-            injected_func = self.magic_partial(f, shared=self._request_singletons)
+            injected_func = self._container.magic_partial(
+                f, shared=self._request_singletons
+            )
             self.flask_app.add_url_rule(rule, endpoint, injected_func, **options)
             return f
 

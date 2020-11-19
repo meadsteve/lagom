@@ -1,7 +1,7 @@
 from flask import Flask, Response
 
-from lagom import injectable
-from lagom.integrations.flask import FlaskContainer
+from lagom import injectable, Container
+from lagom.integrations.flask import FlaskIntegration
 
 
 class ComplexDep:
@@ -9,12 +9,13 @@ class ComplexDep:
         self.message = message
 
 
-def test_flask_container_provides_a_route_decorator():
+def test_flask_container_provides_a_route_decorator(container: Container):
     app = Flask(__name__)
-    container = FlaskContainer(app)
     container[ComplexDep] = ComplexDep("hello from dep")
 
-    @container.route("/")
+    flask_integration = FlaskIntegration(app, container)
+
+    @flask_integration.route("/")
     def _some_handler(dep: ComplexDep = injectable):
         return dep.message
 
@@ -23,12 +24,15 @@ def test_flask_container_provides_a_route_decorator():
         assert resp.get_data(as_text=True) == "hello from dep"
 
 
-def test_the_route_decorator_can_have_request_level_singletons():
+def test_the_route_decorator_can_have_request_level_singletons(container: Container):
     app = Flask(__name__)
-    container = FlaskContainer(app, request_singletons=[ComplexDep])
     container[ComplexDep] = lambda: ComplexDep("hello from dep")
 
-    @container.route("/")
+    flask_integration = FlaskIntegration(
+        app, container, request_singletons=[ComplexDep]
+    )
+
+    @flask_integration.route("/")
     def _some_handler(
         dep_one: ComplexDep = injectable, dep_two: ComplexDep = injectable
     ):

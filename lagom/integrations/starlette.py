@@ -5,23 +5,29 @@ from typing import List, Type, Callable, Optional
 
 from starlette.routing import Route
 
-from .. import Container
+
+from ..interfaces import ReadableContainer
 
 
-class StarletteContainer(Container):
+class StarletteIntegration:
     """
-    Basic container plus a route method for use in the Starlette framework
+    Wraps a container and a route method for use in the Starlette framework
     """
 
     _request_singletons: List[Type]
+    _container: ReadableContainer
 
-    def __init__(self, request_singletons: Optional[List[Type]] = None, container=None):
+    def __init__(
+        self,
+        container: ReadableContainer,
+        request_singletons: Optional[List[Type]] = None,
+    ):
         """
         :param request_singletons: List of types that will be singletons for a request
         :param container:
         """
         self._request_singletons = request_singletons or []
-        super().__init__(container)
+        self._container = container
 
     def route(
         self,
@@ -42,7 +48,9 @@ class StarletteContainer(Container):
         :param include_in_schema:
         :return:
         """
-        wrapped_endpoint = self.partial(endpoint, shared=self._request_singletons)
+        wrapped_endpoint = self._container.partial(
+            endpoint, shared=self._request_singletons
+        )
         return Route(
             path,
             wrapped_endpoint,
@@ -70,7 +78,9 @@ class StarletteContainer(Container):
         :param include_in_schema:
         :return:
         """
-        wrapped_endpoint = self.magic_partial(endpoint, shared=self._request_singletons)
+        wrapped_endpoint = self._container.magic_partial(
+            endpoint, shared=self._request_singletons
+        )
         return Route(
             path,
             wrapped_endpoint,
