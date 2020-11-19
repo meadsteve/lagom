@@ -25,7 +25,7 @@ from .exceptions import (
 from .markers import injectable
 from .definitions import normalise, Singleton, construction
 from .util.logging import NullLogger
-from .util.reflection import FunctionSpec, CachingReflector
+from .util.reflection import FunctionSpec, CachingReflector, remove_optional_type
 from .wrapping import apply_argument_updater
 
 UNRESOLVABLE_TYPES = [str, int, float, bool]
@@ -182,7 +182,7 @@ class Container(ReadableContainer):
         :return:
         """
         try:
-            optional_dep_type = _remove_optional_type(dep_type)
+            optional_dep_type = remove_optional_type(dep_type)
             if optional_dep_type:
                 return self.resolve(optional_dep_type, suppress_error=True)
             if dep_type in UNRESOLVABLE_TYPES:
@@ -355,21 +355,6 @@ class _TemporaryInjectionContext(Generic[C]):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
-
-
-def _remove_optional_type(dep_type):
-    """ if the Type is Optional[T] returns T else None
-
-    :param dep_type:
-    :return:
-    """
-    try:
-        # Hacky: an optional type has [T, None] in __args__
-        if len(dep_type.__args__) == 2 and dep_type.__args__[1] == None.__class__:
-            return dep_type.__args__[0]
-    except:
-        pass
-    return None
 
 
 def _update_container_singletons(container: Container, singletons: List[Type]):

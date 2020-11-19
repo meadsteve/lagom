@@ -102,3 +102,18 @@ def _get_default_args(func):
         for name, argument in arguments
         if argument.default is not inspect.Parameter.empty
     }
+
+
+def remove_optional_type(dep_type):
+    """ if the Type is Optional[T] returns T else None
+
+    :param dep_type:
+    :return:
+    """
+    try:
+        # Hacky: an optional type has [T, None] in __args__
+        if len(dep_type.__args__) == 2 and dep_type.__args__[1] == None.__class__:
+            return dep_type.__args__[0]
+    except:
+        pass
+    return None
