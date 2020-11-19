@@ -13,7 +13,4 @@ env:
 install:
   - make setup
 script:
-  - make test_mypy
-  - make test_unit
-  - make test_format
-  - make enforce_docs
+  - make test
