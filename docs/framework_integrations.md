@@ -2,7 +2,7 @@
 In addition to the binding decorators lagom provides a number of integrations to
 popular web frameworks.
 
-## Starlette (https://www.starlette.io/)
+## [Starlette](https://www.starlette.io/)
 To make integration with starlette simpler a special container is provided
 that can generate starlette routes.
 
@@ -26,7 +26,7 @@ routes = [
 app = Starlette(routes=routes)
 ```
 
-## FastAPI (https://fastapi.tiangolo.com/)
+## [FastAPI](https://fastapi.tiangolo.com/)
 FastAPI already provides a method for dependency injection however
 if you'd like to use lagom instead a special container is provided.
 
@@ -46,7 +46,7 @@ async def homepage(request, db = container.depends(DBConnection)):
 
 ```
 
-## Flask API (https://www.flaskapi.org/)
+## [Flask API](https://www.flaskapi.org/)
 A special container is provided for flask. It takes the flask app
 then provides a wrapped `route` decorator to use:
 
@@ -67,6 +67,6 @@ def save_to_db(thing_to_save, db: Database = injectable):
 The decorator leaves the original function unaltered so it can be
 used directly in tests.
 
-## Django (https://www.djangoproject.com/)
+## [Django](https://www.djangoproject.com/)
 A django integration is currently under beta in the experimental module.
 See documentation here: [Django Integration Docs](experimental.md#django-container)
