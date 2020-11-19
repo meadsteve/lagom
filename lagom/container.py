@@ -21,9 +21,10 @@ from .exceptions import (
     DuplicateDefinition,
     InvalidDependencyDefinition,
     RecursiveDefinitionError,
+    DependencyNotDefined,
 )
 from .markers import injectable
-from .definitions import normalise, Singleton, construction
+from .definitions import normalise, Singleton, construction, Alias
 from .util.logging import NullLogger
 from .util.reflection import FunctionSpec, CachingReflector, remove_optional_type
 from .wrapping import apply_argument_updater
@@ -330,6 +331,36 @@ class Container(ReadableContainer):
             and (sub_dep_type not in types_to_skip)
         }
         return {key: dep for (key, dep) in sub_deps.items() if dep is not None}
+
+
+class ExplicitContainer(Container):
+    def resolve(
+        self, dep_type: Type[X], suppress_error=False, skip_definitions=False
+    ) -> X:
+        try:
+            type_to_build = self._registered_types[dep_type]
+        except KeyError as key_error:
+            if suppress_error:
+                return None  # type: ignore
+            raise DependencyNotDefined(
+                f"{dep_type.__name__} has not been defined. "
+                f"In an explict container all dependencies must be defined"
+            ) from key_error
+        return type_to_build.get_instance(self)
+
+    def define(self, dep, resolver):
+        definition = super().define(dep, resolver)
+        if isinstance(definition, Alias):
+            raise InvalidDependencyDefinition(
+                "Aliases are not valid in an explicit container"
+            )
+        if isinstance(definition, Singleton) and isinstance(
+            definition.singleton_type, Alias
+        ):
+            raise InvalidDependencyDefinition(
+                "Aliases are not valid inside singletons in an explicit container"
+            )
+        return definition
 
 
 C = TypeVar("C", bound=ReadableContainer)

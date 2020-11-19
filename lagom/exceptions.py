@@ -78,6 +78,12 @@ class RecursiveDefinitionError(SyntaxError, LagomException):
         )
 
 
+class DependencyNotDefined(ValueError, LagomException):
+    """The type must be explicitly defined in the container"""
+
+    pass
+
+
 def _dep_type_as_string(dep_type: Type):
     # This first check makes 3.6 behave the same as 3.7 and later
     if hasattr(typing, "GenericMeta") and isinstance(dep_type, typing.GenericMeta):  # type: ignore

@@ -2,7 +2,7 @@
 from .version import __version__
 from .debug import get_build_info
 from .definitions import Singleton, Alias
-from .container import Container
+from .container import Container, ExplicitContainer
 from .decorators import (
     bind_to_container,
     magic_bind_to_container,
@@ -17,6 +17,7 @@ __all__ = [
     "Singleton",
     "Alias",
     "Container",
+    "ExplicitContainer",
     "bind_to_container",
     "magic_bind_to_container",
     "dependency_definition",

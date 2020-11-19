@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.20.0 (Pending)
+### Enhancements
+* Move explicit container out of the experimental namespace.
+
+### Bug fixes
+None
+
+### Backwards incompatible changes
+None
+
 ## 0.19.1 (2020-10-18)
 ### Enhancements
 None

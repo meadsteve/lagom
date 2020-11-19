@@ -40,7 +40,7 @@ from typing import TypeVar, Generic, List, Type, Optional
 from django.db.models import Manager, Model
 from django.views import View
 
-from ..container import Container
+from lagom.container import Container
 
 M = TypeVar("M", bound=Model)
 

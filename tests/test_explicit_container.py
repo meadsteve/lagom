@@ -1,8 +1,7 @@
 import pytest
 
 from lagom import Container, Singleton
-from lagom.exceptions import InvalidDependencyDefinition
-from lagom.experimental.exceptions import DependencyNotDefined
+from lagom.exceptions import InvalidDependencyDefinition, DependencyNotDefined
 
 
 class SomethingToBuild:
