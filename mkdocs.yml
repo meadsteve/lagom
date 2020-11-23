@@ -1,6 +1,11 @@
 site_name: Lagom - Depdency Injection Container
 repo_url: https://github.com/meadsteve/lagom
-theme: readthedocs
+theme:
+  name: 'material'
+  palette:
+    primary: green
+    accent: pink
+
 nav:
   - Getting Started: index.md
   - Framework Integrations: framework_integrations.md
@@ -11,3 +16,8 @@ nav:
   - Change Log: CHANGELOG.md
   - Github: https://github.com/meadsteve/lagom
   - Issue Tracker: https://github.com/meadsteve/lagom/issues
+
+markdown_extensions:
+  - markdown.extensions.codehilite:
+      guess_lang: false
+  - codehilite
