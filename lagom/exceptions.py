@@ -64,16 +64,16 @@ class UnresolvableType(ValueError, LagomException):
 class RecursiveDefinitionError(SyntaxError, LagomException):
     """Whilst trying to resolve the type python exceeded the recursion depth"""
 
-    dep_type: str
+    dep_type: Type
 
     def __init__(self, dep_type: Type):
         """
         :param dep_type: The type that could not be constructed
         """
-        self.dep_type = _dep_type_as_string(dep_type)
+        self.dep_type = dep_type
 
         super().__init__(
-            f"When trying to build dependency of type '{self.dep_type}' python hit a recursion limit. "
+            f"When trying to build dependency of type '{_dep_type_as_string(dep_type)}' python hit a recursion limit. "
             "This could indicate a circular definition somewhere."
         )
 
@@ -81,7 +81,17 @@ class RecursiveDefinitionError(SyntaxError, LagomException):
 class DependencyNotDefined(ValueError, LagomException):
     """The type must be explicitly defined in the container"""
 
-    pass
+    dep_type: Type
+
+    def __init__(self, dep_type: Type):
+        """
+        :param dep_type: The type that was not defined
+        """
+        self.dep_type = dep_type
+        super().__init__(
+            f"{_dep_type_as_string(dep_type)} has not been defined. "
+            f"In an explict container all dependencies must be defined"
+        )
 
 
 def _dep_type_as_string(dep_type: Type):

@@ -1,3 +1,5 @@
+from typing import Optional
+
 from lagom import Container, Singleton
 
 
@@ -13,4 +15,9 @@ def test_container_can_list_the_types_explicitly_defined(container: Container):
     container[InitialDep] = InitialDep
     container[SomeOtherThing] = Singleton(SomeOtherThing)
 
-    assert container.defined_types == {InitialDep, SomeOtherThing}
+    assert container.defined_types == {
+        InitialDep,
+        SomeOtherThing,
+        Optional[InitialDep],
+        Optional[SomeOtherThing],
+    }

@@ -112,6 +112,7 @@ class Container(ReadableContainer):
             raise DuplicateDefinition()
         definition = normalise(resolver)
         self._registered_types[dep] = definition
+        self._registered_types[Optional[dep]] = definition  # type: ignore
         self._explicitly_registered_types.add(dep)
         return definition
 
@@ -183,19 +184,18 @@ class Container(ReadableContainer):
         :return:
         """
         try:
+
+            if not skip_definitions and dep_type in self._registered_types:
+                return self._registered_types[dep_type].get_instance(self)
+
+            if dep_type in UNRESOLVABLE_TYPES:
+                raise UnresolvableType(dep_type)
+
             optional_dep_type = remove_optional_type(dep_type)
             if optional_dep_type:
                 return self.resolve(optional_dep_type, suppress_error=True)
-            if dep_type in UNRESOLVABLE_TYPES:
-                raise UnresolvableType(dep_type)
-            type_to_build = (
-                self._registered_types.get(dep_type, dep_type)
-                if not skip_definitions
-                else dep_type
-            )
-            if isinstance(type_to_build, SpecialDepDefinition):
-                return type_to_build.get_instance(self)
-            return self._reflection_build(type_to_build)
+
+            return self._reflection_build(dep_type)
         except UnresolvableType as inner_error:
             if not suppress_error:
                 raise UnresolvableType(dep_type) from inner_error
@@ -342,10 +342,7 @@ class ExplicitContainer(Container):
         except KeyError as key_error:
             if suppress_error:
                 return None  # type: ignore
-            raise DependencyNotDefined(
-                f"{dep_type.__name__} has not been defined. "
-                f"In an explict container all dependencies must be defined"
-            ) from key_error
+            raise DependencyNotDefined(dep_type) from key_error
         return type_to_build.get_instance(self)
 
     def define(self, dep, resolver):

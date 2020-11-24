@@ -56,6 +56,9 @@ class B:
         pass
 
 
+@pytest.mark.skip(
+    reason="This behaviour is a nice to have but is execution env dependent"
+)
 def test_circular_imports_raise_a_clear_error(container):
     with pytest.raises(RecursiveDefinitionError) as e_info:
         container.resolve(A)
