@@ -161,7 +161,7 @@ my_thing = await container[Awaitable[MyComplexDep]]
 **Prerequisites** Using this feature requires [pydantic](https://github.com/samuelcolvin/pydantic/) to be installed
 
 The first step is to create one or more classes that describe the environment variables your application depends on.
-Lower case property names automatically map on to an uppercase envrinment variable of the same name.
+Lower case property names automatically map on to an uppercase environment variable of the same name.
 
 ```python
 class MyWebEnv(Env):
