@@ -56,7 +56,6 @@ class B:
         pass
 
 
-@pytest.mark.skip(reason="fix me later")
 def test_circular_imports_raise_a_clear_error(container):
     with pytest.raises(RecursiveDefinitionError) as e_info:
         container.resolve(A)
