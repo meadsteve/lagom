@@ -84,7 +84,7 @@ container[SomeClassToLoadOnce] = Singleton(SomeClassToLoadOnce)
 ```
 
 ### Alias a concrete instance to an ABC
-If your classes are written to depened on an ABC or an interface but at runtime
+If your classes are written to depend on an ABC or an interface but at runtime
 you want to configure a specific concrete class lagom supports definitions of aliases:
 
 ```python
