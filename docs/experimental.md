@@ -53,7 +53,7 @@ urlpatterns = [
 Django models are usually referenced statically. Some extra code is provided to
 make these injectable instead.
 
-When defining the container list all the models that should be available via the container:
+When defining the container, list all the models that should be available via the container:
 
 ```python
 # dependency_config.py
