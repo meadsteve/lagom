@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.0.0-beta.1 (2020-11-21)
+No changes from 0.20.0 but bumped to signal intention to freeze api.
+
+### Enhancements
+None
+
+### Bug fixes
+None
+
+### Backwards incompatible changes
+None
+
 ## 0.20.0 (2020-11-19)
 ### Enhancements
 * Move explicit container out of the experimental namespace.
