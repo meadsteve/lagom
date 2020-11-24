@@ -6,7 +6,12 @@ help with building your dependencies. The intention is that almost
 all of your code doesn't know about or rely on lagom. Lagom will
 only be involved at the top level to pull everything together.
 
-An example usage can be found here: [github.com/meadsteve/lagom-example-repo](https://github.com/meadsteve/lagom-example-repo)
+### Features
+ * Fully based on types. Strong integration with mypy.
+ * Minimal changes to existing code.
+ * Integration with a few common web frameworks.
+ * Support for async python.
+ * Thread-safe at runtime
 
 ## Installation
 ```bash
@@ -23,20 +28,31 @@ container = Container()
 some_thing = container[SomeClass]
 ```
 
-### Defining a singleton
+Most of the time Lagom doesn't need to be told how to build your classes. If 
+the `__init__` method has type hints then lagom will use these to inject
+the correct dependencies. The following will work without any special configuration:
+
 ```python
-container[SomeExpensiveToCreateClass] = SomeExpensiveToCreateClass("up", "left")
-```
-alternatively if you want to defer construction until it's needed:
-```python
-container[SomeExpensiveToCreateClass] = Singleton(SomeExpensiveToCreateClass)
+class MyDataSource:
+    pass
+    
+class SomeClass:
+   def __init__(datasource: MyDataSource)
+      pass
+
+container = Container()
+some_thing = container[SomeClass] # An instance of SomeClass will be built with an instance of MyDataSource provided
 ```
 
 
-### Defining a type that gets recreated every time
+### Defining how to build a type if can't be inferred automatically
+If lagom can't infer (or you don't want it to) how to build a type you can instruct
+the container how to do this.
+
 ```python
 container[SomeClass] = lambda: SomeClass("down", "spiral")
 ```
+
 if the type needs things from the container the lambda can take a
 single argument which is the container:
 ```python
@@ -53,44 +69,62 @@ def my_constructor() -> MyComplexDep:
     return MyComplexDep(some_number=5)
 ```
 
-### Defining an async loaded type
+### Defining a singleton
+You may have dependencies that you don't want to be built every time. Any
+dependency can be configured as a singleton without changing the class at 
+all.
+
 ```python
-@dependency_definition(container)
-async def my_constructor() -> MyComplexDep:
-    # await some stuff or any other async things
-    return MyComplexDep(some_number=5)
+container[SomeClasssToLoadOnce] = SomeClasssToLoadOnce("up", "left")
+```
+alternatively if you want to defer construction until it's needed:
 
-my_thing = await container[Awaitable[MyComplexDep]]
-
+```python
+container[SomeClasssToLoadOnce] = Singleton(SomeClasssToLoadOnce)
 ```
 
 ### Alias a concrete instance to an ABC
+If your classes are written to depened on an ABC or an interface but at runtime
+you want to configure a specific concrete class lagom supports definitions of aliases:
+
 ```python
 container[SomeAbc] = ConcreteClass
 ```
 
 ### Partially bind a function
-Apply a function decorator to any function.
+In a lot of web frameworks you'll have a function responsible for handling requests.
+This is a point where lagom can be integrated. A decorator is provided that wraps
+a function and uses reflection to inject any arguments from the supplied container.
+
+In this example the database will be built automatically by lagom:
+
 ```python
 @magic_bind_to_container(container)
-def handle_some_request(request: typing.Dict, game: Game):
-    # do something to the game
+def handle_some_request(request, database: DB):
+    # Do something in the database with this request
     pass
 ```
 
-This function can now be called omitting any arguments 
-that the container knows how to build.
+### Bind only explicit arguments to the container
+The `magic_bind_to_container` above will try and construct any argument that isn't provided. If you
+want to be explicit and restrict what lagom injects then an `injectable` marker is provided. Setting
+a default value of `injectable` tells lagom to inject this value if it's not provided by the caller.
+
 ```python
-# we can now call the following. the game argument will automagically
-# come from the container
-handle_some_request(request={"roll_dice": 5})
+from lagom import injectable
+
+@bind_to_container(container)
+def handle_some_request(request: typing.Dict, profile: ProfileLoader = injectable, user_avatar: AvatarLoader = injectable):
+    # do something to the game
+    pass
 ```
+In this example lagom will only try and inject the `profile` and `user_avatar` arguments.
 
 
 ### Invocation level caching
-Suppose you have a function and you want all the dependencies
-to share an instance of an object then you can define invocation
-level shared dependencies.
+If for the life time of a function (maybe a web request) you want a certain class to act as a temporary singleton then
+lagom has the concept of `shared` dependencies. When binding a function to a container a list of classes is provided. 
+Each of these classes will only be constructed once per function invocation.
 
 ```python
 
@@ -108,32 +142,19 @@ def handle_some_request(request: typing.Dict, profile: ProfileLoader, user_avata
     pass
 ```
 
-now each invocation of handle_some_request will get the same instance
-of loader so this class can cache values for the invocation lifetime.
-
-### Alternative to decorator
-The above example can also be used without a decorator if you want
-to keep the pure unaltered function available for testing.
+### Defining an async loaded type
+Lagom fully supports async python. If an async def is used to define a dependency then it
+will be available as `Awaitable[TheDependency]`
 
 ```python
-def handle_some_request(request: typing.Dict, game: Game):
-    pass
+@dependency_definition(container)
+async def my_constructor() -> MyComplexDep:
+    # await some stuff or any other async things
+    return MyComplexDep(some_number=5)
 
-# This new function can be bound to a route or used wherever
-# need
-func_with_injection = container.magic_partial(handle_some_request)
-```
+my_thing = await container[Awaitable[MyComplexDep]]
 
-### Bind only explicit arguments to the container
-Instead of the magic binding described earlier an explicit decorator is 
-provided:
-```python
-@bind_to_container(container)
-def handle_some_request(request: typing.Dict, profile: ProfileLoader = injectable, user_avatar: AvatarLoader = injectable):
-    # do something to the game
-    pass
 ```
-In this example lagom will only try and inject the `profile` and `user_avatar` arguments.
 
 ### Loading environment variables (requires pydantic to be installed)
 

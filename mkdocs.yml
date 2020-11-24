@@ -7,15 +7,18 @@ theme:
     accent: pink
 
 nav:
-  - Getting Started: index.md
-  - Framework Integrations: framework_integrations.md
-  - Testing Code Using Lagom: testing_with_lagom.md
-  - Experimental Features: experimental.md
-  - App Example: full_example.md
-  - Cookbook & Common Usage Patterns: cookbook.md
-  - Change Log: CHANGELOG.md
-  - Github: https://github.com/meadsteve/lagom
-  - Issue Tracker: https://github.com/meadsteve/lagom/issues
+  - Usage:
+    - Getting Started: index.md
+    - Framework Integrations: framework_integrations.md
+    - Testing Code Using Lagom: testing_with_lagom.md
+    - Experimental Features: experimental.md
+    - Cookbook & Common Usage Patterns: cookbook.md
+    - App Example: full_example.md
+  - Development:
+    - Contributing: development_of_lagom.md
+    - Change Log: CHANGELOG.md
+    - Github: https://github.com/meadsteve/lagom
+    - Issue Tracker: https://github.com/meadsteve/lagom/issues
 
 markdown_extensions:
   - markdown.extensions.codehilite:
