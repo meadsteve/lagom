@@ -158,29 +158,36 @@ my_thing = await container[Awaitable[MyComplexDep]]
 
 ### Loading environment variables (requires pydantic to be installed)
 
-This module provides code to automatically load environment variables from the container.
-It is built on top of (and requires) pydantic.
+**Prerequisites** Using this feature requires [pydantic](https://github.com/samuelcolvin/pydantic/) to be installed
 
-At first one or more classes representing the required environment variables are defined.
-All environment variables are assumed to be all uppercase and are automatically lowercased.
+The first step is to create one or more classes that describe the environment variables your application depends on.
+Lower case property names automatically map on to an uppercase envrinment variable of the same name.
+
 ```python
 class MyWebEnv(Env):
-    port: str
-    host: str
+    port: str # maps to environment variable PORT 
+    host: str # maps to environment variable HOST
 
 class DBEnv(Env):
-    db_host: str
-    db_password: str
+    db_host: str# maps to environment variable DB_HOST
+    db_password: str# maps to environment variable DB_PASSWORD
 ```
-
-Now that these env classes are defined they can be injected
-as usual:
+Now any function or class requiring configuration can type hint on these classes and get the values from the envionment injected in:
 ```python
+# Example usage:
+#    DB_HOST=localhost DB_PASSWORD=secret python myscript.py
+
+c = Container()
+
 @magic_bind_to_container(c)
-def some_function(env: DBEnv):
-    do_something(env.db_host, env.db_password)
+def main(env: DBEnv):
+    print(f"Config supplied: {env.db_host}, {env.db_password}")
+
+if __name__ == "__main__":
+   main()
 ```
 
-For testing a manual constructed Env class can be passed in.
-At runtime the class will be populated automatically from
-the environment.
+For test purposes these classes can be created with explicitly set values:
+```python
+test_db_env = DBEnv(db_host="fake", db_password="skip")
+```
