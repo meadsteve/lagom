@@ -15,7 +15,7 @@ update:
 	pipenv run  pip list --outdated
 
 docs_serve:
-	pipenv run mkdocs serve
+	pipenv run mkdocs serve --dev-addr 0.0.0.0:8004
 
 test: test_mypy test_unit enforce_docs test_doctests test_format
 
