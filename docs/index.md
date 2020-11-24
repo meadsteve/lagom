@@ -12,6 +12,8 @@ only be involved at the top level to pull everything together.
  * Integration with a few common web frameworks.
  * Support for async python.
  * Thread-safe at runtime
+ 
+You can see a [comparison to other frameworks here](./comparison.md)
 
 ## Installation
 ```bash

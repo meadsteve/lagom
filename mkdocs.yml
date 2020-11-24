@@ -13,6 +13,7 @@ nav:
     - Testing Code Using Lagom: testing_with_lagom.md
     - Experimental Features: experimental.md
     - Cookbook & Common Usage Patterns: cookbook.md
+    - Comparison to Alternatives: comparison.md
     - App Example: full_example.md
   - Development:
     - Contributing: development_of_lagom.md
