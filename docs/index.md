@@ -85,27 +85,39 @@ container[SomeAbc] = ConcreteClass
 ```
 
 ### Partially bind a function
-Apply a function decorator to any function.
+In a lot of web frameworks you'll have a function responsible for handling requests.
+This is a point where lagom can be integrated. A decorator is provided that wraps
+a function and uses reflection to inject any arguments from the supplied container.
+
+In this example the database will be built automatically by lagom:
+
 ```python
 @magic_bind_to_container(container)
-def handle_some_request(request: typing.Dict, game: Game):
-    # do something to the game
+def handle_some_request(request, database: DB):
+    # Do something in the database with this request
     pass
 ```
 
-This function can now be called omitting any arguments 
-that the container knows how to build.
+### Bind only explicit arguments to the container
+The `magic_bind_to_container` above will try and construct any argument that isn't provided. If you
+want to be explicit and restrict what lagom injects then an `injectable` marker is provided. Setting
+a default value of `injectable` tells lagom to inject this value if it's not provided by the caller.
+
 ```python
-# we can now call the following. the game argument will automagically
-# come from the container
-handle_some_request(request={"roll_dice": 5})
+from lagom import injectable
+
+@bind_to_container(container)
+def handle_some_request(request: typing.Dict, profile: ProfileLoader = injectable, user_avatar: AvatarLoader = injectable):
+    # do something to the game
+    pass
 ```
+In this example lagom will only try and inject the `profile` and `user_avatar` arguments.
 
 
 ### Invocation level caching
-Suppose you have a function and you want all the dependencies
-to share an instance of an object then you can define invocation
-level shared dependencies.
+If for the life time of a function (maybe a web request) you want a certain class to act as a temporary singleton then
+lagom has the concept of `shared` dependencies. When binding a function to a container a list of classes is provided. 
+Each of these classes will only be constructed once per function invocation.
 
 ```python
 
@@ -123,37 +135,8 @@ def handle_some_request(request: typing.Dict, profile: ProfileLoader, user_avata
     pass
 ```
 
-now each invocation of handle_some_request will get the same instance
-of loader so this class can cache values for the invocation lifetime.
-
-
-### Bind only explicit arguments to the container
-Instead of the magic binding described earlier an explicit decorator is 
-provided:
-```python
-@bind_to_container(container)
-def handle_some_request(request: typing.Dict, profile: ProfileLoader = injectable, user_avatar: AvatarLoader = injectable):
-    # do something to the game
-    pass
-```
-In this example lagom will only try and inject the `profile` and `user_avatar` arguments.
-
-### Alternative to decorator
-The above example can also be used without a decorator if you want
-to keep the pure unaltered function available for testing.
-
-```python
-def handle_some_request(request: typing.Dict, game: Game):
-    pass
-
-# This new function can be bound to a route or used wherever
-# need
-func_with_injection = container.magic_partial(handle_some_request)
-```
-
-
 ### Defining an async loaded type
-Lagom supports async python. If an async def is used to define a dependency then it
+Lagom fully supports async python. If an async def is used to define a dependency then it
 will be available as `Awaitable[TheDependency]`
 
 ```python
