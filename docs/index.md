@@ -75,12 +75,12 @@ dependency can be configured as a singleton without changing the class at
 all.
 
 ```python
-container[SomeClasssToLoadOnce] = SomeClasssToLoadOnce("up", "left")
+container[SomeClassToLoadOnce] = SomeClassToLoadOnce("up", "left")
 ```
 alternatively if you want to defer construction until it's needed:
 
 ```python
-container[SomeClasssToLoadOnce] = Singleton(SomeClasssToLoadOnce)
+container[SomeClassToLoadOnce] = Singleton(SomeClassToLoadOnce)
 ```
 
 ### Alias a concrete instance to an ABC
