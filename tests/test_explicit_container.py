@@ -1,3 +1,5 @@
+from typing import Optional
+
 import pytest
 
 from lagom import Container, Singleton
@@ -67,3 +69,12 @@ def test_the_inner_dependencies_dont_have_to_be_defined_in_the_container(
 
     # We still can't build the inner object directly
     assert explicit_container.resolve(SomethingToBuild, suppress_error=True) is None
+
+
+def test_optional_deps_can_be_injected_if_they_can_be_built(
+    explicit_container: Container,
+):
+    explicit_container[SomethingToBuild] = lambda: SomethingToBuild()
+
+    built_object = explicit_container.resolve(Optional[SomethingToBuild])  # type: ignore
+    assert isinstance(built_object, SomethingToBuild)
