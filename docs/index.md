@@ -6,6 +6,13 @@ help with building your dependencies. The intention is that almost
 all of your code doesn't know about or rely on lagom. Lagom will
 only be involved at the top level to pull everything together.
 
+### Features
+ * Fully based on types. Strong integration with mypy.
+ * Minimal changes to existing code.
+ * Integration with a few common web frameworks.
+ * Support for async python.
+ * Thread-safe at runtime
+
 ## Installation
 ```bash
 pip install lagom
