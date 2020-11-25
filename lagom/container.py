@@ -359,6 +359,12 @@ class ExplicitContainer(Container):
             )
         return definition
 
+    def clone(self):
+        """ returns a copy of the container
+        :return:
+        """
+        return ExplicitContainer(self, log_undefined_deps=self._undefined_logger)
+
 
 C = TypeVar("C", bound=ReadableContainer)
 

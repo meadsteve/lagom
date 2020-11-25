@@ -2,7 +2,7 @@ from typing import Optional
 
 import pytest
 
-from lagom import Container, Singleton
+from lagom import Container, Singleton, ExplicitContainer
 from lagom.exceptions import InvalidDependencyDefinition, DependencyNotDefined
 
 
@@ -78,3 +78,10 @@ def test_optional_deps_can_be_injected_if_they_can_be_built(
 
     built_object = explicit_container.resolve(Optional[SomethingToBuild])  # type: ignore
     assert isinstance(built_object, SomethingToBuild)
+
+
+def test_the_clone_of_an_explicit_container_is_also_an_explicit_container(
+    explicit_container: Container,
+):
+    clone = explicit_container.clone()
+    assert isinstance(clone, ExplicitContainer)
