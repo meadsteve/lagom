@@ -1,6 +1,7 @@
 """
 Exceptions raised by the library
 """
+import inspect
 from abc import ABC
 from typing import Type
 
@@ -55,10 +56,16 @@ class UnresolvableType(ValueError, LagomException):
         :param dep_type: The type that could not be constructed
         """
         self.dep_type = _dep_type_as_string(dep_type)
-        super().__init__(
-            f"Unable to construct dependency of type {self.dep_type} "
-            "The constructor probably has some unresolvable dependencies"
-        )
+        if inspect.isabstract(dep_type):
+            super().__init__(
+                f"Unable to construct Abstract type {self.dep_type}."
+                "Try defining an alias or a concrete class to construct"
+            )
+        else:
+            super().__init__(
+                f"Unable to construct dependency of type {self.dep_type} "
+                "The constructor probably has some unresolvable dependencies"
+            )
 
 
 class RecursiveDefinitionError(SyntaxError, LagomException):

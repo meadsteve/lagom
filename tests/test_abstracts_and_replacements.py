@@ -1,14 +1,16 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 import pytest
 
 from lagom import Container, Alias
+from lagom.exceptions import UnresolvableType
 
 
 class MySimpleAbc(ABC):
     stuff: str = "empty"
 
+    @abstractmethod
     def bloop(self):
-        return "beep"
+        pass
 
 
 class MySimpleDep(MySimpleAbc):
@@ -16,6 +18,9 @@ class MySimpleDep(MySimpleAbc):
 
     def __init__(self, stuff):
         self.stuff = stuff
+
+    def bloop(self):
+        return "beep"
 
 
 class MyMoreComplicatedDep:
@@ -35,12 +40,12 @@ class AnotherConcrete(AnotherAbc):
 
 @pytest.fixture
 def container_with_abc(container: Container):
-    container.define(MySimpleAbc, lambda: MySimpleDep("hooray"))
+    container.define(MySimpleAbc, lambda: MySimpleDep("hooray"))  # type: ignore
     return container
 
 
 def test_registered_concrete_class_is_loaded(container_with_abc: Container):
-    resolved = container_with_abc.resolve(MySimpleAbc)
+    resolved = container_with_abc.resolve(MySimpleAbc)  # type: ignore
     assert resolved.stuff == "hooray"
 
 
@@ -61,3 +66,10 @@ def test_aliases_can_be_pointless_and_self_referential(container: Container):
     container.define(AnotherConcrete, Alias(AnotherConcrete))
     resolved = container.resolve(AnotherConcrete)
     assert resolved.stuff == "full"
+
+
+def test_trying_to_build_an_abc_raises_an_error(container: Container):
+    with pytest.raises(UnresolvableType) as e_info:
+        container.resolve(MySimpleAbc)  # type: ignore
+    assert "Unable to construct Abstract type MySimpleAbc" in str(e_info.value)
+    assert "Try defining an alias or a concrete class to construct" in str(e_info.value)
