@@ -13,6 +13,8 @@ all of your code doesn't know about or rely on lagom. Lagom will
 only be involved at the top level to pull everything together.
 
 ### Features
+
+ * Typed based auto wiring with zero configuration.
  * Fully based on types. Strong integration with mypy.
  * Minimal changes to existing code.
  * Integration with a few common web frameworks.
