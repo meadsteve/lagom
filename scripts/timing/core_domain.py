@@ -1,13 +1,14 @@
 class SomeOtherThingAsAsingleton:
-    pass
+    def work(self):
+        return 1
 
 
 class SomeService:
     def __init__(self, other: SomeOtherThingAsAsingleton):
-        pass
+        self.other = other
 
     def do_it(self):
-        pass
+        return self.other.work()
 
 
 class AThingIMightNeed:
@@ -17,4 +18,4 @@ class AThingIMightNeed:
         self.service = service
 
     def do_it(self):
-        self.service.do_it()
+        return self.service.do_it()
