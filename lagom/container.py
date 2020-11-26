@@ -126,7 +126,9 @@ class Container(ReadableContainer, DefinitionsSource):
 
         :return:
         """
-        return set(self._registered_types.keys())
+        return self._parent_definitions.defined_types.union(
+            self._registered_types.keys()
+        )
 
     @property
     def reflection_cache_overview(self) -> Dict[str, str]:
@@ -399,6 +401,10 @@ class EmptyDefinitionSet(DefinitionsSource):
         :return:
         """
         return None
+
+    @property
+    def defined_types(self):
+        return set()
 
 
 class _TemporaryInjectionContext(Generic[C]):

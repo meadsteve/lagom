@@ -83,6 +83,11 @@ class DefinitionsSource(ABC):
         """
         pass
 
+    @property
+    @abstractmethod
+    def defined_types(self) -> Set[Type]:
+        pass
+
 
 T = TypeVar("T")
 
