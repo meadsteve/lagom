@@ -15,7 +15,12 @@ from typing import (
     Union,
 )
 
-from .interfaces import SpecialDepDefinition, ReadableContainer, TypeResolver
+from .interfaces import (
+    SpecialDepDefinition,
+    ReadableContainer,
+    TypeResolver,
+    DefinitionsSource,
+)
 from .exceptions import (
     UnresolvableType,
     DuplicateDefinition,
@@ -34,7 +39,7 @@ UNRESOLVABLE_TYPES = [str, int, float, bool]
 X = TypeVar("X")
 
 
-class Container(ReadableContainer):
+class Container(ReadableContainer, DefinitionsSource):
     """ Dependency injection container
 
     Lagom is a dependency injection container designed to give you "just enough"
@@ -65,7 +70,7 @@ class Container(ReadableContainer):
     """
 
     _registered_types: Dict[Type, SpecialDepDefinition]
-    _explicitly_registered_types: Set[Type]
+    _parent_definitions: DefinitionsSource
     _reflector: CachingReflector
     _undefined_logger: logging.Logger
 
@@ -78,13 +83,13 @@ class Container(ReadableContainer):
         :param container: Optional container if provided the existing definitions will be copied
         :param log_undefined_deps indicates if a log message should be emmited when an undefined dep is loaded
         """
-        self._explicitly_registered_types = set()
+        self._registered_types = {}
 
         if container:
-            self._registered_types = copy(container._registered_types)
+            self._parent_definitions = container
             self._reflector = container._reflector
         else:
-            self._registered_types = {}
+            self._parent_definitions = EmptyDefinitionSet()
             self._reflector = CachingReflector()
 
         if not log_undefined_deps:
@@ -108,12 +113,11 @@ class Container(ReadableContainer):
         """
         if dep in UNRESOLVABLE_TYPES:
             raise InvalidDependencyDefinition()
-        if dep in self._explicitly_registered_types:
+        if dep in self._registered_types:
             raise DuplicateDefinition()
         definition = normalise(resolver)
         self._registered_types[dep] = definition
         self._registered_types[Optional[dep]] = definition  # type: ignore
-        self._explicitly_registered_types.add(dep)
         return definition
 
     @property
@@ -122,7 +126,9 @@ class Container(ReadableContainer):
 
         :return:
         """
-        return set(self._registered_types.keys())
+        return self._parent_definitions.defined_types.union(
+            self._registered_types.keys()
+        )
 
     @property
     def reflection_cache_overview(self) -> Dict[str, str]:
@@ -185,8 +191,10 @@ class Container(ReadableContainer):
         """
         try:
 
-            if not skip_definitions and dep_type in self._registered_types:
-                return self._registered_types[dep_type].get_instance(self)
+            if not skip_definitions:
+                definition = self.get_definition(dep_type)
+                if definition:
+                    return definition.get_instance(self)
 
             if dep_type in UNRESOLVABLE_TYPES:
                 raise UnresolvableType(dep_type)
@@ -294,6 +302,18 @@ class Container(ReadableContainer):
         """
         return Container(self, log_undefined_deps=self._undefined_logger)
 
+    def get_definition(self, dep_type: Type[X]) -> Optional[SpecialDepDefinition[X]]:
+        """
+        Will return the definition in this container. If none has been defined any
+        definition in the parent container will be used.
+
+        :param dep_type:
+        :return:
+        """
+        return self._registered_types.get(
+            dep_type, self._parent_definitions.get_definition(dep_type)
+        )
+
     def __getitem__(self, dep: Type[X]) -> X:
         return self.resolve(dep)
 
@@ -337,13 +357,12 @@ class ExplicitContainer(Container):
     def resolve(
         self, dep_type: Type[X], suppress_error=False, skip_definitions=False
     ) -> X:
-        try:
-            type_to_build = self._registered_types[dep_type]
-        except KeyError as key_error:
+        definition = self.get_definition(dep_type)
+        if not definition:
             if suppress_error:
                 return None  # type: ignore
-            raise DependencyNotDefined(dep_type) from key_error
-        return type_to_build.get_instance(self)
+            raise DependencyNotDefined(dep_type)
+        return definition.get_instance(self)
 
     def define(self, dep, resolver):
         definition = super().define(dep, resolver)
@@ -367,6 +386,25 @@ class ExplicitContainer(Container):
 
 
 C = TypeVar("C", bound=ReadableContainer)
+
+
+class EmptyDefinitionSet(DefinitionsSource):
+    """
+    Represents the starting state for a collection of dependency definitions
+    i.e. None and everything has to be built with reflection
+    """
+
+    def get_definition(self, dep_type: Type[X]) -> Optional[SpecialDepDefinition[X]]:
+        """
+        No types are defined in the empty set
+        :param dep_type:
+        :return:
+        """
+        return None
+
+    @property
+    def defined_types(self):
+        return set()
 
 
 class _TemporaryInjectionContext(Generic[C]):

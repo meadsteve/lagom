@@ -2,7 +2,7 @@
 Interfaces shared by modules within the lagom package
 """
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar, Type, Any, Callable, Union, List, Set
+from typing import Generic, TypeVar, Type, Any, Callable, Union, List, Set, Optional
 
 X = TypeVar("X")
 
@@ -65,6 +65,27 @@ class SpecialDepDefinition(ABC, Generic[X]):
         :param container: an instance of the current container
         :return:
         """
+        pass
+
+
+class DefinitionsSource(ABC):
+    """
+    Stores the mapppings between a type and the definition of how
+    to construct that type
+    """
+
+    @abstractmethod
+    def get_definition(self, dep_type: Type[X]) -> Optional[SpecialDepDefinition[X]]:
+        """
+        For a supplied type returns the definition of how to build that type.
+        If unknown None is returned
+        :param dep_type:
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def defined_types(self) -> Set[Type]:
         pass
 
 
