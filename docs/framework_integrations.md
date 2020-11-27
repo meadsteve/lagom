@@ -34,6 +34,9 @@ if you'd like to use lagom instead an integration is provided.
 Calling the method `.depends` will provide a dependency in the format
 that FastAPI expects:
 
+
+**Limitation warning** This integration doesn't currently doesn't support invocation level singletons like the other frameworks do.
+
 ```python
 container = Container()
 container[DBConnection] = DB("DSN_CONNECTION_GOES_HERE")
