@@ -436,7 +436,8 @@ class _TemporaryInjectionContext(Generic[C]):
 
 def _update_container_singletons(container: Container, singletons: List[Type]):
     new_container = container.clone()
-    loaders = {dep: lambda: container.resolve(dep) for dep in singletons}
-    for (dep, loader) in loaders.items():
-        new_container[dep] = SingletonWrapper(ConstructionWithoutContainer(loader))
+    for dep in singletons:
+        new_container[dep] = SingletonWrapper(
+            ConstructionWithoutContainer(lambda: container.resolve(dep))
+        )
     return new_container
