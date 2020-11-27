@@ -63,15 +63,15 @@ class Alias(SpecialDepDefinition[X]):
         return container.resolve(self.alias_type, skip_definitions=True)
 
 
-class Singleton(SpecialDepDefinition[X]):
+class SingletonWrapper(SpecialDepDefinition[X]):
     """Builds only once then saves the built instance"""
 
     singleton_type: SpecialDepDefinition
     _instance: Optional[X]
     _thread_lock: Lock
 
-    def __init__(self, singleton_type: TypeResolver):
-        self.singleton_type = normalise(singleton_type)
+    def __init__(self, def_to_wrap: SpecialDepDefinition):
+        self.singleton_type = def_to_wrap
         self._instance = None
         self._thread_lock = Lock()
 
@@ -93,6 +93,13 @@ class Singleton(SpecialDepDefinition[X]):
             return self._instance  # type: ignore
         finally:
             self._thread_lock.release()
+
+
+class Singleton(SingletonWrapper[X]):
+    """Builds only once then saves the built instance"""
+
+    def __init__(self, singleton_type: TypeResolver):
+        super().__init__(normalise(singleton_type))
 
 
 class PlainInstance(SpecialDepDefinition[X]):
