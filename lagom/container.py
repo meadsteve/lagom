@@ -1,6 +1,5 @@
 import functools
 import logging
-from copy import copy
 from typing import (
     Dict,
     Type,
@@ -29,7 +28,13 @@ from .exceptions import (
     DependencyNotDefined,
 )
 from .markers import injectable
-from .definitions import normalise, Singleton, construction, Alias
+from .definitions import (
+    normalise,
+    Singleton,
+    Alias,
+    ConstructionWithoutContainer,
+    SingletonWrapper,
+)
 from .util.logging import NullLogger
 from .util.reflection import FunctionSpec, CachingReflector, remove_optional_type
 from .wrapping import apply_argument_updater
@@ -431,7 +436,8 @@ class _TemporaryInjectionContext(Generic[C]):
 
 def _update_container_singletons(container: Container, singletons: List[Type]):
     new_container = container.clone()
-    loaders = {dep: construction(lambda: container.resolve(dep)) for dep in singletons}
-    for (dep, loader) in loaders.items():
-        new_container[dep] = Singleton(loader)
+    for dep in singletons:
+        new_container[dep] = SingletonWrapper(
+            ConstructionWithoutContainer(lambda: container.resolve(dep))
+        )
     return new_container
