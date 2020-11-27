@@ -35,7 +35,7 @@ Calling the method `.depends` will provide a dependency in the format
 that FastAPI expects:
 
 
-**Limitation warning** This integration doesn't currently doesn't support invocation level singletons like the other frameworks do.
+**Limitation warning** This integration currently doesn't support invocation level singletons like the other frameworks do.
 
 ```python
 container = Container()
