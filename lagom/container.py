@@ -39,7 +39,7 @@ from .util.logging import NullLogger
 from .util.reflection import FunctionSpec, CachingReflector, remove_optional_type
 from .wrapping import apply_argument_updater
 
-UNRESOLVABLE_TYPES = [str, int, float, bool]
+UNRESOLVABLE_TYPES = [str, int, float, bool, bytes, bytearray]
 
 X = TypeVar("X")
 
