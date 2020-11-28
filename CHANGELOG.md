@@ -1,5 +1,22 @@
 # Changelog
 
+## 1.0.0-beta.2 (2020-11-28)
+
+### Enhancements
+* Various performance enhancements. 
+* Bytes and Bytearray now in the non resolveable by default types.
+* Fastapi & flask integrations now make the request available for injection
+
+### Bug fixes
+None
+
+### Backwards incompatible changes
+* Framework integrations now require ExtendableContainer rather than readable. For most
+use cases this will require not change.
+* Experimental django container is now modified to use a normal container and an integration
+class.
+
+
 ## 1.0.0-beta.1 (2020-11-21)
 No changes from 0.20.0 but bumped to signal intention to freeze api.
 
