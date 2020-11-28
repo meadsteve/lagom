@@ -101,6 +101,14 @@ class DependencyNotDefined(ValueError, LagomException):
         )
 
 
+class InjectableMarkerConsumed(ValueError, LagomException):
+    def __init__(self):
+        super().__init__(
+            "injectable marker should not be used in code."
+            f"This normally means a function was not wrapped in a Lagom decorator"
+        )
+
+
 def _dep_type_as_string(dep_type: Type):
     # This first check makes 3.6 behave the same as 3.7 and later
     if hasattr(typing, "GenericMeta") and isinstance(dep_type, typing.GenericMeta):  # type: ignore

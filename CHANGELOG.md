@@ -6,6 +6,7 @@
 * Various performance enhancements. 
 * Bytes and Bytearray now in the non resolveable by default types.
 * Fastapi & flask integrations now make the request available for injection
+* Raise better exceptions if injectable is accidentally used.
 
 ### Bug fixes
 None
