@@ -5,8 +5,10 @@ FastAPI (https://fastapi.tiangolo.com/)
 import typing
 
 from fastapi import Depends
+from starlette.requests import Request
 
-from ..interfaces import ReadableContainer
+from ..definitions import PlainInstance
+from ..interfaces import ExtendableContainer
 
 T = typing.TypeVar("T")
 
@@ -18,9 +20,9 @@ class FastApiIntegration:
     FastApi `Depends`
     """
 
-    _container: ReadableContainer
+    _container: ExtendableContainer
 
-    def __init__(self, container: ReadableContainer):
+    def __init__(self, container: ExtendableContainer):
         self._container = container
 
     def depends(self, dep_type: typing.Type[T]) -> T:
@@ -29,4 +31,10 @@ class FastApiIntegration:
         :param dep_type:
         :return:
         """
-        return Depends(lambda: self._container.resolve(dep_type))
+
+        def _resolver(request: Request):
+            request_container = self._container.clone()
+            request_container.define(Request, PlainInstance(request))
+            return request_container.resolve(dep_type)
+
+        return Depends(_resolver)

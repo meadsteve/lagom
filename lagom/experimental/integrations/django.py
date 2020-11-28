@@ -7,17 +7,17 @@ Usage:
 ```
 #views.py
 
-from .dependency_config import container
+from .dependency_config import dependencies
 
 
-@container.bind_view
+@dependencies.bind_view
 def index(request, dep: SomeDep=injectable, questions: DjangoModel[Question]=injectable):
     new_question = questions.new(question_text="What's next?", pub_date=timezone.now())
     new_question.save()
     return HttpResponse(f"plain old function: {dep.message} with {questions.objects.all().count()} questions")
 
 
-@container.bind_view
+@dependencies.bind_view
 class CBVexample(View):
     def get(self, request, dep: SomeDep=injectable):
         return HttpResponse(f"Class based: {dep.message}")
@@ -29,8 +29,10 @@ class CBVexample(View):
 # a per app dep injection container
 
 # Lists all models that should be available
-container = DjangoContainer(models=[Question], request_singletons= [SomeCache])
+container = Container()
 container[SomeService] = SomeService("connection details etc")
+
+dependencies = DjangoIntegration(container, models=[Question], request_singletons=[SomeCache])
 ```
 
 """
@@ -40,7 +42,7 @@ from typing import TypeVar, Generic, List, Type, Optional
 from django.db.models import Manager, Model
 from django.views import View
 
-from lagom.container import Container
+from lagom.interfaces import ExtendableContainer, WriteableContainer
 
 M = TypeVar("M", bound=Model)
 
@@ -101,7 +103,7 @@ class DjangoModel(Generic[M]):
         return self.model(**kwargs)
 
 
-class DjangoContainer(Container):
+class DjangoIntegration:
     """
     Same behaviour as the basic container bug provides a view method which
     should be used as a decorator to wrap views. Once wrapped
@@ -109,22 +111,23 @@ class DjangoContainer(Container):
     """
 
     _request_singletons: List[Type]
+    _container: WriteableContainer
 
     def __init__(
         self,
+        container: ExtendableContainer,
         models: Optional[List[Type[Model]]] = None,
         request_singletons: Optional[List[Type]] = None,
-        container: Container = None,
     ):
         """
         :param models: List of models which should be available for injection
         :param request_singletons:
         :param container:
         """
-        super().__init__(container)
+        self._container = container.clone()
         self._request_singletons = request_singletons or []
         for model in models or []:
-            self.define(DjangoModel[model], DjangoModel(model))  # type: ignore
+            self._container.define(DjangoModel[model], DjangoModel(model))  # type: ignore
 
     def bind_view(self, view):
         """
@@ -137,7 +140,7 @@ class DjangoContainer(Container):
         """
         if isinstance(view, types.FunctionType):
             # Plain old function can be bound to the container
-            return self.partial(view, shared=self._request_singletons)
+            return self._container.partial(view, shared=self._request_singletons)
         return self._bind_view_methods_to_container(view)
 
     def magic_bind_view(self, view):
@@ -150,18 +153,18 @@ class DjangoContainer(Container):
         """
         if isinstance(view, types.FunctionType):
             # Plain old function can be bound to the container
-            return self.magic_partial(view, shared=self._request_singletons)
+            return self._container.magic_partial(view, shared=self._request_singletons)
         return self._bind_view_methods_to_container(view, magic=True)
 
     def _bind_view_methods_to_container(self, view, magic=False):
         for method in View.http_method_names:
             if hasattr(view, method):
                 if magic:
-                    bound_func = self.magic_partial(
+                    bound_func = self._container.magic_partial(
                         getattr(view, method), shared=self._request_singletons
                     )
                 else:
-                    bound_func = self.partial(
+                    bound_func = self._container.partial(
                         getattr(view, method), shared=self._request_singletons
                     )
                 setattr(

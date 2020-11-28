@@ -2,7 +2,8 @@ from typing import Any
 
 import pytest
 
-from lagom.experimental.integrations.django import DjangoContainer
+from lagom import Container
+from lagom.experimental.integrations.django import DjangoIntegration
 
 
 class FakeDjangoManager:
@@ -19,5 +20,5 @@ class FakeDjangoModel:
 
 
 @pytest.fixture(scope="function")
-def django_container():
-    return DjangoContainer(models=[FakeDjangoModel])
+def django_integration():
+    return DjangoIntegration(Container(), models=[FakeDjangoModel])

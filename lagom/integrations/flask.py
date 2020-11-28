@@ -1,11 +1,21 @@
 """
 Flask API (https://www.flaskapi.org/)
 """
-from typing import Type, List, Optional
+from typing import Type, List, Optional, Any
 
-from flask import Flask
+from flask import Flask, request
 
-from ..interfaces import ReadableContainer
+from ..definitions import ConstructionWithoutContainer
+from ..interfaces import ExtendableContainer, WriteableContainer
+
+
+class _Request:
+    pass
+
+
+# Exposing a type to be flask's request
+# for now it's an any type but later this could be better.
+Request: Any = _Request
 
 
 class FlaskIntegration:
@@ -15,13 +25,13 @@ class FlaskIntegration:
     """
 
     flask_app: Flask
-    _container: ReadableContainer
+    _container: WriteableContainer
     _request_singletons: List[Type]
 
     def __init__(
         self,
         app: Flask,
-        container: ReadableContainer,
+        container: ExtendableContainer,
         request_singletons: Optional[List[Type]] = None,
     ):
         """
@@ -31,7 +41,8 @@ class FlaskIntegration:
         :param container: an existing container to provide dependencies
         """
         self.flask_app = app
-        self._container = container
+        self._container = container.clone()
+        self._container[Request] = ConstructionWithoutContainer(lambda: request)
         self._request_singletons = request_singletons or []
 
     def route(self, rule, **options):

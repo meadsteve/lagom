@@ -17,8 +17,10 @@ from typing import (
 from .interfaces import (
     SpecialDepDefinition,
     ReadableContainer,
+    WriteableContainer,
     TypeResolver,
     DefinitionsSource,
+    ExtendableContainer,
 )
 from .exceptions import (
     UnresolvableType,
@@ -44,7 +46,7 @@ UNRESOLVABLE_TYPES = [str, int, float, bool, bytes, bytearray]
 X = TypeVar("X")
 
 
-class Container(ReadableContainer, DefinitionsSource):
+class Container(WriteableContainer, ExtendableContainer, DefinitionsSource):
     """ Dependency injection container
 
     Lagom is a dependency injection container designed to give you "just enough"

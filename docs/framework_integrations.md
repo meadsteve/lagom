@@ -52,6 +52,21 @@ async def homepage(request, db = deps.depends(DBConnection)):
 
 ```
 
+### Access the request
+The fast api automatically binds the active request to the container.
+This enables the following definitions:
+
+```python
+from starlette.requests import Request
+
+class SomeExtendedRequest:
+    def __init(self, req: Request, db: Database):
+        pass
+```
+
+Each time SomeExtendedRequest is created the correct `Request`
+object will be passed in.
+
 ## [Flask API](https://www.flaskapi.org/)
 An integration is provided for flask. It takes the flask app
 and a container then provides a wrapped `route` decorator to use:

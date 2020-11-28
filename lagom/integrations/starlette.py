@@ -6,7 +6,7 @@ from typing import List, Type, Callable, Optional
 from starlette.routing import Route
 
 
-from ..interfaces import ReadableContainer
+from ..interfaces import ExtendableContainer
 
 
 class StarletteIntegration:
@@ -15,11 +15,11 @@ class StarletteIntegration:
     """
 
     _request_singletons: List[Type]
-    _container: ReadableContainer
+    _container: ExtendableContainer
 
     def __init__(
         self,
-        container: ReadableContainer,
+        container: ExtendableContainer,
         request_singletons: Optional[List[Type]] = None,
     ):
         """

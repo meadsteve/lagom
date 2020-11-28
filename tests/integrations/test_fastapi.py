@@ -17,4 +17,7 @@ def test_the_fast_api_container_can_return_a_fastapi_dependency(container: Conta
     deps = FastApiIntegration(container)
     dependency_injection = deps.depends(ComplexDep)
     assert isinstance(dependency_injection, Depends)
-    assert dependency_injection.dependency() == ComplexDep("testing")  # type: ignore
+
+    # The fast api dependency injection woul supply a real request
+    fake_request = object()
+    assert dependency_injection.dependency(fake_request) == ComplexDep("testing")  # type: ignore
