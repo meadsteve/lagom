@@ -1,7 +1,5 @@
 from typing import Any
 
-from lagom.exceptions import InjectableMarkerConsumed
-
 
 class Injectable:
     """
@@ -16,9 +14,6 @@ class Injectable:
         :return:
         """
         return False
-
-    def __getattribute__(self, item):
-        raise InjectableMarkerConsumed()
 
 
 # singleton object used to indicate that an argument should be injected

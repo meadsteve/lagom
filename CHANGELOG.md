@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.0-beta.3 (2020-11-28)
+### Bugfixes
+* Undoes changes to injectable as this caused potential issues.
+
 ## 1.0.0-beta.2 (2020-11-28)
 
 ### Enhancements
