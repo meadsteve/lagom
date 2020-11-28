@@ -16,7 +16,7 @@ class UnfulfilledDeps:
         pass
 
 
-@pytest.mark.parametrize("dep", [str, int, float, bool])
+@pytest.mark.parametrize("dep", [str, int, float, bool, bytes, bytearray])
 def test_simple_objects_cannot_be_resolved(container: Container, dep):
     with pytest.raises(UnresolvableType):
         container.resolve(dep)
