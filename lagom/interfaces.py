@@ -53,6 +53,53 @@ class ReadableContainer(ABC):
         pass
 
 
+class WriteableContainer(ReadableContainer):
+    """
+    Represents a container that is mutable and can have
+    new definitions added.
+
+    """
+
+    @abstractmethod
+    def __setitem__(self, dep: Type[X], resolver: "TypeResolver[X]"):
+        """
+        forwards to WriteableContainer.define
+
+        :param dep:
+        :param resolver:
+        :return:
+        """
+        pass
+
+    @abstractmethod
+    def define(
+        self, dep: Type[X], resolver: "TypeResolver[X]"
+    ) -> "SpecialDepDefinition":
+        """
+        Sets the resolver for type "dep"
+
+        :param dep:
+        :param resolver:
+        :return:
+        """
+        pass
+
+
+class ExtendableContainer(ReadableContainer):
+    """
+    A container that is extentable can be cloned with the clone
+    being mutable enabling extension.
+    """
+
+    @abstractmethod
+    def clone(self) -> WriteableContainer:
+        """ returns a copy of the container in a mutable state
+        so new updates can be applied
+        :return:
+        """
+        pass
+
+
 class SpecialDepDefinition(ABC, Generic[X]):
     """
     Represents a special way of loading a dependency.
