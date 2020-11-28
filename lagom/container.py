@@ -1,5 +1,7 @@
 import functools
+import io
 import logging
+import typing
 from typing import (
     Dict,
     Type,
@@ -41,7 +43,27 @@ from .util.logging import NullLogger
 from .util.reflection import FunctionSpec, CachingReflector, remove_optional_type
 from .wrapping import apply_argument_updater
 
-UNRESOLVABLE_TYPES = [str, int, float, bool, bytes, bytearray]
+UNRESOLVABLE_TYPES = [
+    str,
+    int,
+    float,
+    bool,
+    bytes,
+    bytearray,
+    io.BytesIO,
+    io.BufferedIOBase,
+    io.BufferedRandom,
+    io.BufferedReader,
+    io.BufferedRWPair,
+    io.BufferedWriter,
+    io.FileIO,
+    io.IOBase,
+    io.RawIOBase,
+    io.TextIOBase,
+    typing.IO,
+    typing.TextIO,
+    typing.BinaryIO,
+]
 
 X = TypeVar("X")
 

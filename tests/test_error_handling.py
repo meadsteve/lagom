@@ -1,3 +1,5 @@
+import io
+import typing
 from typing import List
 
 import pytest
@@ -18,6 +20,29 @@ class UnfulfilledDeps:
 
 @pytest.mark.parametrize("dep", [str, int, float, bool, bytes, bytearray])
 def test_simple_objects_cannot_be_resolved(container: Container, dep):
+    with pytest.raises(UnresolvableType):
+        container.resolve(dep)
+
+
+@pytest.mark.parametrize(
+    "dep",
+    [
+        io.BytesIO,
+        io.FileIO,
+        io.IOBase,
+        io.RawIOBase,
+        io.TextIOBase,
+        io.BufferedIOBase,
+        io.BufferedRandom,
+        io.BufferedReader,
+        io.BufferedRWPair,
+        io.BufferedWriter,
+        typing.IO,
+        typing.TextIO,
+        typing.BinaryIO,
+    ],
+)
+def test_generic_io_cant_be_resolved(container: Container, dep):
     with pytest.raises(UnresolvableType):
         container.resolve(dep)
 
