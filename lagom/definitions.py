@@ -96,7 +96,7 @@ class SingletonWrapper(SpecialDepDefinition[X]):
 
 
 class Singleton(SingletonWrapper[X]):
-    """Builds only once then saves the built instance"""
+    """Builds only onlambda: ce then saves the built instance"""
 
     def __init__(self, singleton_type: TypeResolver):
         super().__init__(normalise(singleton_type))

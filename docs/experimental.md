@@ -13,23 +13,25 @@ your existing `views.py` and `urls.py`.
 # dependency_config.py
 # a per app dep injection container
 
-container = DjangoContainer()
+container = Container()
 container[SomeService] = SomeService("connection details etc")
+
+dependencies = DjangoIntegration(container)
 ```
 
 and then in `views.py`:
 
 ```python
-from .dependency_config import container
+from .dependency_config import dependencies
 
 
-@container.bind_view
+@dependencies.bind_view
 def index(request, dep: SomeService):
     return HttpResponse(f"service says: {dep.get_message()}")
 
 # Or if you prefer class based views
 
-@container.bind_view
+@dependencies.bind_view
 class CBVexample(View):
     def get(self, request, dep: SomeService):
         return HttpResponse(f"service says: {dep.get_message()}")
@@ -60,7 +62,9 @@ When defining the container, list all the models that should be available via th
 # a per app dep injection container
 from .models import Question
 
-container = DjangoContainer(models=[Question])
+container = Container()
+
+dependencies = DjangoIntegration(container, models=[Question])
 ```
 
 Now in the views you can use:
@@ -70,18 +74,18 @@ from django.http import HttpResponse
 from django.utils import timezone
 from lagom.experimental.integrations.django import DjangoModel
 
-from .dependency_config import container
+from .dependency_config import dependencies
 from .models import Question
 
 
-@container.bind_view
+@dependencies.bind_view
 def new_question(request, questions: DjangoModel[Question]):
     new_question = questions.new(question_text="What's next?", pub_date=timezone.now())
     new_question.save()
     return HttpResponse(f"new question created")
 
 
-@container.bind_view
+@dependencies.bind_view
 def question_count(request, questions: DjangoModel[Question]):
     count = questions.objects.all().count()
     return HttpResponse(f"{count} questions are in the DB")
