@@ -3,6 +3,9 @@
 ## NEXT (Some-Date)
 ### Enhancements
 * Added ability for ContainerDebugInfo to be injected.
+* Provide argument to partial/magic_partial that updates the container 
+  before triggering dependency resolution. This opens up a hook for framework
+  integrations to supply things like the Request object.
 
 ### Bug fixes
 None

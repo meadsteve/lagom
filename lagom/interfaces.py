@@ -20,6 +20,10 @@ X = TypeVar("X")
 
 BuildingFunction = Callable[[Any], Any]
 
+# A function which takes a container, args and kwargs and updates
+# the container before any dependency resolution happens
+CallTimeContainerUpdate = Callable[["WriteableContainer", List, Dict], None]
+
 
 class ReadableContainer(ABC):
     """
@@ -36,7 +40,10 @@ class ReadableContainer(ABC):
 
     @abstractmethod
     def partial(
-        self, func: Callable[..., X], shared: List[Type] = None,
+        self,
+        func: Callable[..., X],
+        shared: List[Type] = None,
+        container_updater: Optional[CallTimeContainerUpdate] = None,
     ) -> Callable[..., X]:
         pass
 
@@ -47,6 +54,7 @@ class ReadableContainer(ABC):
         shared: List[Type] = None,
         keys_to_skip: List[str] = None,
         skip_pos_up_to: int = 0,
+        container_updater: Optional[CallTimeContainerUpdate] = None,
     ) -> Callable[..., X]:
         pass
 
