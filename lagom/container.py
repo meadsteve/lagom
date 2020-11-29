@@ -23,6 +23,7 @@ from .interfaces import (
     TypeResolver,
     DefinitionsSource,
     ExtendableContainer,
+    ContainerDebugInfo,
 )
 from .exceptions import (
     UnresolvableType,
@@ -68,7 +69,9 @@ UNRESOLVABLE_TYPES = [
 X = TypeVar("X")
 
 
-class Container(WriteableContainer, ExtendableContainer, DefinitionsSource):
+class Container(
+    WriteableContainer, ExtendableContainer, DefinitionsSource, ContainerDebugInfo
+):
     """ Dependency injection container
 
     Lagom is a dependency injection container designed to give you "just enough"
@@ -112,7 +115,13 @@ class Container(WriteableContainer, ExtendableContainer, DefinitionsSource):
         :param container: Optional container if provided the existing definitions will be copied
         :param log_undefined_deps indicates if a log message should be emmited when an undefined dep is loaded
         """
-        self._registered_types = {}
+
+        # ContainerDebugInfo is always registered
+        # This means consumers can consume an overview of the container
+        # without hacking anything custom together.
+        self._registered_types = {
+            ContainerDebugInfo: ConstructionWithoutContainer(lambda: self)
+        }
 
         if container:
             self._parent_definitions = container

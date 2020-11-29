@@ -2,7 +2,18 @@
 Interfaces shared by modules within the lagom package
 """
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar, Type, Any, Callable, Union, List, Set, Optional
+from typing import (
+    Generic,
+    TypeVar,
+    Type,
+    Any,
+    Callable,
+    Union,
+    List,
+    Set,
+    Optional,
+    Dict,
+)
 
 X = TypeVar("X")
 
@@ -133,6 +144,37 @@ class DefinitionsSource(ABC):
     @property
     @abstractmethod
     def defined_types(self) -> Set[Type]:
+        """
+        The list of types that have been explicitly defined
+        :return:
+        """
+        pass
+
+
+class ContainerDebugInfo(ABC):
+    """
+    This object provides an overview of the state of a dependency injection
+    container
+    """
+
+    @property
+    @abstractmethod
+    def defined_types(self) -> Set[Type]:
+        """
+        The list of types that have been explicitly defined
+        :return:
+        """
+        pass
+
+    @property
+    @abstractmethod
+    def reflection_cache_overview(self) -> Dict[str, str]:
+        """
+        A summary of what runtime reflection has been performed by lagom
+        This will be empty if types have only be loaded from explicit
+        definitions
+        :return:
+        """
         pass
 
 

@@ -1,5 +1,15 @@
 # Changelog
 
+## NEXT (Some-Date)
+### Enhancements
+* Added ability for ContainerDebugInfo to be injected.
+
+### Bug fixes
+None
+
+### Backwards incompatible changes
+None
+
 ## 1.0.0-beta.4 (2020-11-29)
 ### Bugfixes
 * Fix ridiculous bug which meant pydantic was implicitly required.
