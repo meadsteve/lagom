@@ -19,7 +19,8 @@ def index(request, dep: SomeDep=injectable, questions: DjangoModel[Question]=inj
 
 @dependencies.bind_view
 class CBVexample(View):
-    def get(self, request, dep: SomeDep=injectable):
+    def get(self, request, dep: SomeDep=injectable, settings: DjangoSettings):
+        # do something with settings
         return HttpResponse(f"Class based: {dep.message}")
 
 ```
@@ -37,12 +38,13 @@ dependencies = DjangoIntegration(container, models=[Question], request_singleton
 
 """
 import types
-from typing import TypeVar, Generic, List, Type, Optional
+from typing import TypeVar, Generic, List, Type, Optional, Any
 
 from django.db.models import Manager, Model
 from django.views import View
 
 from lagom.interfaces import ExtendableContainer, WriteableContainer
+from lagom.definitions import ConstructionWithoutContainer
 
 M = TypeVar("M", bound=Model)
 
@@ -62,6 +64,13 @@ class _Managers(Generic[M]):
                 f"Django model {self.model.__name__} does not define a property {item}"
             )
         return getattr(self.model, item)
+
+
+class _DjangoSettings:
+    pass
+
+
+DjangoSettings: Any = _DjangoSettings
 
 
 class DjangoModel(Generic[M]):
@@ -126,6 +135,9 @@ class DjangoIntegration:
         """
         self._container = container.clone()
         self._request_singletons = request_singletons or []
+        self._container.define(
+            DjangoSettings, ConstructionWithoutContainer(self._load_settings)
+        )
         for model in models or []:
             self._container.define(DjangoModel[model], DjangoModel(model))  # type: ignore
 
@@ -153,7 +165,9 @@ class DjangoIntegration:
         """
         if isinstance(view, types.FunctionType):
             # Plain old function can be bound to the container
-            return self._container.magic_partial(view, shared=self._request_singletons)
+            return self._container.magic_partial(
+                view, shared=self._request_singletons, skip_pos_up_to=1
+            )
         return self._bind_view_methods_to_container(view, magic=True)
 
     def _bind_view_methods_to_container(self, view, magic=False):
@@ -161,7 +175,9 @@ class DjangoIntegration:
             if hasattr(view, method):
                 if magic:
                     bound_func = self._container.magic_partial(
-                        getattr(view, method), shared=self._request_singletons
+                        getattr(view, method),
+                        shared=self._request_singletons,
+                        skip_pos_up_to=1,
                     )
                 else:
                     bound_func = self._container.partial(
@@ -171,3 +187,9 @@ class DjangoIntegration:
                     view, method, bound_func,
                 )
         return view
+
+    @staticmethod
+    def _load_settings():
+        from django.conf import settings
+
+        return settings

@@ -96,3 +96,17 @@ and `questions.new()` is the same as `Question()`. The benefit now though is the
 view function has no global state dependency. We can call the view functions directly 
 in tests passing in whatever we want to `questions`. This enables the dependency on 
 the DB to be switched out without any monkey patching at all.
+
+### Django settings
+A class `DjangoSettings` is provided. When bound to the container
+this will automatically get injected with the settings of your app.
+
+```python
+# settings.py
+SECRET_MSG = "hello world"
+
+# views.py
+@dependencies.bind_view
+def question_count(request, settings: DjangoSettings):
+    return HttpResponse(f"your secret message is: {settings.SECRET_MSG}")
+```
