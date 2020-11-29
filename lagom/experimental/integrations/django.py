@@ -41,10 +41,11 @@ import types
 from typing import TypeVar, Generic, List, Type, Optional, Any
 
 from django.db.models import Manager, Model
+from django.http import HttpRequest
 from django.views import View
 
 from lagom.interfaces import ExtendableContainer, WriteableContainer
-from lagom.definitions import ConstructionWithoutContainer
+from lagom.definitions import ConstructionWithoutContainer, PlainInstance
 
 M = TypeVar("M", bound=Model)
 
@@ -152,7 +153,11 @@ class DjangoIntegration:
         """
         if isinstance(view, types.FunctionType):
             # Plain old function can be bound to the container
-            return self._container.partial(view, shared=self._request_singletons)
+            return self._container.partial(
+                view,
+                shared=self._request_singletons,
+                container_updater=_update_container_for_request,
+            )
         return self._bind_view_methods_to_container(view)
 
     def magic_bind_view(self, view):
@@ -166,7 +171,10 @@ class DjangoIntegration:
         if isinstance(view, types.FunctionType):
             # Plain old function can be bound to the container
             return self._container.magic_partial(
-                view, shared=self._request_singletons, skip_pos_up_to=1
+                view,
+                shared=self._request_singletons,
+                skip_pos_up_to=1,
+                container_updater=_update_container_for_request,
             )
         return self._bind_view_methods_to_container(view, magic=True)
 
@@ -178,10 +186,13 @@ class DjangoIntegration:
                         getattr(view, method),
                         shared=self._request_singletons,
                         skip_pos_up_to=1,
+                        container_updater=_update_container_for_request,
                     )
                 else:
                     bound_func = self._container.partial(
-                        getattr(view, method), shared=self._request_singletons
+                        getattr(view, method),
+                        shared=self._request_singletons,
+                        container_updater=_update_container_for_request,
                     )
                 setattr(
                     view, method, bound_func,
@@ -193,3 +204,14 @@ class DjangoIntegration:
         from django.conf import settings
 
         return settings
+
+
+def _update_container_for_request(
+    container: WriteableContainer, call_args, call_kwargs
+):
+    # The first arg is probably a request.
+    # lets make that available for injection
+    if len(call_args) > 0:
+        request = call_args[0]
+        if isinstance(request, HttpRequest):
+            container[HttpRequest] = PlainInstance(request)
