@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.0.0-beta.4 (2020-11-29)
+### Bugfixes
+* Fix ridiculous bug which meant pydantic was implicitly required.
+
+
 ## 1.0.0-beta.3 (2020-11-28)
 ### Bugfixes
 * Undoes changes to injectable as this caused potential issues.

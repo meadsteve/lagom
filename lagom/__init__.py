@@ -9,7 +9,6 @@ from .decorators import (
     dependency_definition,
 )
 from .markers import injectable
-from . import integrations, environment, experimental, exceptions
 
 __all__ = [
     "__version__",
