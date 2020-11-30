@@ -62,7 +62,7 @@ def handle_move_post_request(request: typing.Dict, game: Game = lagom.injectable
 ```
 
 
-[Full docs here here](https://lagom-di.readthedocs.io/en/stable/)
+[Full docs here here](https://lagom-di.readthedocs.io/en/latest/)
 
 ## Contributing
 
