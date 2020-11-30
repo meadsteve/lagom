@@ -87,6 +87,15 @@ def test_types_can_be_explicitly_made_unresolvable(container: Container):
     assert str(err.value) == "You can't resolve SomeDep"
 
 
+def test_types_can_be_explicitly_made_unresolvable_with_a_custom_exception(
+    container: Container,
+):
+    container[SomeDep] = UnresolvableTypeDefinition(SyntaxError("nopes"))
+    with pytest.raises(SyntaxError) as err:
+        container.resolve(SomeDep)
+    assert str(err.value) == "nopes"
+
+
 class A:
     def __init__(self, b: "B"):
         pass
