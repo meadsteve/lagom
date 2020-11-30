@@ -227,20 +227,18 @@ class Container(
         :param skip_definitions:
         :return:
         """
+        if not skip_definitions:
+            definition = self.get_definition(dep_type)
+            if definition:
+                return definition.get_instance(self)
+
+        optional_dep_type = remove_optional_type(dep_type)
+        if optional_dep_type:
+            return self.resolve(optional_dep_type, suppress_error=True)
+
         try:
-
-            if not skip_definitions:
-                definition = self.get_definition(dep_type)
-                if definition:
-                    return definition.get_instance(self)
-
             if dep_type in UNRESOLVABLE_TYPES:
                 raise UnresolvableType(dep_type)
-
-            optional_dep_type = remove_optional_type(dep_type)
-            if optional_dep_type:
-                return self.resolve(optional_dep_type, suppress_error=True)
-
             return self._reflection_build(dep_type)
         except UnresolvableType as inner_error:
             if not suppress_error:

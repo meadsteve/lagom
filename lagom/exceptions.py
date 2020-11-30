@@ -68,6 +68,11 @@ class UnresolvableType(ValueError, LagomException):
             )
 
 
+class TypeResolutionBlocked(UnresolvableType):
+    def __init__(self, msg: str):
+        super(ValueError, self).__init__(msg)
+
+
 class RecursiveDefinitionError(SyntaxError, LagomException):
     """Whilst trying to resolve the type python exceeded the recursion depth"""
 
