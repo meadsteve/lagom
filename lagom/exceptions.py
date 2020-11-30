@@ -69,6 +69,8 @@ class UnresolvableType(ValueError, LagomException):
 
 
 class TypeResolutionBlocked(UnresolvableType):
+    """The type was explicitly blocked by configuration"""
+
     def __init__(self, msg: str):
         super(ValueError, self).__init__(msg)
 

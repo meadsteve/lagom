@@ -6,7 +6,11 @@ import pytest
 
 from lagom import Container
 from lagom.definitions import UnresolvableTypeDefinition
-from lagom.exceptions import UnresolvableType, RecursiveDefinitionError, TypeResolutionBlocked
+from lagom.exceptions import (
+    UnresolvableType,
+    RecursiveDefinitionError,
+    TypeResolutionBlocked,
+)
 
 
 class MyMissingDep:

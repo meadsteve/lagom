@@ -12,7 +12,8 @@ from typing import (
     List,
     Set,
     Optional,
-    Dict, NoReturn,
+    Dict,
+    NoReturn,
 )
 
 X = TypeVar("X")

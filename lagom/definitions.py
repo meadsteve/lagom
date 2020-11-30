@@ -5,7 +5,10 @@ import inspect
 from threading import Lock
 from typing import Union, Type, Optional, Callable, TypeVar, NoReturn
 
-from .exceptions import InvalidDependencyDefinition, UnresolvableType, TypeResolutionBlocked
+from .exceptions import (
+    InvalidDependencyDefinition,
+    TypeResolutionBlocked,
+)
 from .interfaces import SpecialDepDefinition, ReadableContainer, TypeResolver
 from .util.functional import arity
 
@@ -115,6 +118,9 @@ class PlainInstance(SpecialDepDefinition[X]):
 
 
 class UnresolvableTypeDefinition(SpecialDepDefinition[NoReturn]):
+    """
+    Used to represent a type that should not be built by the container
+    """
 
     _msg_or_exception: Union[str, Exception]
 
