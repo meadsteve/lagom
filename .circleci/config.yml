@@ -1,7 +1,7 @@
 version: 2.1
 
 jobs:
-  build:
+  run_tests:
     docker:
       - image: 'cimg/python:3.9.0'
     steps:
@@ -19,4 +19,4 @@ jobs:
 workflows:
   main:
     jobs:
-      - test
+      - run_tests
