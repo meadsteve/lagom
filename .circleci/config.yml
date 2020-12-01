@@ -1,11 +1,13 @@
 version: 2.1
 
+orbs:
+  python: scx/python@1.1.11
+
 jobs:
-  run_tests:
-    docker:
-      - image: 'cimg/python:3.9.0'
+  run-tests:
+    python_version: 3.7
+    executor: python/default
     steps:
-      - run: python --version
       - checkout
       - python/load-cache
       - run:
@@ -19,4 +21,4 @@ jobs:
 workflows:
   main:
     jobs:
-      - run_tests
+      - run-tests
