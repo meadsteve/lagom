@@ -38,11 +38,42 @@ container = Container()
 some_thing = container[SomeClass]
 ```
 
+### Auto-wiring (with zero configuraton)
+Most of the time Lagom doesn't need to be told how to build your classes. If 
+the `__init__` method has type hints then lagom will use these to inject
+the correct dependencies. The following will work without any special configuration:
+
+```python
+class MyDataSource:
+    pass
+    
+class SomeClass:
+   def __init__(datasource: MyDataSource)
+      pass
+
+container = Container()
+some_thing = container[SomeClass] # An instance of SomeClass will be built with an instance of MyDataSource provided
+```
+
+and later if you extend your class no changes are needed to lagom:
+
+```python
+class SomeClass:
+   def __init__(datasource: MyDataSource, service: SomeFeatureProvider)
+      pass
+
+# Note the following code is unchaged
+container = Container()
+some_thing = container[SomeClass] # An instance of SomeClass will be built with an instance of MyDataSource provided
+```
+
+### Singletons
 You can tell the container that something should be a singleton:
 ```python
 container[SomeExpensiveToCreateClass] = SomeExpensiveToCreateClass("up", "left")
 ```
 
+### Explicit build instructions when required
 You can explicitly tell the container how to construct something by giving it a function:
 
 ```python
@@ -52,6 +83,7 @@ container[SomeClass] = lambda: SomeClass("down", "spiral")
 All of this is done without modifying any of your classes. This is one of the design goals of
 lagom. 
 
+### Hooks in to existing systems
 A decorator is provided to hook top level functions into the container.
 
 ```python
@@ -61,6 +93,7 @@ def handle_move_post_request(request: typing.Dict, game: Game = lagom.injectable
     return Response()
 ```
 
+(There's also a few common framework integrations [provided here](https://lagom-di.readthedocs.io/en/latest/framework_integrations/))
 
 [Full docs here here](https://lagom-di.readthedocs.io/en/latest/)
 
