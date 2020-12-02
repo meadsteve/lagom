@@ -107,6 +107,24 @@ SECRET_MSG = "hello world"
 
 # views.py
 @dependencies.bind_view
-def question_count(request, settings: DjangoSettings):
+def show_secret_message(request, settings: DjangoSettings = injectable):
     return HttpResponse(f"your secret message is: {settings.SECRET_MSG}")
+```
+
+### Injecting Request
+If any argument type hints on `HttpRequest` then the django
+object for the current request will be injected.
+
+```python
+# some_services.py
+class DataStoreForRequest:
+    def __init__(self, request: HttpRequest, db: SomeDb):
+        # Now we can use anything generic we want from the request
+        pass
+
+# views.py
+@dependencies.bind_view
+def question_count(request, store: DataStoreForRequest = injectable):
+    # The `store` here was constructed with the correct request object
+    return HttpResponse(f"Done")
 ```

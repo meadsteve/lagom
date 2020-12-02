@@ -5,6 +5,7 @@ import pytest
 
 from lagom import Container, bind_to_container, injectable
 from lagom.exceptions import UnresolvableType
+from lagom.interfaces import WriteableContainer
 
 
 class MyDep:
@@ -142,3 +143,19 @@ def test_deps_are_loaded_at_call_time_not_definition_time():
 def test_name_and_docs_are_kept():
     assert another_example_function.__name__ == "another_example_function"
     assert another_example_function.__doc__ == "\n    I am DOCS\n    "
+
+
+def test_partials_can_be_provided_with_an_update_method(container: Container):
+    def _my_func(a, b: MyDep = injectable):
+        return a, b
+
+    def _dep_two_is_dep_one(c: WriteableContainer, a, k):
+        # We'll do something a bit weird and say the container
+        # always injects the first supplied argument when asked for
+        # a MyDep. Don't do this for real.
+        c[MyDep] = a[0]
+
+    weird = container.partial(_my_func, container_updater=_dep_two_is_dep_one)
+
+    arg_1, arg_2 = weird("hello")
+    assert arg_1 == arg_2

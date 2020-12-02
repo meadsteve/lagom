@@ -24,6 +24,7 @@ from .interfaces import (
     DefinitionsSource,
     ExtendableContainer,
     ContainerDebugInfo,
+    CallTimeContainerUpdate,
 )
 from .exceptions import (
     UnresolvableType,
@@ -250,7 +251,10 @@ class Container(
             raise RecursiveDefinitionError(dep_type) from recursion_error
 
     def partial(
-        self, func: Callable[..., X], shared: List[Type] = None,
+        self,
+        func: Callable[..., X],
+        shared: List[Type] = None,
+        container_updater: Optional[CallTimeContainerUpdate] = None,
     ) -> Callable[..., X]:
         """Takes a callable and returns a callable bound to the container
         When invoking the new callable if any arguments have a default set
@@ -266,8 +270,10 @@ class Container(
 
         :param func: the function to bind to the container
         :param shared: items which should be considered singletons on a per call level
+        :param container_updater: An optional callable to update the container before resolution
         :return:
         """
+        update_container = container_updater if container_updater else _update_nothing
         spec = self._reflector.get_function_spec(func)
         keys_to_bind = (
             key for (key, arg) in spec.defaults.items() if arg is injectable
@@ -279,9 +285,11 @@ class Container(
         def _update_args(supplied_args, supplied_kwargs):
             keys_to_skip = set(supplied_kwargs.keys())
             keys_to_skip.update(spec.args[0 : len(supplied_args)])
-            with _injection_context as c:
+            with _injection_context as with_singletons:
+                invocation_container = with_singletons.clone()
+                update_container(invocation_container, supplied_args, supplied_kwargs)
                 kwargs = {
-                    key: c.resolve(dep_type)
+                    key: invocation_container.resolve(dep_type)
                     for (key, dep_type) in keys_and_types
                     if key not in keys_to_skip
                 }
@@ -296,6 +304,7 @@ class Container(
         shared: List[Type] = None,
         keys_to_skip: List[str] = None,
         skip_pos_up_to: int = 0,
+        container_updater: Optional[CallTimeContainerUpdate] = None,
     ) -> Callable[..., X]:
         """Takes a callable and returns a callable bound to the container
         When invoking the new callable if any arguments can be constructed by the container
@@ -312,9 +321,10 @@ class Container(
         :param shared: items which should be considered singletons on a per call level
         :param keys_to_skip: named arguments which the container shouldnt build
         :param skip_pos_up_to: positional arguments which the container shouldnt build
+        :param container_updater: An optional callable to update the container before resolution
         :return:
         """
-
+        update_container = container_updater if container_updater else _update_nothing
         spec = self._reflector.get_function_spec(func)
 
         _injection_context = self.temporary_singletons(shared)
@@ -322,8 +332,10 @@ class Container(
         def _update_args(supplied_args, supplied_kwargs):
             final_keys_to_skip = (keys_to_skip or []) + list(supplied_kwargs.keys())
             final_skip_pos_up_to = max(skip_pos_up_to, len(supplied_args))
-            with _injection_context as c:
-                kwargs = c._infer_dependencies(
+            with _injection_context as with_singletons:
+                invocation_container = with_singletons.clone()
+                update_container(invocation_container, supplied_args, supplied_kwargs)
+                kwargs = invocation_container._infer_dependencies(
                     spec,
                     suppress_error=True,
                     keys_to_skip=final_keys_to_skip,
@@ -334,7 +346,7 @@ class Container(
 
         return apply_argument_updater(func, _update_args, spec, catch_errors=True)
 
-    def clone(self):
+    def clone(self) -> "Container":
         """ returns a copy of the container
         :return:
         """
@@ -474,3 +486,7 @@ def _update_container_singletons(container: Container, singletons: List[Type]):
             ConstructionWithoutContainer(lambda: container.resolve(dep))
         )
     return new_container
+
+
+def _update_nothing(_c: WriteableContainer, _a: List, _k: Dict):
+    return None
