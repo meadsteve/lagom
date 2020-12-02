@@ -5,7 +5,12 @@ from typing import List
 import pytest
 
 from lagom import Container
-from lagom.exceptions import UnresolvableType, RecursiveDefinitionError
+from lagom.definitions import UnresolvableTypeDefinition
+from lagom.exceptions import (
+    UnresolvableType,
+    RecursiveDefinitionError,
+    TypeResolutionBlocked,
+)
 
 
 class MyMissingDep:
@@ -16,6 +21,10 @@ class MyMissingDep:
 class UnfulfilledDeps:
     def __init__(self, _stuff: MyMissingDep):
         pass
+
+
+class SomeDep:
+    pass
 
 
 @pytest.mark.parametrize("dep", [str, int, float, bool, bytes, bytearray])
@@ -69,6 +78,22 @@ def test_composite_type_failures_still_throw_sensible_errors(container):
         "typing.List[tests.test_error_handling.UnfulfilledDeps] "
         "The constructor probably has some unresolvable dependencies"
     )
+
+
+def test_types_can_be_explicitly_made_unresolvable(container: Container):
+    container[SomeDep] = UnresolvableTypeDefinition("You can't resolve SomeDep")
+    with pytest.raises(TypeResolutionBlocked) as err:
+        container.resolve(SomeDep)
+    assert str(err.value) == "You can't resolve SomeDep"
+
+
+def test_types_can_be_explicitly_made_unresolvable_with_a_custom_exception(
+    container: Container,
+):
+    container[SomeDep] = UnresolvableTypeDefinition(SyntaxError("nopes"))
+    with pytest.raises(SyntaxError) as err:
+        container.resolve(SomeDep)
+    assert str(err.value) == "nopes"
 
 
 class A:

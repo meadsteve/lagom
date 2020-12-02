@@ -3,9 +3,12 @@ Classes representing specific ways of representing dependencies
 """
 import inspect
 from threading import Lock
-from typing import Union, Type, Optional, Callable, TypeVar
+from typing import Union, Type, Optional, Callable, TypeVar, NoReturn
 
-from .exceptions import InvalidDependencyDefinition
+from .exceptions import (
+    InvalidDependencyDefinition,
+    TypeResolutionBlocked,
+)
 from .interfaces import SpecialDepDefinition, ReadableContainer, TypeResolver
 from .util.functional import arity
 
@@ -112,6 +115,23 @@ class PlainInstance(SpecialDepDefinition[X]):
 
     def get_instance(self, _) -> X:
         return self.value
+
+
+class UnresolvableTypeDefinition(SpecialDepDefinition[NoReturn]):
+    """
+    Used to represent a type that should not be built by the container
+    """
+
+    _msg_or_exception: Union[str, Exception]
+
+    def __init__(self, msg_or_exception: Union[str, Exception]):
+        self._msg_or_exception = msg_or_exception
+
+    def get_instance(self, container: ReadableContainer) -> NoReturn:
+        if isinstance(self._msg_or_exception, Exception):
+            raise self._msg_or_exception
+        else:
+            raise TypeResolutionBlocked(self._msg_or_exception)
 
 
 def normalise(resolver: TypeResolver) -> SpecialDepDefinition:

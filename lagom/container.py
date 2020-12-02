@@ -228,27 +228,16 @@ class Container(
         :param skip_definitions:
         :return:
         """
-        try:
+        if not skip_definitions:
+            definition = self.get_definition(dep_type)
+            if definition:
+                return definition.get_instance(self)
 
-            if not skip_definitions:
-                definition = self.get_definition(dep_type)
-                if definition:
-                    return definition.get_instance(self)
+        optional_dep_type = remove_optional_type(dep_type)
+        if optional_dep_type:
+            return self.resolve(optional_dep_type, suppress_error=True)
 
-            if dep_type in UNRESOLVABLE_TYPES:
-                raise UnresolvableType(dep_type)
-
-            optional_dep_type = remove_optional_type(dep_type)
-            if optional_dep_type:
-                return self.resolve(optional_dep_type, suppress_error=True)
-
-            return self._reflection_build(dep_type)
-        except UnresolvableType as inner_error:
-            if not suppress_error:
-                raise UnresolvableType(dep_type) from inner_error
-            return None  # type: ignore
-        except RecursionError as recursion_error:
-            raise RecursiveDefinitionError(dep_type) from recursion_error
+        return self._reflection_build_with_err_handling(dep_type, suppress_error)
 
     def partial(
         self,
@@ -369,6 +358,20 @@ class Container(
 
     def __setitem__(self, dep: Type[X], resolver: TypeResolver[X]):
         self.define(dep, resolver)
+
+    def _reflection_build_with_err_handling(
+        self, dep_type: Type[X], suppress_error: bool
+    ) -> X:
+        try:
+            if dep_type in UNRESOLVABLE_TYPES:
+                raise UnresolvableType(dep_type)
+            return self._reflection_build(dep_type)
+        except UnresolvableType as inner_error:
+            if not suppress_error:
+                raise UnresolvableType(dep_type) from inner_error
+            return None  # type: ignore
+        except RecursionError as recursion_error:
+            raise RecursiveDefinitionError(dep_type) from recursion_error
 
     def _reflection_build(self, dep_type: Type[X]) -> X:
         self._undefined_logger.warning(

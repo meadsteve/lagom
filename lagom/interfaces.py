@@ -13,6 +13,7 @@ from typing import (
     Set,
     Optional,
     Dict,
+    NoReturn,
 )
 
 X = TypeVar("X")
@@ -198,5 +199,6 @@ TypeResolver = Union[
     Callable[[], T],  # A resolution function
     Callable[[ReadableContainer], T],  # A resolution function that takes the container
     SpecialDepDefinition[T],  # From the definitions module
+    SpecialDepDefinition[NoReturn],  # Some types don't resolve
     T,  # Just an instance of the type - A singleton
 ]
