@@ -6,7 +6,7 @@ version=$(pipenv run python lagom/version.py)
 
 git fetch --tags
 
-if git tag --list | grep "$version";
+if git tag --list | grep "$version\$";
 then
     echo "Version already released"
 else
