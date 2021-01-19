@@ -1,17 +1,18 @@
 # Changelog
 
-## NEXT (Some-Date)
-### Enhancements
+## 1.0.0 (2021-01-19)
+### Backwards incompatible changes from v0.20.0
+* Framework integrations now require ExtendableContainer rather than readable. For most
+  use cases this will require not change.
+* Experimental django container is now modified to use a normal container and an integration
+  class.
+  
+### Changes since last beta
+#### Enhancements
 * Added ability for ContainerDebugInfo to be injected.
 * Provide argument to partial/magic_partial that updates the container 
   before triggering dependency resolution. This opens up a hook for framework
   integrations to supply things like the Request object.
-
-### Bug fixes
-None
-
-### Backwards incompatible changes
-None
 
 ## 1.0.0-beta.4 (2020-11-29)
 ### Bugfixes
