@@ -37,7 +37,7 @@ container = Container()
 some_thing = container[SomeClass]
 ```
 
-### Auto-wiring (with zero configuraton)
+### Auto-wiring (with zero configuration)
 Most of the time Lagom doesn't need to be told how to build your classes. If 
 the `__init__` method has type hints then lagom will use these to inject
 the correct dependencies. The following will work without any special configuration:
