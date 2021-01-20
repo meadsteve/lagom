@@ -9,7 +9,7 @@ class MyEnv(Env):
 
 
 class MyEnvWithPrefix(Env):
-    PREFIX: ClassVar = "APPNAME"
+    PREFIX: ClassVar[str] = "APPNAME"
     example_value: str
 
 
