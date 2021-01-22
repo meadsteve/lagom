@@ -105,7 +105,7 @@ def _get_default_args(func):
 
 
 def remove_optional_type(dep_type):
-    """ if the Type is Optional[T] returns T else None
+    """if the Type is Optional[T] returns T else None
 
     :param dep_type:
     :return:

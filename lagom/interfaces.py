@@ -35,8 +35,7 @@ class ReadableContainer(ABC):
     def resolve(
         self, dep_type: Type[X], suppress_error=False, skip_definitions=False
     ) -> X:
-        """Constructs an object of type X
-        """
+        """Constructs an object of type X"""
         pass
 
     @abstractmethod
@@ -61,15 +60,13 @@ class ReadableContainer(ABC):
 
     @abstractmethod
     def __getitem__(self, dep: Type[X]) -> X:
-        """Shortcut to calling resolve
-        """
+        """Shortcut to calling resolve"""
         pass
 
     @property
     @abstractmethod
     def defined_types(self) -> Set[Type]:
-        """Set of all the types defined in the container
-        """
+        """Set of all the types defined in the container"""
         pass
 
 
@@ -113,7 +110,7 @@ class ExtendableContainer(ReadableContainer):
 
     @abstractmethod
     def clone(self) -> WriteableContainer:
-        """ returns a copy of the container in a mutable state
+        """returns a copy of the container in a mutable state
         so new updates can be applied
         :return:
         """
@@ -127,7 +124,7 @@ class SpecialDepDefinition(ABC, Generic[X]):
 
     @abstractmethod
     def get_instance(self, container: ReadableContainer) -> X:
-        """ constructs the represented type(X).
+        """constructs the represented type(X).
 
         :param container: an instance of the current container
         :return:

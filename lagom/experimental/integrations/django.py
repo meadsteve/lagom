@@ -98,14 +98,14 @@ class DjangoModel(Generic[M]):
 
     @property
     def objects(self) -> Manager:
-        """ Equivalent to MyModel.objects
+        """Equivalent to MyModel.objects
 
         :return:
         """
         return self.managers.objects
 
     def new(self, **kwargs) -> M:
-        """ Equivalent to MyModel(**kwargs)
+        """Equivalent to MyModel(**kwargs)
 
         :param kwargs:
         :return:
@@ -195,7 +195,9 @@ class DjangoIntegration:
                         container_updater=_update_container_for_request,
                     )
                 setattr(
-                    view, method, bound_func,
+                    view,
+                    method,
+                    bound_func,
                 )
         return view
 
