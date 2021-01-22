@@ -16,7 +16,7 @@ class MyMoreComplicatedDep:
     complicated_stuff: str
 
     def __init__(self, dep: List[MySimpleDep]):
-        self.stuff = ",".join([d.stuff for d in dep])
+        self.stuff = ",".join(d.stuff for d in dep)
 
 
 @pytest.fixture
