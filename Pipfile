@@ -4,7 +4,7 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-mypy = "==0.790"
+mypy = "==0.800"
 black = "==19.10b0"
 flit = "~=3.0"
 interrogate = "~=1.2"

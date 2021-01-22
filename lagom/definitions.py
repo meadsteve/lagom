@@ -91,9 +91,9 @@ class SingletonWrapper(SpecialDepDefinition[X]):
         try:
             self._thread_lock.acquire()
             if self._has_instance:
-                return self._instance  # type: ignore
+                return self._instance
             self._instance = self.singleton_type.get_instance(container)
-            return self._instance  # type: ignore
+            return self._instance
         finally:
             self._thread_lock.release()
 
