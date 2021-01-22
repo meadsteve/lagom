@@ -73,7 +73,7 @@ X = TypeVar("X")
 class Container(
     WriteableContainer, ExtendableContainer, DefinitionsSource, ContainerDebugInfo
 ):
-    """ Dependency injection container
+    """Dependency injection container
 
     Lagom is a dependency injection container designed to give you "just enough"
     help with building your dependencies. The intention is that almost
@@ -336,7 +336,7 @@ class Container(
         return apply_argument_updater(func, _update_args, spec, catch_errors=True)
 
     def clone(self) -> "Container":
-        """ returns a copy of the container
+        """returns a copy of the container
         :return:
         """
         return Container(self, log_undefined_deps=self._undefined_logger)
@@ -432,7 +432,7 @@ class ExplicitContainer(Container):
         return definition
 
     def clone(self):
-        """ returns a copy of the container
+        """returns a copy of the container
         :return:
         """
         return ExplicitContainer(self, log_undefined_deps=self._undefined_logger)

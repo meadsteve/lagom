@@ -22,7 +22,8 @@ class MyMoreComplicatedDep:
 @pytest.fixture
 def container_with_list(container: Container):
     container.define(
-        List[MySimpleDep], lambda: [MySimpleDep("One"), MySimpleDep("Two")],
+        List[MySimpleDep],
+        lambda: [MySimpleDep("One"), MySimpleDep("Two")],
     )
     return container
 

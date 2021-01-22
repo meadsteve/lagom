@@ -8,9 +8,7 @@ class PlainFunction(SpecialDepDefinition[X]):
     callable_func: X
 
     def __init__(self, callable_func: X):
-        """
-
-        """
+        """"""
         self.callable_func = callable_func
 
     def get_instance(self, _container: ReadableContainer) -> X:

@@ -40,7 +40,7 @@ def magic_bind_to_container(container: Container, shared: List[Type] = None):
 
 
 def dependency_definition(container: Container, singleton: bool = False):
-    """ Registers the provided function with the container
+    """Registers the provided function with the container
     The return type of the decorated function will be reflected and whenever
     the container is asked for this type the function will be called
 
@@ -66,7 +66,9 @@ def dependency_definition(container: Container, singleton: bool = False):
     return _decorator
 
 
-def _extract_definition_func_and_type(func,) -> Tuple[Callable[[], T], Type[T]]:
+def _extract_definition_func_and_type(
+    func,
+) -> Tuple[Callable[[], T], Type[T]]:
     """
     Takes a function or a generator and returns a function and the return type.
     :param func:
