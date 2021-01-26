@@ -20,7 +20,7 @@ only be involved at the top level to pull everything together.
  * Support for async python.
  * Thread-safe at runtime
  
-You can see a [comparison to other frameworks here](./docs/comparison.md)
+You can see a [comparison to other frameworks here](https://lagom-di.readthedocs.io/en/latest/comparison/)
 
 ## Installation
 ```bash
@@ -98,4 +98,4 @@ def handle_move_post_request(request: typing.Dict, game: Game = lagom.injectable
 
 ## Contributing
 
-Contributions are very welcome. [Please see instructions here](./docs/development_of_lagom.md)
+Contributions are very welcome. [Please see instructions here](https://lagom-di.readthedocs.io/en/latest/development_of_lagom/)
