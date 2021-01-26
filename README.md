@@ -98,4 +98,4 @@ def handle_move_post_request(request: typing.Dict, game: Game = lagom.injectable
 
 ## Contributing
 
-Contributions are very welcome. [Please see instructions here](docs/development_of_lagom.md)
+Contributions are very welcome. [Please see instructions here](./docs/development_of_lagom.md)
