@@ -69,6 +69,7 @@ UNRESOLVABLE_TYPES = [
 
 X = TypeVar("X")
 
+Unset = object()
 
 class Container(
     WriteableContainer, ExtendableContainer, DefinitionsSource, ContainerDebugInfo
@@ -349,9 +350,10 @@ class Container(
         :param dep_type:
         :return:
         """
-        return self._registered_types.get(
-            dep_type, self._parent_definitions.get_definition(dep_type)
-        )
+        definition = self._registered_types.get(dep_type, Unset)
+        if definition is Unset:
+            return self._parent_definitions.get_definition(dep_type)
+        return definition
 
     def __getitem__(self, dep: Type[X]) -> X:
         return self.resolve(dep)
