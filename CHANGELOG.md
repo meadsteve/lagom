@@ -1,5 +1,16 @@
 # Changelog
 
+## PENDING
+
+### Enhancements
+None
+
+### Bug fixes
+* Stop unnecessary function call to parent definitions.
+
+### Backwards incompatible changes
+None
+
 ## 1.0.0 (2021-01-19)
 ### Backwards incompatible changes from v0.20.0
 * Framework integrations now require ExtendableContainer rather than readable. For most
