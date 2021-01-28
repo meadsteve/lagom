@@ -69,7 +69,7 @@ UNRESOLVABLE_TYPES = [
 
 X = TypeVar("X")
 
-Unset = object()
+Unset: Any = object()
 
 class Container(
     WriteableContainer, ExtendableContainer, DefinitionsSource, ContainerDebugInfo
