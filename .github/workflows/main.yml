@@ -1,10 +1,10 @@
-name: Test Library
+name: Validate
 
 on: [push]
 
 jobs:
   build:
-
+    name: ${{ matrix.python-version }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
