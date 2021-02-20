@@ -266,7 +266,15 @@ class Container(
         :return:
         """
         update_container = container_updater if container_updater else _update_nothing
-        spec = self._reflector.get_function_spec(func)
+        
+        skip_pos_start_at = 0
+
+        if isinstance(func, FunctionType):
+            spec = self._reflector.get_function_spec(func)
+        else:
+            spec = self._reflector.get_function_spec(func.__init__)
+            skip_pos_start_at = 1
+        
         keys_to_bind = (
             key for (key, arg) in spec.defaults.items() if arg is injectable
         )
@@ -276,7 +284,9 @@ class Container(
 
         def _update_args(supplied_args, supplied_kwargs):
             keys_to_skip = set(supplied_kwargs.keys())
-            keys_to_skip.update(spec.args[0 : len(supplied_args)])
+            keys_to_skip.update(
+                spec.args[skip_pos_start_at:len(supplied_args) + skip_pos_start_at]
+            )
             with _injection_context as with_singletons:
                 invocation_container = with_singletons.clone()
                 update_container(invocation_container, supplied_args, supplied_kwargs)
