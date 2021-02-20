@@ -14,6 +14,7 @@ from typing import (
     Generic,
     cast,
     Union,
+    Tuple
 )
 from types import FunctionType
 
@@ -266,15 +267,7 @@ class Container(
         :return:
         """
         update_container = container_updater if container_updater else _update_nothing
-        
-        skip_pos_start_at = 0
-
-        if isinstance(func, FunctionType):
-            spec = self._reflector.get_function_spec(func)
-        else:
-            spec = self._reflector.get_function_spec(func.__init__)
-            skip_pos_start_at = 1
-        
+        (spec, skip_pos_start_at) = self._get_spec_and_arg_index(func)
         keys_to_bind = (
             key for (key, arg) in spec.defaults.items() if arg is injectable
         )
@@ -327,15 +320,7 @@ class Container(
         :return:
         """
         update_container = container_updater if container_updater else _update_nothing
-
-        skip_pos_start_at = 0
-
-        if isinstance(func, FunctionType):
-            spec = self._reflector.get_function_spec(func)
-        else:
-            spec = self._reflector.get_function_spec(func.__init__)
-            skip_pos_start_at = 1
-
+        (spec, skip_pos_start_at) = self._get_spec_and_arg_index(func)
         _injection_context = self.temporary_singletons(shared)
 
         def _update_args(supplied_args, supplied_kwargs):
@@ -427,6 +412,15 @@ class Container(
             and (sub_dep_type not in types_to_skip)
         }
         return {key: dep for (key, dep) in sub_deps.items() if dep is not None}
+
+    def _get_spec_and_arg_index(self, func: Callable[..., X]) -> Tuple[bool, int]:
+        if isinstance(func, FunctionType):
+            spec = self._reflector.get_function_spec(func)
+            arg_index = 0
+        else:
+            spec = self._reflector.get_function_spec(func.__init__)
+            arg_index = 1
+        return (spec, arg_index)
 
 
 class ExplicitContainer(Container):
