@@ -4,3 +4,6 @@ Firstly thanks to https://0x.se/ for paying me to work as a software developer s
 
 ## Early feedback
 Thanks for early feedback on the documentation and design go to Mohammed, Henrink, Tony, Alan, Jaimal and Debo.
+
+## Contributors
+  * @BrentSouza
