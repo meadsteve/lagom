@@ -14,7 +14,7 @@ from typing import (
     Generic,
     cast,
     Union,
-    Tuple
+    Tuple,
 )
 from types import FunctionType
 
@@ -277,9 +277,7 @@ class Container(
 
         def _update_args(supplied_args, supplied_kwargs):
             keys_to_skip = set(supplied_kwargs.keys())
-            keys_to_skip.update(
-                spec.args[0:len(supplied_args)]
-            )
+            keys_to_skip.update(spec.args[0 : len(supplied_args)])
             with _injection_context as with_singletons:
                 invocation_container = with_singletons.clone()
                 update_container(invocation_container, supplied_args, supplied_kwargs)
@@ -415,7 +413,8 @@ class Container(
         if isinstance(func, FunctionType):
             spec = self._reflector.get_function_spec(func)
         else:
-            spec = self._reflector.get_function_spec(func.__init__)
+            t = cast(Type[X], func)
+            spec = self._reflector.get_function_spec(t.__init__)
             if "self" in spec.args:
                 spec.args.remove("self")
         return spec
