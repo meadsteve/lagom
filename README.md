@@ -29,6 +29,7 @@ pip install lagom
 # pipenv install lagom
 # poetry add lagom
 ```
+Note: if you decide to clone from source then make sure you use the latest version tag. The `master` branch may contain features that will be removed.
 ## Usage
 Everything in Lagom is based on types. To create an object
 you pass the type to the container:
