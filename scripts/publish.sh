@@ -19,10 +19,11 @@ if git tag --list | grep "$version\$";
 then
     echo "Version already released"
     exit 2
-else
-    git rev-parse HEAD > lagom/githash.txt
-    pipenv run flit publish
-    git tag -a "$version" -m "$version"
-    git push origin "$version"
-    exit 0
 fi
+
+# Everything is okay. Tag and publish to pypi
+git rev-parse HEAD > lagom/githash.txt
+pipenv run flit publish
+git tag -a "$version" -m "$version"
+git push origin "$version"
+exit 0
