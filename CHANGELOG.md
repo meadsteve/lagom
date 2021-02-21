@@ -3,7 +3,7 @@
 ## PENDING
 
 ### Enhancements
-None
+* Classes can now be passed to container.partial and container.magic_partial. Thanks to @BrentSouza via PR #132.
 
 ### Bug fixes
 * Stop unnecessary function call to parent definitions.
