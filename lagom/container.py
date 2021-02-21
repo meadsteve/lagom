@@ -14,7 +14,9 @@ from typing import (
     Generic,
     cast,
     Union,
+    Tuple,
 )
+from types import FunctionType
 
 from .interfaces import (
     SpecialDepDefinition,
@@ -265,7 +267,7 @@ class Container(
         :return:
         """
         update_container = container_updater if container_updater else _update_nothing
-        spec = self._reflector.get_function_spec(func)
+        spec = self._get_spec_without_self(func)
         keys_to_bind = (
             key for (key, arg) in spec.defaults.items() if arg is injectable
         )
@@ -316,8 +318,7 @@ class Container(
         :return:
         """
         update_container = container_updater if container_updater else _update_nothing
-        spec = self._reflector.get_function_spec(func)
-
+        spec = self._get_spec_without_self(func)
         _injection_context = self.temporary_singletons(shared)
 
         def _update_args(supplied_args, supplied_kwargs):
@@ -407,6 +408,16 @@ class Container(
             and (sub_dep_type not in types_to_skip)
         }
         return {key: dep for (key, dep) in sub_deps.items() if dep is not None}
+
+    def _get_spec_without_self(self, func: Callable[..., X]) -> FunctionSpec:
+        if isinstance(func, FunctionType):
+            spec = self._reflector.get_function_spec(func)
+        else:
+            t = cast(Type[X], func)
+            spec = self._reflector.get_function_spec(t.__init__)
+            if "self" in spec.args:
+                spec.args.remove("self")
+        return spec
 
 
 class ExplicitContainer(Container):
