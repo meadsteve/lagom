@@ -15,6 +15,22 @@ class Injectable:
         """
         return False
 
+    def __copy__(self):
+        """
+        Much like highlander there can be only one. Injectable
+        is a singleton.
+        :return:
+        """
+        return self
+
+    def __deepcopy__(self, memodict=None):
+        """
+        Much like highlander there can be only one. Injectable
+        is a singleton.
+        :return:
+        """
+        return self
+
 
 # singleton object used to indicate that an argument should be injected
 injectable: Any = Injectable()
