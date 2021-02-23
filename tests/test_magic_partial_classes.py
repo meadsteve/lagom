@@ -1,5 +1,4 @@
 from lagom import Container
-from lagom.decorators import magic_bind_to_container
 
 
 class Foo:
@@ -25,6 +24,13 @@ class Bar:
 def test_partial_application_can_be_applied_to_class():
     bar = container.magic_partial(Bar)(not_injected="!")
     assert bar.greet() == "Hello Foo!"
+
+
+def test_one_class_can_be_bound_multiple_times():
+    bar = container.magic_partial(Bar)(not_injected="!")
+    another_bar = container.magic_partial(Bar)(not_injected="?")
+    assert bar.greet() == "Hello Foo!"
+    assert another_bar.greet() == "Hello Foo?"
 
 
 def test_passed_in_arguments_are_used_over_container_generated_ones_when_positional():

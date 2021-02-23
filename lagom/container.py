@@ -2,6 +2,7 @@ import functools
 import io
 import logging
 import typing
+from copy import deepcopy
 from typing import (
     Dict,
     Type,
@@ -14,7 +15,6 @@ from typing import (
     Generic,
     cast,
     Union,
-    Tuple,
 )
 from types import FunctionType
 
@@ -414,9 +414,9 @@ class Container(
             spec = self._reflector.get_function_spec(func)
         else:
             t = cast(Type[X], func)
-            spec = self._reflector.get_function_spec(t.__init__)
-            if "self" in spec.args:
-                spec.args.remove("self")
+            spec = deepcopy(self._reflector.get_function_spec(t.__init__))
+            spec.args.remove("self")
+            spec.arity = spec.arity - 1
         return spec
 
 
