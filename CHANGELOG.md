@@ -1,10 +1,11 @@
 # Changelog
 
-## PENDING
+## 1.1.0 (2021-02-24)
 
 ### Enhancements
 * Classes can now be passed to container.partial and container.magic_partial. Thanks to @BrentSouza via PR #132.
 * Decorators now preserve function docs.
+* Decorators now communicate that the return type of the decorated function is preserved.
 
 ### Bug fixes
 * Stop unnecessary function call to parent definitions.

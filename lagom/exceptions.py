@@ -20,6 +20,19 @@ class InvalidDependencyDefinition(ValueError, LagomException):
     pass
 
 
+class ClassesCannotBeDecorated(SyntaxError, LagomException):
+    """Decorating classes is not supported by lagom"""
+
+    dep_type: str
+
+    def __init__(self):
+        super().__init__(
+            "Decorating classes is not supported by lagom. \n"
+            "Alternative is to create a factory method and use that: \n"
+            "factory_func = container.partial(ClassName)"
+        )
+
+
 class MissingReturnType(SyntaxError, LagomException):
     """The function provided doesnt type hint a return"""
 

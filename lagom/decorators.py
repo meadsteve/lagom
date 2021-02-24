@@ -5,23 +5,31 @@ application into the container.s
 import inspect
 from functools import wraps
 from typing import List, Type, Callable, Tuple, TypeVar
+from types import FunctionType
 
 from .definitions import Singleton
 from .container import Container
-from .exceptions import MissingReturnType
+from .exceptions import MissingReturnType, ClassesCannotBeDecorated
 from .util.reflection import reflect
 
 T = TypeVar("T")
+R = TypeVar("R")
 
 
-def bind_to_container(container: Container, shared: List[Type] = None):
+def bind_to_container(
+    container: Container, shared: List[Type] = None
+) -> Callable[[Callable[..., R]], Callable[..., R]]:
     def _decorator(func):
+        if not isinstance(func, FunctionType):
+            raise ClassesCannotBeDecorated()
         return wraps(func)(container.partial(func, shared=shared))
 
     return _decorator
 
 
-def magic_bind_to_container(container: Container, shared: List[Type] = None):
+def magic_bind_to_container(
+    container: Container, shared: List[Type] = None
+) -> Callable[[Callable[..., R]], Callable[..., R]]:
     """Decorates the function so that it's uses the container to construct things
 
     >>> from tests.examples import SomeClass
@@ -35,6 +43,8 @@ def magic_bind_to_container(container: Container, shared: List[Type] = None):
     """
 
     def _decorator(func):
+        if not isinstance(func, FunctionType):
+            raise ClassesCannotBeDecorated()
         return wraps(func)(container.magic_partial(func, shared=shared))
 
     return _decorator
