@@ -3,6 +3,7 @@ This module provides decorators for hooking an
 application into the container.s
 """
 import inspect
+from functools import wraps
 from typing import List, Type, Callable, Tuple, TypeVar
 
 from .definitions import Singleton
@@ -15,7 +16,7 @@ T = TypeVar("T")
 
 def bind_to_container(container: Container, shared: List[Type] = None):
     def _decorator(func):
-        return container.partial(func, shared=shared)
+        return wraps(func)(container.partial(func, shared=shared))
 
     return _decorator
 
@@ -34,7 +35,7 @@ def magic_bind_to_container(container: Container, shared: List[Type] = None):
     """
 
     def _decorator(func):
-        return container.magic_partial(func, shared=shared)
+        return wraps(func)(container.magic_partial(func, shared=shared))
 
     return _decorator
 
