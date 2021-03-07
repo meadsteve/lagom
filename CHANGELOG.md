@@ -1,5 +1,12 @@
 # Changelog
 
+## NEXT
+### Enhancements
+### Bug Fixes
+### Backwards incompatible changes
+* Internal detail: The type hints for FunctionSpec from the caching reflector are now all non-mutable.
+The implementation is not changed but the immutable hints should prevent state based bugs.
+
 ## 1.1.0 (2021-02-24)
 
 ### Enhancements

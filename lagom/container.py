@@ -2,7 +2,6 @@ import functools
 import io
 import logging
 import typing
-from copy import deepcopy
 from typing import (
     Dict,
     Type,
@@ -397,14 +396,15 @@ class Container(
         skip_pos_up_to=0,
         types_to_skip: Set[Type] = None,
     ):
-        supplied_arguments = spec.args[0:skip_pos_up_to]
-        keys_to_skip = (keys_to_skip or []) + supplied_arguments
+        dep_keys_to_skip: List[str] = []
+        dep_keys_to_skip.extend(spec.args[0:skip_pos_up_to])
+        dep_keys_to_skip.extend(keys_to_skip or [])
         types_to_skip = types_to_skip or set()
         sub_deps = {
             key: self.resolve(sub_dep_type, suppress_error=suppress_error)
             for (key, sub_dep_type) in spec.annotations.items()
             if sub_dep_type != Any
-            and (key not in keys_to_skip)
+            and (key not in dep_keys_to_skip)
             and (sub_dep_type not in types_to_skip)
         }
         return {key: dep for (key, dep) in sub_deps.items() if dep is not None}
@@ -414,9 +414,9 @@ class Container(
             spec = self._reflector.get_function_spec(func)
         else:
             t = cast(Type[X], func)
-            spec = deepcopy(self._reflector.get_function_spec(t.__init__))
-            spec.args.remove("self")
-            spec.arity = spec.arity - 1
+            spec = self._reflector.get_function_spec(t.__init__).without_argument(
+                "self"
+            )
         return spec
 
 

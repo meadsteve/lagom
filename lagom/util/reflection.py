@@ -2,7 +2,17 @@
 """
 import inspect
 from threading import Lock
-from typing import Dict, Type, List, Callable, get_type_hints, Optional, Awaitable, Any
+from typing import (
+    Dict,
+    Type,
+    Callable,
+    get_type_hints,
+    Optional,
+    Awaitable,
+    Any,
+    Mapping,
+    Sequence,
+)
 
 RETURN_ANNOTATION = "return"
 
@@ -12,9 +22,9 @@ class FunctionSpec:
     Describes the arguments of a function
     """
 
-    args: List
-    annotations: Dict[str, Type]
-    defaults: Dict[str, Any]
+    args: Sequence[str]
+    annotations: Mapping[str, Type]
+    defaults: Mapping[str, Any]
     return_type: Optional[Type]
     arity: int
 
@@ -34,6 +44,15 @@ class FunctionSpec:
             return f"({signature}) -> {self.return_type.__name__}"
         else:
             return f"({signature})"
+
+    def without_argument(self, arg_to_remove: str):
+        """
+        Returns the function spec with the specified argument removed
+        :param arg_to_remove:
+        :return:
+        """
+        new_args = [arg for arg in self.args if arg != arg_to_remove]
+        return FunctionSpec(new_args, self.annotations, self.defaults, self.return_type)
 
 
 class CachingReflector:
