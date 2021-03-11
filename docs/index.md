@@ -1,4 +1,4 @@
-# Lagom - Dependency injection container
+# ![Lagom](./images/logo_and_text.png)
 
 ## What
 Lagom is a dependency injection container designed to give you "just enough"

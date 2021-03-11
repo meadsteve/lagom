@@ -3,8 +3,10 @@ repo_url: https://github.com/meadsteve/lagom
 theme:
   name: 'material'
   palette:
-    primary: green
-    accent: pink
+    primary: black
+    accent: green
+  logo: ./images/favicon.png
+  favicon: ./images/favicon.png
 
 nav:
   - Usage:
