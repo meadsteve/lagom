@@ -29,7 +29,7 @@ class FastApiIntegration:
         request_singletons: Optional[List[Type]] = None,
     ):
         self._container = container
-        self._request_singletons = request_singletons
+        self._request_singletons = request_singletons or []
 
     def depends(self, dep_type: Type[T]) -> T:
         """Returns a Depends object which FastAPI understands
@@ -56,7 +56,9 @@ class FastApiIntegration:
             not hasattr(request.state, "lagom_request_container")
             or not request.state.lagom_request_container
         ):
-            request_container = update_container_singletons(self._container, self._request_singletons)
+            request_container = update_container_singletons(
+                self._container, self._request_singletons
+            )
             request_container.define(Request, PlainInstance(request))
             request.state.lagom_request_container = request_container
 
