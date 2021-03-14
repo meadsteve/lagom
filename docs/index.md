@@ -23,6 +23,9 @@ pip install lagom
 # pipenv install lagom
 # poetry add lagom
 ```
+
+For the versioning policy read here: [SemVer in Lagom](./development_of_lagom.md#versioning-semver)
+
 ## Usage
 Everything in Lagom is based on types. To create an object
 you pass the type to the container:

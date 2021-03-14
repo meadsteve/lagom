@@ -31,6 +31,9 @@ pip install lagom
 # poetry add lagom
 ```
 Note: if you decide to clone from source then make sure you use the latest version tag. The `master` branch may contain features that will be removed.
+
+For the versioning policy read here: [SemVer in Lagom](./docs/development_of_lagom.md#versioning---semver)
+
 ## Usage
 Everything in Lagom is based on types. To create an object
 you pass the type to the container:
