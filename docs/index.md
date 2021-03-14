@@ -64,7 +64,7 @@ some_thing = container[SomeClass] # An instance of SomeClass will be built with 
 ```
 
 This enables rapid development without worrying too much about configuring lagom.
-However long term projects should consider using more [explicit configuration](explicit_definitions.md)
+However, long term projects should consider using more [explicit configuration](explicit_definitions.md)
 
 ## Defining construction
 
