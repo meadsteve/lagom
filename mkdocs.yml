@@ -12,6 +12,7 @@ nav:
   - Usage:
     - Getting Started: index.md
     - Framework Integrations: framework_integrations.md
+    - Moving to Explicit Definitions: explicit_definitions.md
     - Testing Code Using Lagom: testing_with_lagom.md
     - Experimental Features: experimental.md
     - Cookbook & Common Usage Patterns: cookbook.md
@@ -22,8 +23,8 @@ nav:
     - Change Log: CHANGELOG.md
     - Github: https://github.com/meadsteve/lagom
     - Issue Tracker: https://github.com/meadsteve/lagom/issues
+    - Credits: CREDITS_AND_THANKS.md
 
 markdown_extensions:
-  - markdown.extensions.codehilite:
-      guess_lang: false
-  - codehilite
+  - pymdownx.highlight
+  - pymdownx.superfences

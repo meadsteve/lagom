@@ -34,7 +34,7 @@ container = Container()
 some_thing = container[SomeClass]
 ```
 
-### Auto-wiring (with zero configuraton)
+### Auto-wiring (with zero configuration)
 Most of the time Lagom doesn't need to be told how to build your classes. If 
 the `__init__` method has type hints then lagom will use these to inject
 the correct dependencies. The following will work without any special configuration:
@@ -63,8 +63,10 @@ container = Container()
 some_thing = container[SomeClass] # An instance of SomeClass will be built with an instance of MyDataSource provided
 ```
 
+## Defining construction
+
 ### Defining how to build a type if can't be inferred automatically
-If lagom can't infer (or you don't want it to) how to build a type you can instruct
+If lagom can't infer how to build a type (or you don't want it to), you can instruct
 the container how to do this.
 
 ```python
@@ -76,6 +78,10 @@ single argument which is the container:
 ```python
 container[SomeClass] = lambda c: SomeClass(c[SomeOtherDep], "spinning")
 ```
+
+It's important to use the container argument `c` in the lambda rather
+than your container instance as lagom builds up layers of containers for
+caching contexts.
 
 if your construction logic is longer than would fit in a lambda a
 function can also be bound to the container:
@@ -108,6 +114,24 @@ you want to configure a specific concrete class lagom supports definitions of al
 ```python
 container[SomeAbc] = ConcreteClass
 ```
+
+
+### Defining an async loaded type
+Lagom fully supports async python. If an async def is used to define a dependency then it
+will be available as `Awaitable[TheDependency]`
+
+```python
+@dependency_definition(container)
+async def my_constructor() -> MyComplexDep:
+    # await some stuff or any other async things
+    return MyComplexDep(some_number=5)
+
+my_thing = await container[Awaitable[MyComplexDep]]
+
+```
+
+
+## Connecting lagom
 
 ### Partially bind a function
 In a lot of web frameworks you'll have a function responsible for handling requests.
@@ -160,21 +184,7 @@ def handle_some_request(request: typing.Dict, profile: ProfileLoader, user_avata
     pass
 ```
 
-### Defining an async loaded type
-Lagom fully supports async python. If an async def is used to define a dependency then it
-will be available as `Awaitable[TheDependency]`
-
-```python
-@dependency_definition(container)
-async def my_constructor() -> MyComplexDep:
-    # await some stuff or any other async things
-    return MyComplexDep(some_number=5)
-
-my_thing = await container[Awaitable[MyComplexDep]]
-
-```
-
-### Loading environment variables (requires pydantic to be installed)
+## Loading environment variables
 
 **Prerequisites** Using this feature requires [pydantic](https://github.com/samuelcolvin/pydantic/) to be installed
 
