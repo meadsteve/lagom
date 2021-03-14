@@ -411,11 +411,13 @@ class Container(
 
     def _get_spec_without_self(self, func: Callable[..., X]) -> FunctionSpec:
         if isinstance(func, FunctionType):
-            return self._reflector.get_function_spec(func)
-        t = cast(Type[X], func)
-        return self._reflector.get_function_spec(t.__init__).without_argument(
+            spec = self._reflector.get_function_spec(func)
+        else:
+            t = cast(Type[X], func)
+            spec = self._reflector.get_function_spec(t.__init__).without_argument(
                 "self"
             )
+        return spec
 
 
 class ExplicitContainer(Container):
