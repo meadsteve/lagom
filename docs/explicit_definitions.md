@@ -16,9 +16,12 @@ from lagom import Container
 container = Container(log_undefined_deps=True)
 ```
 
-now you'll see logs like
+now in your log output you should see a warning like this for each
+dependency that didn't have an explicit definition:
 
-TODO EXAMPLE
+```
+Undefined dependency. Using reflection for SomeClass
+```
 
 ## Setting the definitions
 
