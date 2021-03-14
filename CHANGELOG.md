@@ -2,6 +2,8 @@
 
 ## NEXT
 ### Enhancements
+* FastAPI integration now provides request level singletons. 
+
 ### Bug Fixes
 ### Backwards incompatible changes
 * Internal detail: The type hints for FunctionSpec from the caching reflector are now all non-mutable.

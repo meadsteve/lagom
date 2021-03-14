@@ -67,6 +67,15 @@ class SomeExtendedRequest:
 Each time SomeExtendedRequest is created the correct `Request`
 object will be passed in.
 
+## Request level singletons
+When constructing the integration a list of types can be passed
+for request level singletons. Each of these types will only be constructed
+once per request:
+
+```python
+deps = FastApiIntegration(container, request_singletons=[SomeClass])
+```
+
 ## [Flask API](https://www.flaskapi.org/)
 An integration is provided for flask. It takes the flask app
 and a container then provides a wrapped `route` decorator to use:
