@@ -40,8 +40,8 @@ from .definitions import (
     Singleton,
     Alias,
     ConstructionWithoutContainer,
-    SingletonWrapper,
 )
+from .updaters import update_container_singletons
 from .util.logging import NullLogger
 from .util.reflection import FunctionSpec, CachingReflector, remove_optional_type
 from .wrapping import apply_argument_updater
@@ -194,7 +194,7 @@ class Container(
         :return:
         """
         updater = (
-            functools.partial(_update_container_singletons, singletons=singletons)
+            functools.partial(update_container_singletons, singletons=singletons)
             if singletons
             else None
         )
@@ -494,15 +494,6 @@ class _TemporaryInjectionContext(Generic[C]):
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
-
-
-def _update_container_singletons(container: Container, singletons: List[Type]):
-    new_container = container.clone()
-    for dep in singletons:
-        new_container[dep] = SingletonWrapper(
-            ConstructionWithoutContainer(lambda: container.resolve(dep))
-        )
-    return new_container
 
 
 def _update_nothing(_c: WriteableContainer, _a: List, _k: Dict):
