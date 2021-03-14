@@ -178,7 +178,7 @@ class Container(
 
     def temporary_singletons(
         self, singletons: List[Type] = None
-    ) -> "_TemporaryInjectionContext[Container]":
+    ) -> "_TemporaryInjectionContext":
         """
         Returns a context that loads a new container with singletons that only exist
         for the context.
@@ -277,8 +277,7 @@ class Container(
         def _update_args(supplied_args, supplied_kwargs):
             keys_to_skip = set(supplied_kwargs.keys())
             keys_to_skip.update(spec.args[0 : len(supplied_args)])
-            with _injection_context as with_singletons:
-                invocation_container = with_singletons.clone()
+            with _injection_context as invocation_container:
                 update_container(invocation_container, supplied_args, supplied_kwargs)
                 kwargs = {
                     key: invocation_container.resolve(dep_type)
@@ -323,8 +322,7 @@ class Container(
         def _update_args(supplied_args, supplied_kwargs):
             final_keys_to_skip = (keys_to_skip or []) + list(supplied_kwargs.keys())
             final_skip_pos_up_to = max(skip_pos_up_to, len(supplied_args))
-            with _injection_context as with_singletons:
-                invocation_container = with_singletons.clone()
+            with _injection_context as invocation_container:
                 update_container(invocation_container, supplied_args, supplied_kwargs)
                 kwargs = invocation_container._infer_dependencies(
                     spec,
@@ -452,9 +450,6 @@ class ExplicitContainer(Container):
         return ExplicitContainer(self, log_undefined_deps=self._undefined_logger)
 
 
-C = TypeVar("C", bound=ReadableContainer)
-
-
 class EmptyDefinitionSet(DefinitionsSource):
     """
     Represents the starting state for a collection of dependency definitions
@@ -474,12 +469,14 @@ class EmptyDefinitionSet(DefinitionsSource):
         return set()
 
 
-class _TemporaryInjectionContext(Generic[C]):
+class _TemporaryInjectionContext:
 
-    _base_container: C
+    _base_container: Container
 
     def __init__(
-        self, container: C, update_function: Optional[Callable[[C], C]] = None
+        self,
+        container: Container,
+        update_function: Optional[Callable[[Container], Container]] = None,
     ):
         self._base_container = container
         if update_function:
@@ -487,9 +484,9 @@ class _TemporaryInjectionContext(Generic[C]):
                 self._base_container
             )
         else:
-            self._build_temporary_container = lambda: self._base_container
+            self._build_temporary_container = lambda: self._base_container.clone()
 
-    def __enter__(self) -> C:
+    def __enter__(self) -> Container:
         return self._build_temporary_container()
 
     def __exit__(self, exc_type, exc_val, exc_tb):
