@@ -63,6 +63,9 @@ container = Container()
 some_thing = container[SomeClass] # An instance of SomeClass will be built with an instance of MyDataSource provided
 ```
 
+This enables rapid development without worrying too much about configuring lagom.
+However long term projects should consider using more [explicit configuration](explicit_definitions.md)
+
 ## Defining construction
 
 ### Defining how to build a type if can't be inferred automatically
