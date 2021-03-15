@@ -133,6 +133,14 @@ my_thing = await container[Awaitable[MyComplexDep]]
 
 ```
 
+### Preventing automatic construction
+You may have some classes that you never want lagom to construct. For
+these you can configure an error to be raised on construction:
+
+```python
+container[SomeDep] = UnresolvableTypeDefinition("You can't resolve SomeDep because reason")
+```
+
 
 ## Connecting lagom
 
