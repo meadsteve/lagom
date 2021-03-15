@@ -1,4 +1,4 @@
-# ![Lagom](./docs/images/logo_and_text.png)
+# [![Lagom](./docs/images/logo_and_text.png)](https://lagom-di.readthedocs.io/en/latest/)
 
 [![](https://img.shields.io/pypi/pyversions/lagom.svg)](https://pypi.org/pypi/lagom/)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/meadsteve/lagom/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/meadsteve/lagom/?branch=master)
