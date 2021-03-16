@@ -1,6 +1,6 @@
-from typing import Optional, List, Type
+from typing import Optional, List, Type, Callable
 
-from click import utils, decorators
+from click import utils, decorators, Command, BaseCommand
 
 from lagom.interfaces import ExtendableContainer, WriteableContainer
 
@@ -37,7 +37,7 @@ class ClickIntegration:
         self._container[ClickIO] = ClickIO()
         self._execution_singletons = execution_singletons or []
 
-    def command(self, name=None, cls=None, **attrs):
+    def command(self, name=None, cls=None, **attrs) -> Callable[[Callable], BaseCommand]:
         """
         Proxies click.command but binds the function to lagom
         so that any arguments with lagom.injectable as a default will
@@ -50,7 +50,9 @@ class ClickIntegration:
 
         def _decorator(f):
             bound_f = self._container.partial(f, shared=self._execution_singletons)
-            return decorators.command(name, cls, **attrs)(bound_f)
+            command = decorators.command(name, cls, **attrs)(bound_f)
+            setattr(command, "plain_function", bound_f)
+            return command
 
         return _decorator
 
@@ -63,6 +65,16 @@ class ClickIntegration:
         :return:
         """
         return decorators.option(*param_decls, **attrs)
+
+    @staticmethod
+    def argument(*param_decls, **attrs):
+        """
+        Proxies click.argument
+        :param param_decls:
+        :param attrs:
+        :return:
+        """
+        return decorators.argument(*param_decls, **attrs)
 
     def __getattr__(self, item):
         # Any method not explicitly code just gets passed to click
