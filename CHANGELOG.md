@@ -2,7 +2,8 @@
 
 ## NEXT
 ### Enhancements
-* FastAPI integration now provides request level singletons. 
+* FastAPI integration now provides request level singletons.
+* [EXPERIMENTAL] Integration to click CLI package added
 
 ### Bug Fixes
 ### Backwards incompatible changes
