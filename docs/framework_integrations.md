@@ -100,3 +100,7 @@ used directly in tests.
 ## [Django](https://www.djangoproject.com/)
 A django integration is currently under beta in the experimental module.
 See documentation here: [Django Integration Docs](experimental.md#django-container)
+
+## [Click](https://click.palletsprojects.com/)
+A click integration is currently under beta in the experimental module.
+See documentation here: [Click Integration Docs]()(experimental.md#click)
