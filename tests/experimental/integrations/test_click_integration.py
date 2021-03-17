@@ -26,5 +26,5 @@ def test_click_io_objected_is_injected_and_proxies_click_as_expected():
 def test_a_reference_to_the_plain_function_is_exposed_for_testing():
     mock_io = mock.create_autospec(ClickIO)
     hello.plain_function("again", mock_io)
-    assert mock_io.echo.assert_called_with("Hello again")
+    mock_io.echo.assert_called_once_with("Hello again")
 

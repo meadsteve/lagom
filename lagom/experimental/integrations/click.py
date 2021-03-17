@@ -1,8 +1,13 @@
 from typing import Optional, List, Type, Callable
 
-from click import utils, decorators, Command, BaseCommand
+from click import utils, decorators
+from click.core import BaseCommand
 
 from lagom.interfaces import ExtendableContainer, WriteableContainer
+
+
+class DecoratedCommand(BaseCommand):
+    plain_function: Callable
 
 
 class ClickIO:
@@ -37,7 +42,7 @@ class ClickIntegration:
         self._container[ClickIO] = ClickIO()
         self._execution_singletons = execution_singletons or []
 
-    def command(self, name=None, cls=None, **attrs) -> Callable[[Callable], BaseCommand]:
+    def command(self, name=None, cls=None, **attrs) -> Callable[[Callable], DecoratedCommand]:
         """
         Proxies click.command but binds the function to lagom
         so that any arguments with lagom.injectable as a default will
