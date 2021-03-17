@@ -128,3 +128,39 @@ def question_count(request, store: DataStoreForRequest = injectable):
     # The `store` here was constructed with the correct request object
     return HttpResponse(f"Done")
 ```
+
+## Click
+An integration layer is provided which wraps click's decorators and
+wraps the function with lagom injection.
+
+```python
+container = Container()
+cli = ClickIntegration(container)
+
+
+@cli.command()
+@cli.argument("name")
+def call_the_thing(input, service: SomeServiceClass = injectable):
+    service.do_thing(input)
+```
+
+to enable testing without monkey patching the integration 
+ends the `Command` class to retain a reference to the function
+as `plain_function`:
+
+```python
+def test_something():
+    mock_service = mock.create_autospec(SomeServiceClass)
+    call_the_thing.plain_function("something", mock_io)
+    mock_service.do_thing.assert_called_once_with("something")
+```
+
+in addition, for testing echoed output a `ClickIO` class
+is automatically made available:
+
+```python
+@cli.command()
+@cli.argument("name")
+def hello(name, io: ClickIO = injectable):
+    io.echo(f"Hello {name}")
+```
