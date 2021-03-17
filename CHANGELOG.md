@@ -2,10 +2,19 @@
 
 ## NEXT
 ### Enhancements
+None
+### Bug Fixes
+None
+### Backwards incompatible changes
+None
+
+## 1.2.0 (2021-03-17)
+### Enhancements
 * FastAPI integration now provides request level singletons.
 * [EXPERIMENTAL] Integration to click CLI package added
 
 ### Bug Fixes
+None
 ### Backwards incompatible changes
 * Internal detail: The type hints for FunctionSpec from the caching reflector are now all non-mutable.
 The implementation is not changed but the immutable hints should prevent state based bugs.
