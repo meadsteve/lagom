@@ -1,5 +1,4 @@
 from unittest import mock
-from unittest.mock import Mock, MagicMock
 
 from click.testing import CliRunner
 
@@ -27,4 +26,3 @@ def test_a_reference_to_the_plain_function_is_exposed_for_testing():
     mock_io = mock.create_autospec(ClickIO)
     hello.plain_function("again", mock_io)
     mock_io.echo.assert_called_once_with("Hello again")
-

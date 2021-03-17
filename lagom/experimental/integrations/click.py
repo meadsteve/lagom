@@ -1,3 +1,6 @@
+"""
+Integration layer for Click https://click.palletsprojects.com/
+"""
 from typing import Optional, List, Type, Callable
 
 from click import utils, decorators
@@ -7,6 +10,11 @@ from lagom.interfaces import ExtendableContainer, WriteableContainer
 
 
 class DecoratedCommand(BaseCommand):
+    """
+    Virtual class which is returned by the lagom wrapped click command
+    decorator
+    """
+
     plain_function: Callable
 
 
@@ -42,7 +50,9 @@ class ClickIntegration:
         self._container[ClickIO] = ClickIO()
         self._execution_singletons = execution_singletons or []
 
-    def command(self, name=None, cls=None, **attrs) -> Callable[[Callable], DecoratedCommand]:
+    def command(
+        self, name=None, cls=None, **attrs
+    ) -> Callable[[Callable], DecoratedCommand]:
         """
         Proxies click.command but binds the function to lagom
         so that any arguments with lagom.injectable as a default will
