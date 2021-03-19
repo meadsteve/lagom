@@ -1,6 +1,58 @@
 # Cookbook
 Common patterns and usages are documented here.
 
+## Loading different classes based on an environment variable
+```python
+from abc import ABC
+from lagom import Container, dependency_definition
+from lagom.environment import Env
+
+## Assume we have a Thing with a slightly different class in dev
+## or maybe just in a different deployment
+
+class Thing(ABC):
+    def run(self): ...
+
+
+class ProdVersionOfThing(Thing):
+    def __init__(self, config):
+        self.config = config
+
+    def run(self):
+        print(f"PROD: {self.config}")
+
+
+class DevVersionOfThing(Thing):
+    def run(self):
+        print(f"DEV THING")
+
+        
+## Lagom provides an env class to represent a logical
+## grouping of environment variables
+
+class ThingEnvironment(Env):
+    # This maps to an environment variable THING_CONN
+    thing_conn: str
+
+    
+## We define a dependency_definition function for
+## our Thing which fetches the env from the container
+## automatically loading the env variable.
+## Note: if the env variable is unset an error will be raised
+container = Container()
+
+@dependency_definition(container, singleton=True)
+def _thing_loader(c: Container) -> Thing:
+    connection_string = c[ThingEnvironment].thing_conn
+    if connection_string.startswith("dev://"):
+        return DevVersionOfThing()
+    return ProdVersionOfThing(connection_string)
+
+
+if __name__ == '__main__':
+    thing = container[Thing]
+    thing.run()
+```
 ## Removing a dependency on the system clock
 
 ```python
