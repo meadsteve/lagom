@@ -1,7 +1,7 @@
 """Extra information about the reflection API
 """
 import inspect
-from threading import Lock
+from functools import lru_cache
 from typing import (
     Dict,
     Type,
@@ -63,40 +63,23 @@ class CachingReflector:
     API.
     """
 
-    _reflection_cache: Dict[Callable, FunctionSpec]
-    _thread_lock: Lock
-
-    def __init__(self):
-        self._reflection_cache = {}
-        self._thread_lock = Lock()
-
     @property
     def overview_of_cache(self) -> Dict[str, str]:
         """
-        Gives a humanish readable representation of what has been reflected on
+        Gives a humanish readable representation of what has been reflected on.
+        Removed since lru cache is now used
         :return:
         """
-        return {k.__qualname__: repr(v) for (k, v) in self._reflection_cache.items()}
+        return {"hidden": ""}
 
+    @lru_cache(maxsize=1024)
     def get_function_spec(self, func) -> FunctionSpec:
         """
         Returns details about the function's signature
         :param func:
         :return:
         """
-        if func in self._reflection_cache:
-            return self._reflection_cache[func]
-        return self._perform_reflection(func)
-
-    def _perform_reflection(self, func):
-        try:
-            self._thread_lock.acquire()
-            if func in self._reflection_cache:
-                return self._reflection_cache[func]
-            self._reflection_cache[func] = reflect(func)
-            return self._reflection_cache[func]
-        finally:
-            self._thread_lock.release()
+        return reflect(func)
 
 
 def reflect(func: Callable) -> FunctionSpec:

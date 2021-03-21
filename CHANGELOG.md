@@ -1,11 +1,14 @@
 # Changelog
 
-## NEXT
+## 1.2.1 (2021-03-21)
+
 ### Enhancements
 None
 
 ### Bug Fixes
 * Fixed a bug that could cause an aliased class to skip a defined way of constructing the class.
+* Custom caching reflection logic replaced with lru cache. This prevents an in theory bug when the 
+cache could fill up memory if a lot of temporary functions got reflected upon.
 
 ### Backwards incompatible changes
 None
