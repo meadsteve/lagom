@@ -2,14 +2,24 @@
 Exceptions raised by the library
 """
 import inspect
+import typing
 from abc import ABC
 from typing import Type
-
-import typing
 
 
 class LagomException(Exception, ABC):
     """All exceptions in this library are instances of a LagomException"""
+
+    pass
+
+
+class InjectableNotResolved(RuntimeError, LagomException):
+    """
+    An instance of injectable was consumed in some user code.
+    This should not occur as lagom should have replaced the injectable
+    with an object. This likely means the function wasn't bound to
+    an injection container.
+    """
 
     pass
 
