@@ -58,12 +58,16 @@ class Alias(SpecialDepDefinition[X]):
     """When one class is asked for the other should be returned"""
 
     alias_type: Type[X]
+    skip_definitions: bool
 
-    def __init__(self, alias_type):
+    def __init__(self, alias_type, skip_definitions=False):
         self.alias_type = alias_type
+        self.skip_definitions = skip_definitions
 
     def get_instance(self, container: ReadableContainer) -> X:
-        return container.resolve(self.alias_type, skip_definitions=True)
+        return container.resolve(
+            self.alias_type, skip_definitions=self.skip_definitions
+        )
 
 
 class SingletonWrapper(SpecialDepDefinition[X]):
@@ -99,10 +103,10 @@ class SingletonWrapper(SpecialDepDefinition[X]):
 
 
 class Singleton(SingletonWrapper[X]):
-    """Builds only onlambda: ce then saves the built instance"""
+    """Builds only once then saves the built instance"""
 
     def __init__(self, singleton_type: TypeResolver):
-        super().__init__(normalise(singleton_type))
+        super().__init__(normalise(singleton_type, skip_alias_definitions=True))
 
 
 class PlainInstance(SpecialDepDefinition[X]):
@@ -134,9 +138,12 @@ class UnresolvableTypeDefinition(SpecialDepDefinition[NoReturn]):
             raise TypeResolutionBlocked(self._msg_or_exception)
 
 
-def normalise(resolver: TypeResolver) -> SpecialDepDefinition:
+def normalise(
+    resolver: TypeResolver, skip_alias_definitions=False
+) -> SpecialDepDefinition:
     """
     :param resolver:
+    :param skip_alias_definitions if an alias is loaded should futher definitions be skipped
     :return:
     """
     if isinstance(resolver, SpecialDepDefinition):
@@ -146,6 +153,6 @@ def normalise(resolver: TypeResolver) -> SpecialDepDefinition:
     elif inspect.iscoroutinefunction(resolver):
         return construction(resolver)
     elif inspect.isclass(resolver):
-        return Alias(resolver)
+        return Alias(resolver, skip_alias_definitions)
     else:
         return PlainInstance(resolver)

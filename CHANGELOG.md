@@ -3,8 +3,10 @@
 ## NEXT
 ### Enhancements
 None
+
 ### Bug Fixes
-None
+* Fixed a bug that could cause an aliased class to skip a defined way of constructing the class.
+
 ### Backwards incompatible changes
 None
 
