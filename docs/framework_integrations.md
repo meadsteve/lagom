@@ -97,6 +97,22 @@ def save_to_db(thing_to_save, db: Database = injectable):
 The decorator leaves the original function unaltered so it can be
 used directly in tests.
 
+### Flask Blueprints
+Experimental support is provided for flask blueprints. The integration
+has the same interface as for apps:
+
+```python
+from lagom.experimental.integrations.flask import FlaskBlueprintIntegration
+
+simple_page = Blueprint('simple_page', template_folder='templates')
+simple_page_with_deps = FlaskBlueprintIntegration(simple_page, container)
+
+@simple_page_with_deps.route("/save_it/<string:thing_to_save>", methods=['POST'])
+def save_to_db(thing_to_save, db: Database = injectable):
+    db.save(thing_to_save)
+    return 'saved'
+```
+
 ## [Django](https://www.djangoproject.com/)
 A django integration is currently under beta in the experimental module.
 See documentation here: [Django Integration Docs](experimental.md#django-container)
