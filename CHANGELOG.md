@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.3.0 (2021-03-22)
+
+### Enhancements
+* Add experimental support for flask blueprints.
+
+### Bug Fixes
+None
+
+### Backwards incompatible changes
+None
+
+
 ## 1.2.1 (2021-03-21)
 
 ### Enhancements
