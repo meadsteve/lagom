@@ -36,9 +36,6 @@ class FlaskBlueprintIntegration(FlaskIntegration):
         super().__init__(blueprint, container, request_singletons)  # type: ignore
         self.blueprint = blueprint
 
-        # TODO: backport this map of already injected functions to the flask integration
-        self._injection_map = {}
-
     def route(self, rule, **options):
         """Equivalent to the flask @route decorator
         Injectable arguments should be set by making the default value

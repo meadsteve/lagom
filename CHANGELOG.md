@@ -1,5 +1,16 @@
 # Changelog
 
+## NEXT
+
+### Enhancements
+None
+
+### Bug Fixes
+* Fixed bug in flask integration where multiple route decorators caused an error
+
+### Backwards incompatible changes
+None
+
 ## 1.3.0 (2021-03-22)
 
 ### Enhancements

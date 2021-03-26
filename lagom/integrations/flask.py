@@ -1,7 +1,7 @@
 """
 Flask API (https://www.flaskapi.org/)
 """
-from typing import Type, List, Optional, Any
+from typing import Type, List, Optional, Any, Dict, Callable
 
 from flask import Flask, request
 
@@ -27,6 +27,7 @@ class FlaskIntegration:
     flask_app: Flask
     _container: WriteableContainer
     _request_singletons: List[Type]
+    _injection_map: Dict[Callable, Callable]
 
     def __init__(
         self,
@@ -44,6 +45,7 @@ class FlaskIntegration:
         self._container = container.clone()
         self._container[Request] = ConstructionWithoutContainer(lambda: request)
         self._request_singletons = request_singletons or []
+        self._injection_map = {}
 
     def route(self, rule, **options):
         """Equivalent to the flask @route decorator
@@ -53,8 +55,13 @@ class FlaskIntegration:
 
         def _decorator(f):
             endpoint = options.pop("endpoint", None)
-            injected_func = self._container.partial(f, shared=self._request_singletons)
-            self.flask_app.add_url_rule(rule, endpoint, injected_func, **options)
+            if f not in self._injection_map:
+                self._injection_map[f] = self._container.partial(
+                    f, shared=self._request_singletons
+                )
+            self.flask_app.add_url_rule(
+                rule, endpoint, self._injection_map[f], **options
+            )
             return f
 
         return _decorator
@@ -66,10 +73,13 @@ class FlaskIntegration:
 
         def _decorator(f):
             endpoint = options.pop("endpoint", None)
-            injected_func = self._container.magic_partial(
-                f, shared=self._request_singletons
+            if f not in self._injection_map:
+                self._injection_map[f] = self._container.magic_partial(
+                    f, shared=self._request_singletons
+                )
+            self.flask_app.add_url_rule(
+                rule, endpoint, self._injection_map[f], **options
             )
-            self.flask_app.add_url_rule(rule, endpoint, injected_func, **options)
             return f
 
         return _decorator
