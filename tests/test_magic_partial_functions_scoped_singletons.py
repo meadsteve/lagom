@@ -2,7 +2,6 @@ import inspect
 from random import random
 from typing import Any, ClassVar
 
-
 from lagom import Container, magic_bind_to_container, Singleton
 
 
@@ -49,6 +48,22 @@ def test_invocation_level_singletons_can_be_defined(container: Container):
 
     result = example_function_with_invocation_level_sharing()
     assert result["a"] == result["b"]
+
+
+def test_invocation_level_singletons_dont_affect_the_base_container(
+    container: Container,
+):
+    @magic_bind_to_container(container, shared=[SomeCache])
+    def example_function_with_invocation_level_sharing(
+        cache_one: SomeCache, cache_two: SomeCache
+    ):
+        # This is what we expect with invocation level singleton
+        assert cache_one == cache_two
+
+    example_function_with_invocation_level_sharing()
+
+    # Check that each invocation gets a new one - this is the normal behaviour
+    assert container[SomeCache] != container[SomeCache]
 
 
 def test_invocation_level_singletons_are_not_shared_across_calls(container: Container):

@@ -2,6 +2,7 @@ import functools
 import io
 import logging
 import typing
+from types import FunctionType
 from typing import (
     Dict,
     Type,
@@ -11,21 +12,15 @@ from typing import (
     Set,
     List,
     Optional,
-    Generic,
     cast,
     Union,
 )
-from types import FunctionType
 
-from .interfaces import (
-    SpecialDepDefinition,
-    ReadableContainer,
-    WriteableContainer,
-    TypeResolver,
-    DefinitionsSource,
-    ExtendableContainer,
-    ContainerDebugInfo,
-    CallTimeContainerUpdate,
+from .definitions import (
+    normalise,
+    Singleton,
+    Alias,
+    ConstructionWithoutContainer,
 )
 from .exceptions import (
     UnresolvableType,
@@ -34,13 +29,16 @@ from .exceptions import (
     RecursiveDefinitionError,
     DependencyNotDefined,
 )
-from .markers import injectable
-from .definitions import (
-    normalise,
-    Singleton,
-    Alias,
-    ConstructionWithoutContainer,
+from .interfaces import (
+    SpecialDepDefinition,
+    WriteableContainer,
+    TypeResolver,
+    DefinitionsSource,
+    ExtendableContainer,
+    ContainerDebugInfo,
+    CallTimeContainerUpdate,
 )
+from .markers import injectable
 from .updaters import update_container_singletons
 from .util.logging import NullLogger
 from .util.reflection import FunctionSpec, CachingReflector, remove_optional_type
@@ -265,7 +263,6 @@ class Container(
         :param container_updater: An optional callable to update the container before resolution
         :return:
         """
-        update_container = container_updater if container_updater else _update_nothing
         spec = self._get_spec_without_self(func)
         keys_to_bind = (
             key for (key, arg) in spec.defaults.items() if arg is injectable
@@ -273,6 +270,7 @@ class Container(
         keys_and_types = [(key, spec.annotations[key]) for key in keys_to_bind]
 
         _injection_context = self.temporary_singletons(shared)
+        update_container = container_updater if container_updater else _update_nothing
 
         def _update_args(supplied_args, supplied_kwargs):
             keys_to_skip = set(supplied_kwargs.keys())
@@ -315,8 +313,9 @@ class Container(
         :param container_updater: An optional callable to update the container before resolution
         :return:
         """
-        update_container = container_updater if container_updater else _update_nothing
         spec = self._get_spec_without_self(func)
+
+        update_container = container_updater if container_updater else _update_nothing
         _injection_context = self.temporary_singletons(shared)
 
         def _update_args(supplied_args, supplied_kwargs):
