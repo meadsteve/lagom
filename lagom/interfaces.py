@@ -14,7 +14,6 @@ from typing import (
     Optional,
     Dict,
     NoReturn,
-    Collection,
 )
 
 X = TypeVar("X")
@@ -199,5 +198,5 @@ TypeResolver = Union[
     SpecialDepDefinition[T],  # From the definitions module
     SpecialDepDefinition[NoReturn],  # Some types don't resolve
     T,  # Just an instance of the type - A singleton
-    Collection[Callable],  # A collection of functions - maps to FunctionCollection[F]
+    List[Callable],  # A collection of functions - maps to FunctionCollection[F]
 ]
