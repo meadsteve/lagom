@@ -24,7 +24,5 @@ def test_function_collections_are_the_same_if_they_have_the_same_functions():
 
 
 def test_function_collections_are_iterable():
-    collected_funcs = []
-    for func in FunctionCollection(_func_a, _func_b):
-        collected_funcs.append(func)
+    collected_funcs = [func for func in FunctionCollection(_func_a, _func_b)]
     assert collected_funcs == [_func_a, _func_b]
