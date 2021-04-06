@@ -149,9 +149,9 @@ def normalise(
     if isinstance(resolver, SpecialDepDefinition):
         return resolver
     elif inspect.isfunction(resolver):
-        return construction(resolver)
+        return construction(resolver)  # type: ignore
     elif inspect.iscoroutinefunction(resolver):
-        return construction(resolver)
+        return construction(resolver)  # type: ignore
     elif inspect.isclass(resolver):
         return Alias(resolver, skip_alias_definitions)
     elif _list_with_type(resolver, Callable):
