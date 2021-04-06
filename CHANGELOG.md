@@ -14,7 +14,7 @@ None
 ## 1.3.1 (2021-05-27)
 
 ### Enhancements
-None
+* Added FunctionCollection type. Allows the container to store a collection of functions
 
 ### Bug Fixes
 * Fixed bug in flask integration where multiple route decorators caused an error
