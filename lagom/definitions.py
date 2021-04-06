@@ -165,7 +165,4 @@ def _list_with_type(list_of_things, content_type):
         return False
     if len(list_of_things) == 0:
         return False
-    for thing in list_of_things:
-        if not isinstance(thing, content_type):
-            return False
-    return True
+    return all(isinstance(thing, content_type) for thing in list_of_things)
