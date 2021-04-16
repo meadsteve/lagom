@@ -3,14 +3,14 @@ Classes representing specific ways of representing dependencies
 """
 import inspect
 from threading import Lock
-from typing import Union, Type, Optional, Callable, TypeVar, NoReturn
+from typing import Union, Type, Optional, Callable, TypeVar, NoReturn, List
 
 from .exceptions import (
     InvalidDependencyDefinition,
     TypeResolutionBlocked,
 )
 from .interfaces import SpecialDepDefinition, ReadableContainer, TypeResolver
-from .util.functional import arity
+from .util.functional import arity, FunctionCollection
 
 X = TypeVar("X")
 
@@ -149,10 +149,20 @@ def normalise(
     if isinstance(resolver, SpecialDepDefinition):
         return resolver
     elif inspect.isfunction(resolver):
-        return construction(resolver)
+        return construction(resolver)  # type: ignore
     elif inspect.iscoroutinefunction(resolver):
-        return construction(resolver)
+        return construction(resolver)  # type: ignore
     elif inspect.isclass(resolver):
         return Alias(resolver, skip_alias_definitions)
+    elif _list_with_type(resolver, Callable):
+        return PlainInstance(FunctionCollection(*resolver))  # type: ignore # this could be made to pass if mypy adds typeguards
     else:
         return PlainInstance(resolver)
+
+
+def _list_with_type(list_of_things, content_type):
+    if not isinstance(list_of_things, List):
+        return False
+    if len(list_of_things) == 0:
+        return False
+    return all(isinstance(thing, content_type) for thing in list_of_things)

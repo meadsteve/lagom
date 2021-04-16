@@ -3,7 +3,7 @@
 ## NEXT
 
 ### Enhancements
-None
+* Added FunctionCollection type. Allows the container to store a collection of functions
 
 ### Bug Fixes
 * Fixed bug in flask integration where multiple route decorators caused an error
