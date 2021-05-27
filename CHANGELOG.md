@@ -6,7 +6,19 @@
 None
 
 ### Bug Fixes
+None
+
+### Backwards incompatible changes
+None
+
+## 1.3.1 (2021-05-27)
+
+### Enhancements
+None
+
+### Bug Fixes
 * Fixed bug in flask integration where multiple route decorators caused an error
+* Fixed bug with self aliases causing infinite recursion. Thanks to @mrogaski for the report. #159.
 
 ### Backwards incompatible changes
 None

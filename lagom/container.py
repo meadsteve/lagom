@@ -155,6 +155,9 @@ class Container(
             raise InvalidDependencyDefinition()
         if dep in self._registered_types:
             raise DuplicateDefinition()
+        if dep is resolver:
+            # This is a special case for things like container[Foo] = Foo
+            return self.define(dep, Alias(dep, skip_definitions=True))
         definition = normalise(resolver)
         self._registered_types[dep] = definition
         self._registered_types[Optional[dep]] = definition  # type: ignore
