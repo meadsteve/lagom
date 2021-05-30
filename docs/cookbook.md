@@ -82,6 +82,48 @@ assert month_as_a_string(datetime(2020, 5, 12)) == "May"
 
 ```
 
+## Integrating with [OpenTelemetry](https://opentelemetry.io/)
+
+```python
+from lagom import Container, magic_bind_to_container, dependency_definition
+container = Container()
+
+# The tracer provider is a singleton because we only need one of it
+@dependency_definition(container, singleton=True)
+def _get_provider() -> TracerProvider:
+    provider = TracerProvider()
+    processor = SimpleSpanProcessor(ConsoleSpanExporter())
+    provider.add_span_processor(processor)
+    return provider
+
+
+# A new tracer is built each time it's needed. Later in the code
+# this will be made a request level singleton so that all actions
+# in one request share a tracer context
+container[Tracer] = lambda c: trace.get_tracer(__name__, tracer_provider=c[TracerProvider])
+
+# Note: This class now has no tracer global state
+# we can easily do some testing around the tracing.
+class SomeService:
+    def __init__(self, tracer: Tracer):
+        self.tracer = tracer
+
+    def do_work(self):
+        with self.tracer.start_as_current_span("Doing some work with an API"):
+            return "important data"
+
+
+# When binding this request handling function to the container
+# we make instances of Tracer shared. This means anything that 
+# asks for a tracer will get the same one. So SomeService and this
+# function work on the same trace context
+@magic_bind_to_container(container, shared=[Tracer])
+def handle_request(request, tracer: Tracer, service: SomeService):
+    with tracer.start_as_current_span("starting up"):
+        service_response = service.do_work()
+        print(f"ok: {service_response}")
+```
+
 ## Hiding executor details from functions
 
 ```python
