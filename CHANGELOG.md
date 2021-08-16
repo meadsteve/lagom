@@ -1,12 +1,12 @@
 # Changelog
 
-## NEXT
+## 1.4.0 (NEXT)
 
 ### Enhancements
-None
+* container.partial now works for instance methods. Thanks to @LeafyLappa for pointing out this didn't work.
 
 ### Bug Fixes
-None
+* container.partial now works for instance methods. Thanks to @LeafyLappa for pointing out this didn't work.
 
 ### Backwards incompatible changes
 None

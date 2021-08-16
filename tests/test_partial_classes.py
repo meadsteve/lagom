@@ -1,5 +1,4 @@
 from lagom import Container, injectable
-from lagom.decorators import bind_to_container
 
 
 class Foo:
@@ -22,6 +21,11 @@ class Bar:
         return self.foo.greet() + self.not_injected
 
 
+class MethodBasedBar:
+    def greet(self, message: str, foo: Foo = injectable) -> str:
+        return foo.greet() + message
+
+
 def test_partial_application_can_be_applied_to_class():
     bar = container.partial(Bar)(not_injected="!")
     assert bar.greet() == "Hello Foo!"
@@ -37,3 +41,9 @@ def test_passed_in_arguments_are_used_over_container_generated_ones_when_named()
     assert (
         partial_bar(not_injected="!", foo=Foo(name="Local")).greet() == "Hello Local!"
     )
+
+
+def test_partial_application_can_be_applied_to_instance_method():
+    bar = MethodBasedBar()
+    partial = container.partial(bar.greet)
+    assert partial(", hello?") == "Hello Foo, hello?"
