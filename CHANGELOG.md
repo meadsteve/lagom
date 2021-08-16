@@ -4,6 +4,7 @@
 
 ### Enhancements
 * container.partial now works for instance methods. Thanks to @LeafyLappa for pointing out this didn't work.
+* Added FunctionCollection type. Allows the container to store a collection of functions
 
 ### Bug Fixes
 * container.partial now works for instance methods. Thanks to @LeafyLappa for pointing out this didn't work.
@@ -14,7 +15,7 @@ None
 ## 1.3.1 (2021-05-27)
 
 ### Enhancements
-* Added FunctionCollection type. Allows the container to store a collection of functions
+None
 
 ### Bug Fixes
 * Fixed bug in flask integration where multiple route decorators caused an error
