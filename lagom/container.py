@@ -413,9 +413,7 @@ class Container(
         if isinstance(func, (FunctionType, MethodType)):
             return self._reflector.get_function_spec(func)
         t = cast(Type[X], func)
-        return self._reflector.get_function_spec(t.__init__).without_argument(
-                "self"
-            )
+        return self._reflector.get_function_spec(t.__init__).without_argument("self")
 
 
 class ExplicitContainer(Container):
