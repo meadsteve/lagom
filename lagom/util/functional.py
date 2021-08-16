@@ -45,4 +45,6 @@ class FunctionCollection(Generic[F]):
     def __eq__(self, other):
         if isinstance(other, FunctionCollection):
             return self.hash == other.hash
+        if isinstance(other, list):
+            return tuple(other) == self._checkers
         return False
