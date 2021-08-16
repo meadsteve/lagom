@@ -14,7 +14,7 @@ only be involved at the top level to pull everything together.
 
 ### Features
 
- * Typed based auto wiring with zero configuration.
+ * Type based auto wiring with zero configuration.
  * Fully based on types. Strong integration with mypy.
  * Minimal changes to existing code.
  * Integration with a few common web frameworks.
