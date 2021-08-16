@@ -4,6 +4,7 @@
 
 ### Enhancements
 * container.partial now works for instance methods. Thanks to @LeafyLappa for pointing out this didn't work.
+* Added FunctionCollection type. Allows the container to store a collection of functions
 
 ### Bug Fixes
 * container.partial now works for instance methods. Thanks to @LeafyLappa for pointing out this didn't work.
