@@ -2,7 +2,7 @@ import functools
 import io
 import logging
 import typing
-from types import FunctionType
+from types import FunctionType, MethodType
 from typing import (
     Dict,
     Type,
@@ -410,7 +410,7 @@ class Container(
         return {key: dep for (key, dep) in sub_deps.items() if dep is not None}
 
     def _get_spec_without_self(self, func: Callable[..., X]) -> FunctionSpec:
-        if isinstance(func, FunctionType):
+        if isinstance(func, FunctionType) or isinstance(func, MethodType):
             spec = self._reflector.get_function_spec(func)
         else:
             t = cast(Type[X], func)
