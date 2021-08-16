@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.4.0 (NEXT)
+## 1.4.0 (2021-08-16)
 
 ### Enhancements
 * container.partial now works for instance methods. Thanks to @LeafyLappa for pointing out this didn't work.
