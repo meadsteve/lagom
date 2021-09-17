@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.4.1 (2021-09-17)
+
+### Enhancements
+None
+
+### Bug Fixes
+* Error messages with type names now consistent in upcoming python verson 3.10 (#167) 
+
+
+### Backwards incompatible changes
+None
+
+
 ## 1.4.0 (2021-08-16)
 
 ### Enhancements
