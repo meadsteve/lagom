@@ -73,10 +73,12 @@ def test_raises_error_with_the_dep_that_couldnt_be_built_at_the_top_level(contai
 def test_composite_type_failures_still_throw_sensible_errors(container):
     with pytest.raises(UnresolvableType) as e_info:
         container.resolve(List[UnfulfilledDeps])
+    exception_message = str(e_info.value)
+    assert "Unable to construct dependency of type" in exception_message
+    assert "List[tests.test_error_handling.UnfulfilledDeps]" in exception_message
     assert (
-        str(e_info.value) == "Unable to construct dependency of type "
-        "typing.List[tests.test_error_handling.UnfulfilledDeps] "
         "The constructor probably has some unresolvable dependencies"
+        in exception_message
     )
 
 
