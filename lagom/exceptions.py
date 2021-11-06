@@ -131,6 +131,32 @@ class DependencyNotDefined(ValueError, LagomException):
         )
 
 
+class MissingEnvVariable(LagomException):
+    """
+    Whilst trying to load settings from environment variables one or more required variables had not been set.
+    More documentation for this can be found in the lagom.environment module.
+    """
+
+    def __init__(self, variable_names: typing.List[str]):
+        super().__init__(
+            f"Expected environment variables not found: {', '.join(variable_names)}"
+        )
+
+
+class InvalidEnvironmentVariables(LagomException):
+    """
+    Whilst trying to load settings from environment variables one or more variables failed the validation rules.
+    Internally the pydantic library is used to coerce and validate the environment variable from a string into
+    a python data type.
+    More documentation for this can be found in the lagom.environment module.
+    """
+
+    def __init__(self, variable_names: typing.List[str], details: str):
+        super().__init__(
+            f"Unable to load environment variables: {', '.join(variable_names)} \n {details}"
+        )
+
+
 def _dep_type_as_string(dep_type: Type):
     # This first check makes 3.6 behave the same as 3.7 and later
     if hasattr(typing, "GenericMeta") and isinstance(dep_type, typing.GenericMeta):  # type: ignore
