@@ -1,6 +1,6 @@
-name: Validate
+name: Benchmark
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
   build:
@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.6", "3.7", "3.8", "3.9", "3.10"]
+        python-version: ["3.8", "3.9"]
 
     steps:
     - uses: actions/checkout@v2
@@ -19,6 +19,11 @@ jobs:
     - name: Install dependencies
       run: |
         make setup
-    - name: Run Tests
+    - name: Run Bechmarking
       run: |
-        make test
+        make benchmark
+    - uses: actions/upload-artifact@v2
+      name: Save Benchmarks
+      with:
+        name: benchmark-results
+        path: .benchmarks/
