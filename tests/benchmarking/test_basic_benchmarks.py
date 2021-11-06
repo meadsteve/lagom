@@ -21,7 +21,7 @@ def test_magic(benchmark):
         thing.do_it()
 
     def do_pretend_work():
-        for _ in range(1000):
+        for _ in range(10):
             do_work()
         return True
 
@@ -38,7 +38,7 @@ def test_plain(benchmark):
         thing.do_it()
 
     def do_pretend_work():
-        for _ in range(1000):
+        for _ in range(10):
             do_work()
         return True
 
@@ -57,7 +57,7 @@ def test_optimised(benchmark):
         thing.do_it()
 
     def do_pretend_work():
-        for _ in range(1000):
+        for _ in range(10):
             do_work()
         return True
 
