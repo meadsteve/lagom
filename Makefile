@@ -18,7 +18,7 @@ docs_serve:
 	pipenv run mkdocs serve --dev-addr 0.0.0.0:8004
 
 benchmark:
-	pipenv run pytest tests -m "benchmarking" -vv --benchmark-save=baseline
+	pipenv run pytest tests -m "benchmarking" -vv --benchmark-save=baseline --benchmark-max-time=10
 
 test: test_mypy test_unit enforce_docs test_doctests test_format
 

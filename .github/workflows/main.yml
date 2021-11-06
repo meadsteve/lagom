@@ -26,7 +26,7 @@ jobs:
       run: |
         make benchmark
     - uses: actions/upload-artifact@v2
-      name: save benchmarks
+      name: Save Benchmarks
       with:
         name: benchmark-results
         path: .benchmarks/
