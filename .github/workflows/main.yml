@@ -25,3 +25,8 @@ jobs:
     - name: Run Bechmarking
       run: |
         make benchmark
+    - uses: actions/upload-artifact@v2
+      name: save benchmarks
+      with:
+        name: benchmark-results
+        path: .benchmarks/
