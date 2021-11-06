@@ -1,4 +1,4 @@
-.PHONY: setup setup_pipenv install docs-serve update test test_mypy test_unit test_format test_doctests assert_package_safety publish format enforce_docs
+.PHONY: setup setup_pipenv install docs-serve update benchmark test test_mypy test_unit test_format test_doctests assert_package_safety publish format enforce_docs
 PIPENV_VERBOSITY=-1
 
 setup: setup_pipenv install
@@ -17,13 +17,16 @@ update:
 docs_serve:
 	pipenv run mkdocs serve --dev-addr 0.0.0.0:8004
 
+benchmark:
+	pipenv run pytest tests -m "benchmarking" -vv --benchmark-save=baseline --benchmark-max-time=10 --benchmark-compare=0001 --benchmark-compare-fail=mean:25% --benchmark-disable-gc
+
 test: test_mypy test_unit enforce_docs test_doctests test_format
 
 test_mypy:
 	pipenv run mypy --config-file mypy.ini lagom tests
 
 test_unit:
-	pipenv run pytest tests -vv
+	pipenv run pytest tests -m "not benchmarking" -vv
 
 test_format:
 	pipenv run black --check tests lagom
