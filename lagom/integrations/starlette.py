@@ -1,10 +1,11 @@
 """
 For use with Starlette (https://www.starlette.io/)
 """
-from typing import List, Type, Callable, Optional
+from inspect import isclass
+from typing import List, Type, Callable, Optional, Union
 
 from starlette.routing import Route
-
+from starlette.endpoints import HTTPEndpoint
 
 from ..interfaces import ExtendableContainer
 
@@ -48,12 +49,11 @@ class StarletteIntegration:
         :param include_in_schema:
         :return:
         """
-        wrapped_endpoint = self._container.partial(
-            endpoint, shared=self._request_singletons
-        )
+        wrapped = self.wrapped_endpoint_factory(endpoint, self._container.partial)
+
         return Route(
             path,
-            wrapped_endpoint,
+            wrapped,
             methods=methods,
             name=name,
             include_in_schema=include_in_schema,
@@ -78,13 +78,53 @@ class StarletteIntegration:
         :param include_in_schema:
         :return:
         """
-        wrapped_endpoint = self._container.magic_partial(
-            endpoint, shared=self._request_singletons
-        )
+        wrapped = self.wrapped_endpoint_factory(endpoint, self._container.magic_partial)
+
         return Route(
             path,
-            wrapped_endpoint,
+            wrapped,
             methods=methods,
             name=name,
             include_in_schema=include_in_schema,
         )
+
+    def wrapped_endpoint_factory(
+        self,
+        endpoint: Union[Callable, HTTPEndpoint],
+        partial_provider: Callable
+    ):
+        """Builds an instance of a starlette Route with endpoint callables 
+        bound to the container so dependencies can be auto injected. 
+
+        :param endpoint: 
+        :param partial_provider:
+        """
+        if not (isclass(endpoint) and issubclass(endpoint, HTTPEndpoint)):
+            return partial_provider(endpoint, shared=self._request_singletons)
+
+        si = self
+
+        class HTTPEndpointProxy(HTTPEndpoint):
+        
+            def __init__(self, scope, receive, send):
+                super().__init__(scope, receive, send)
+                self.endpoint = endpoint(scope, receive, send)
+
+            def __getattribute__(self, name: str):
+                if name in (
+                    "dispatch",
+                    "method_not_allowed",
+                    "scope",
+                    "receive",
+                    "send",
+                ):
+                    return object.__getattribute__(self, name)
+
+                endpoint_instance = object.__getattribute__(self, "endpoint")
+                endpoint_method = endpoint_instance.__getattribute__(name)
+
+                return partial_provider(
+                    endpoint_method, shared=si._request_singletons
+                )
+
+        return HTTPEndpointProxy
