@@ -90,7 +90,7 @@ class StarletteIntegration:
 
     def wrapped_endpoint_factory(
         self,
-        endpoint: Union[Callable, HTTPEndpoint],
+        endpoint: Union[Callable, Type[HTTPEndpoint]],
         partial_provider: Callable
     ):
         """Builds an instance of a starlette Route with endpoint callables 
@@ -99,10 +99,10 @@ class StarletteIntegration:
         :param endpoint: 
         :param partial_provider:
         """
-        if not (isclass(endpoint) and issubclass(endpoint, HTTPEndpoint)):
-            return partial_provider(endpoint, shared=self._request_singletons)
-
         si = self
+        
+        if not (isinstance(endpoint, type) and issubclass(endpoint, HTTPEndpoint)):
+            return partial_provider(endpoint, shared=self._request_singletons)
 
         class HTTPEndpointProxy(HTTPEndpoint):
         
