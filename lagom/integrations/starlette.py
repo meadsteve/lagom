@@ -89,23 +89,20 @@ class StarletteIntegration:
         )
 
     def wrapped_endpoint_factory(
-        self,
-        endpoint: Union[Callable, Type[HTTPEndpoint]],
-        partial_provider: Callable
+        self, endpoint: Union[Callable, Type[HTTPEndpoint]], partial_provider: Callable
     ):
-        """Builds an instance of a starlette Route with endpoint callables 
-        bound to the container so dependencies can be auto injected. 
+        """Builds an instance of a starlette Route with endpoint callables
+        bound to the container so dependencies can be auto injected.
 
-        :param endpoint: 
+        :param endpoint:
         :param partial_provider:
         """
         si = self
-        
+
         if not (isinstance(endpoint, type) and issubclass(endpoint, HTTPEndpoint)):
             return partial_provider(endpoint, shared=self._request_singletons)
 
         class HTTPEndpointProxy(HTTPEndpoint):
-        
             def __init__(self, scope, receive, send):
                 super().__init__(scope, receive, send)
                 self.endpoint = endpoint(scope, receive, send)
@@ -123,8 +120,6 @@ class StarletteIntegration:
                 endpoint_instance = object.__getattribute__(self, "endpoint")
                 endpoint_method = endpoint_instance.__getattribute__(name)
 
-                return partial_provider(
-                    endpoint_method, shared=si._request_singletons
-                )
+                return partial_provider(endpoint_method, shared=si._request_singletons)
 
         return HTTPEndpointProxy

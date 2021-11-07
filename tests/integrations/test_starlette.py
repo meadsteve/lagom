@@ -51,7 +51,7 @@ def test_the_starlette_container_can_define_request_level_singletons(container):
 @pytest.mark.asyncio
 async def test_the_starlette_container_handles_async_handlers(container):
     sc = StarletteIntegration(container, request_singletons=[MyDep])
-    
+
     route = sc.route("/", some_async_handler)
 
     assert isinstance(route, Route)
@@ -63,7 +63,7 @@ async def test_the_starlette_container_can_handle_endpoint_classes(container):
     sc = StarletteIntegration(container)
     route = sc.route("/", SomeEndpointHandler)
     assert isinstance(route, Route)
-    
+
     client = TestClient(route)
     response = client.get("/")
 
