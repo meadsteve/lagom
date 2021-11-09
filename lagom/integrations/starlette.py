@@ -1,13 +1,24 @@
 """
 For use with Starlette (https://www.starlette.io/)
 """
-from inspect import isclass
 from typing import List, Type, Callable, Optional, Union
 
 from starlette.routing import Route
 from starlette.endpoints import HTTPEndpoint
 
 from ..interfaces import ExtendableContainer
+
+OVERRIDE_HTTP_METHODS = {
+    "get",
+    "head",
+    "post",
+    "put",
+    "delete",
+    "connect",
+    "options",
+    "trace",
+    "patch",
+}
 
 
 class StarletteIntegration:
@@ -97,29 +108,40 @@ class StarletteIntegration:
         :param endpoint:
         :param partial_provider:
         """
-        si = self
-
-        if not (isinstance(endpoint, type) and issubclass(endpoint, HTTPEndpoint)):
+        if not isinstance(endpoint, type):
             return partial_provider(endpoint, shared=self._request_singletons)
+
+        if issubclass(endpoint, HTTPEndpoint):
+            return self.create_http_endpoint_proxy(
+                endpoint, partial_provider, self._request_singletons
+            )
+
+    @staticmethod
+    def create_http_endpoint_proxy(
+        endpoint_cls: Type[HTTPEndpoint],
+        partial_provider: Callable,
+        request_singletons: List[Type],
+    ) -> Type[HTTPEndpoint]:
+        """Create a subclass of Starlette's HTTPEndpoint which injects dependencies
+        into HTTP-method-named methods on the user's `endpoint_cls` subclass of HTTPEndpoint
+
+        :param endpoint_cls:
+        :param partial_provider:
+        :param request_singletons:
+        """
 
         class HTTPEndpointProxy(HTTPEndpoint):
             def __init__(self, scope, receive, send):
                 super().__init__(scope, receive, send)
-                self.endpoint = endpoint(scope, receive, send)
+                self.endpoint = endpoint_cls(scope, receive, send)
 
             def __getattribute__(self, name: str):
-                if name in (
-                    "dispatch",
-                    "method_not_allowed",
-                    "scope",
-                    "receive",
-                    "send",
-                ):
-                    return object.__getattribute__(self, name)
+                if name in OVERRIDE_HTTP_METHODS:
+                    endpoint_instance = object.__getattribute__(self, "endpoint")
+                    endpoint_method = getattr(endpoint_instance, name)
 
-                endpoint_instance = object.__getattribute__(self, "endpoint")
-                endpoint_method = endpoint_instance.__getattribute__(name)
+                    return partial_provider(endpoint_method, shared=request_singletons)
 
-                return partial_provider(endpoint_method, shared=si._request_singletons)
+                return object.__getattribute__(self, name)
 
         return HTTPEndpointProxy
