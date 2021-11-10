@@ -7,3 +7,4 @@ Thanks for early feedback on the documentation and design go to Mohammed, Henrin
 
 ## Contributors
   * @BrentSouza
+  * @MisterKeefe
