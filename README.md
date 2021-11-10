@@ -1,4 +1,4 @@
-# [![Lagom](./docs/images/logo_and_text.png)](https://lagom-di.readthedocs.io/en/latest/)
+# [![Lagom](./docs/images/logo_and_text.png)](https://lagom-di.readthedocs.io/en/stable/)
 
 [![](https://img.shields.io/pypi/pyversions/lagom.svg)](https://pypi.org/pypi/lagom/)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/meadsteve/lagom/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/meadsteve/lagom/?branch=master)
@@ -21,7 +21,7 @@ only be involved at the top level to pull everything together.
  * Support for async python.
  * Thread-safe at runtime
  
-You can see a [comparison to other frameworks here](https://lagom-di.readthedocs.io/en/latest/comparison/)
+You can see a [comparison to other frameworks here](https://lagom-di.readthedocs.io/en/stable/comparison/)
 
 ## Installation
 ```bash
@@ -97,9 +97,9 @@ def handle_move_post_request(request: typing.Dict, game: Game = lagom.injectable
     return Response()
 ```
 
-(There's also a few common framework integrations [provided here](https://lagom-di.readthedocs.io/en/latest/framework_integrations/))
+(There's also a few common framework integrations [provided here](https://lagom-di.readthedocs.io/en/stable/framework_integrations/))
 
-[Full docs here here](https://lagom-di.readthedocs.io/en/latest/)
+[Full docs here here](https://lagom-di.readthedocs.io/en/stable/)
 
 ## Contributing
 
