@@ -4,6 +4,7 @@
 
 ### Enhancements
 * Better error messages when failing to load environment variables.
+* Starlette integration now supports class based endpoints #170 thanks @MisterKeefe
 
 ### Bug Fixes
 None
