@@ -1,6 +1,17 @@
 # Changelog
 
-## 1.5.0 (UNRELEASED)
+## Next (Unreleased)
+
+### Enhancements
+None
+
+### Bug Fixes
+None
+
+### Backwards incompatible changes
+None
+
+## 1.5.0 (2021-11-13)
 
 ### Enhancements
 * Better error messages when failing to load environment variables.
