@@ -3,8 +3,8 @@ For use with Starlette (https://www.starlette.io/)
 """
 from typing import List, Type, Callable, Optional, Union
 
-from starlette.routing import Route
-from starlette.endpoints import HTTPEndpoint
+from starlette.routing import Route, WebSocketRoute
+from starlette.endpoints import HTTPEndpoint, WebSocketEndpoint
 
 from ..interfaces import ExtendableContainer
 
@@ -19,6 +19,8 @@ OVERRIDE_HTTP_METHODS = {
     "trace",
     "patch",
 }
+
+OVERRIDE_WEBSOCKET_METHODS = {"on_connect", "on_receive", "on_disconnect"}
 
 
 class StarletteIntegration:
@@ -99,6 +101,44 @@ class StarletteIntegration:
             include_in_schema=include_in_schema,
         )
 
+    def ws_route(
+        self,
+        path: str,
+        endpoint: Callable,
+        *,
+        name: str = None,
+    ) -> WebSocketRoute:
+        """Returns an instance of a starlette WebSocketRoute
+        The callable endpoint is bound to the container so dependencies can be
+        injected. All other arguments are passed on to starlette.
+        :param path:
+        :param endpoint:
+        :param name:
+        :return:
+        """
+        wrapped = self.wrapped_endpoint_factory(endpoint, self._container.partial)
+
+        return WebSocketRoute(path, wrapped, name=name)
+
+    def ws_magic_route(
+        self,
+        path: str,
+        endpoint: Callable,
+        *,
+        name: str = None,
+    ) -> WebSocketRoute:
+        """Returns an instance of a starlette WebSocketRoute
+        The callable endpoint is bound to the container so dependencies can be
+        auto injected. All other arguments are passed on to starlette.
+        :param path:
+        :param endpoint:
+        :param name:
+        :return:
+        """
+        wrapped = self.wrapped_endpoint_factory(endpoint, self._container.magic_partial)
+
+        return WebSocketRoute(path, wrapped, name=name)
+
     def wrapped_endpoint_factory(
         self, endpoint: Union[Callable, Type[HTTPEndpoint]], partial_provider: Callable
     ):
@@ -113,6 +153,11 @@ class StarletteIntegration:
 
         if issubclass(endpoint, HTTPEndpoint):
             return self.create_http_endpoint_proxy(
+                endpoint, partial_provider, self._request_singletons
+            )
+
+        if issubclass(endpoint, WebSocketEndpoint):
+            return self.create_websocket_endpoint_proxy(
                 endpoint, partial_provider, self._request_singletons
             )
 
@@ -145,3 +190,33 @@ class StarletteIntegration:
                 return object.__getattribute__(self, name)
 
         return HTTPEndpointProxy
+
+    @staticmethod
+    def create_websocket_endpoint_proxy(
+        endpoint_cls: Type[WebSocketEndpoint],
+        partial_provider: Callable,
+        request_singletons: List[Type],
+    ) -> Type[WebSocketEndpoint]:
+        """Create a subclass of Starlette's WebSocketEndpoint which injects dependencies
+        into relevant methods on the user's `endpoint_cls` subclass of WebSocketEndpoint
+
+        :param endpoint_cls:
+        :param partial_provider:
+        :param request_singletons:
+        """
+
+        class WebSocketEndpointProxy(WebSocketEndpoint):
+            def __init__(self, scope, receive, send):
+                super().__init__(scope, receive, send)
+                self.endpoint = endpoint_cls(scope, receive, send)
+
+            def __getattribute__(self, name: str):
+                if name in OVERRIDE_WEBSOCKET_METHODS:
+                    endpoint_instance = object.__getattribute__(self, "endpoint")
+                    endpoint_method = getattr(endpoint_instance, name)
+
+                    return partial_provider(endpoint_method, shared=request_singletons)
+
+                return object.__getattribute__(self, name)
+
+        return WebSocketEndpointProxy
