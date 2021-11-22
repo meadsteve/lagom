@@ -21,7 +21,9 @@ def test_temporary_singletons_dont_effect_the_base_container(container: Containe
     assert container[SomeDep] is not the_singleton
 
 
-def test_temporary_singletons_context_is_reusable_but_doesnt_share_state(container: Container):
+def test_temporary_singletons_context_is_reusable_but_doesnt_share_state(
+    container: Container,
+):
     context = container.temporary_singletons([SomeDep])
 
     with context as c1:
