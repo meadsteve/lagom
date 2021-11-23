@@ -2,13 +2,14 @@
 FastAPI (https://fastapi.tiangolo.com/)
 
 """
-from typing import TypeVar, Optional, Type, List
+from contextlib import contextmanager
+from typing import TypeVar, Optional, Type, List, Iterator
 
 from fastapi import Depends
 from starlette.requests import Request
 
 from ..definitions import PlainInstance
-from ..interfaces import ExtendableContainer, ReadableContainer
+from ..interfaces import ExtendableContainer, ReadableContainer, WriteableContainer
 from ..updaters import update_container_singletons
 
 T = TypeVar("T")
@@ -43,6 +44,16 @@ class FastApiIntegration:
             return request_container.resolve(dep_type)
 
         return Depends(_resolver)
+
+    @contextmanager
+    def override_for_test(self) -> Iterator[WriteableContainer]:
+        original = self._container
+        new_container_for_test = self._container.clone()
+        self._container = new_container_for_test  # type: ignore
+        try:
+            yield new_container_for_test
+        finally:
+            self._container = original
 
     def _container_from_request(self, request: Request) -> ReadableContainer:
         """
