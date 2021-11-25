@@ -4,6 +4,7 @@
 
 ### Enhancements
 * Starlette integration now has support for web sockets. #173. Thanks again @MisterKeefe
+* FastApi integration provides method to support altering dependency chains during test.
 
 ### Bug Fixes
 None
