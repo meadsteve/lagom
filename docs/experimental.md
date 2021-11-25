@@ -164,3 +164,18 @@ is automatically made available:
 def hello(name, io: ClickIO = injectable):
     io.echo(f"Hello {name}")
 ```
+
+## Flask Blueprints
+The integration has the same interface as for apps:
+
+```python
+from lagom.experimental.integrations.flask import FlaskBlueprintIntegration
+
+simple_page = Blueprint('simple_page', template_folder='templates')
+simple_page_with_deps = FlaskBlueprintIntegration(simple_page, container)
+
+@simple_page_with_deps.route("/save_it/<string:thing_to_save>", methods=['POST'])
+def save_to_db(thing_to_save, db: Database = injectable):
+    db.save(thing_to_save)
+    return 'saved'
+```

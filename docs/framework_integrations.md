@@ -63,7 +63,25 @@ class SomeExtendedRequest:
 Each time SomeExtendedRequest is created the correct `Request`
 object will be passed in.
 
-## Request level singletons
+### Swapping for mocks when using the test client
+Lagom encourages testing with dependencies manually passed to the code under test. 
+However, when testing using the test client dependencies will be constructed using
+the lagom container. For this reason you may want to swap out certain dependencies.
+The fastapi integration has a method `override_for_test` which returns a ContextManager
+that can temporarily edit the dependency injection container.
+
+```python
+def test_something():
+    client = TestClient(app)
+    with deps.override_for_test() as test_container:
+        # FooService is an external API so mock it during test
+        test_container[FooService] = Mock(FooService)
+        response = client.get("/")
+        
+    assert response.status_code == 200
+```
+
+### Request level singletons
 When constructing the integration a list of types can be passed
 for request level singletons. Each of these types will only be constructed
 once per request:
@@ -94,20 +112,9 @@ The decorator leaves the original function unaltered so it can be
 used directly in tests.
 
 ### Flask Blueprints
-Experimental support is provided for flask blueprints. The integration
-has the same interface as for apps:
+Experimental support is provided for flask blueprints.
+See documentation here: [Flask blueprint Docs](experimental.md#flask-blueprints)
 
-```python
-from lagom.experimental.integrations.flask import FlaskBlueprintIntegration
-
-simple_page = Blueprint('simple_page', template_folder='templates')
-simple_page_with_deps = FlaskBlueprintIntegration(simple_page, container)
-
-@simple_page_with_deps.route("/save_it/<string:thing_to_save>", methods=['POST'])
-def save_to_db(thing_to_save, db: Database = injectable):
-    db.save(thing_to_save)
-    return 'saved'
-```
 
 ## [Django](https://www.djangoproject.com/)
 A django integration is currently under beta in the experimental module.
