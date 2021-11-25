@@ -47,6 +47,20 @@ class FastApiIntegration:
 
     @contextmanager
     def override_for_test(self) -> Iterator[WriteableContainer]:
+        """
+        Returns a ContextManager that returns an editiable container
+        that will temporaily alter the dependency injection resolution
+        of all dependencies bound to this container.
+
+            client = TestClient(app)
+            with deps.override_for_test() as test_container:
+                # FooService is an external API so mock it during test
+                test_container[FooService] = Mock(FooService)
+                response = client.get("/")
+            assert response.status_code == 200
+
+        :return:
+        """
         original = self._container
         new_container_for_test = self._container.clone()
         self._container = new_container_for_test  # type: ignore
