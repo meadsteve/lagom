@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.6.0 (Unreleased)
+## 1.6.0 (2021-11-25)
 
 ### Enhancements
 * Starlette integration now has support for web sockets. #173. Thanks again @MisterKeefe
