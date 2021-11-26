@@ -4,12 +4,13 @@ application into the container.s
 """
 import inspect
 from functools import wraps
-from typing import List, Type, Callable, Tuple, TypeVar
 from types import FunctionType
+from typing import List, Type, Callable, Tuple, TypeVar
 
-from .definitions import Singleton
 from .container import Container
+from .definitions import Singleton, construction, yielding_construction
 from .exceptions import MissingReturnType, ClassesCannotBeDecorated
+from .interfaces import SpecialDepDefinition
 from .util.reflection import reflect
 
 T = TypeVar("T")
@@ -79,7 +80,7 @@ def dependency_definition(container: Container, singleton: bool = False):
 
 def _extract_definition_func_and_type(
     func,
-) -> Tuple[Callable[[], T], Type[T]]:
+) -> Tuple[SpecialDepDefinition, Type[T]]:
     """
     Takes a function or a generator and returns a function and the return type.
     :param func:
@@ -93,10 +94,9 @@ def _extract_definition_func_and_type(
         )
 
     if not inspect.isgeneratorfunction(func):
-        return func, return_type
+        return construction(func), return_type
 
-    # it's  a generator we need to request a value when loading
-    def value_from_gen():
-        return next(func())
-
-    return value_from_gen, return_type.__args__[0]  # todo: something less hacky
+    return (
+        yielding_construction(func),
+        return_type.__args__[0],
+    )  # todo: something less hacky

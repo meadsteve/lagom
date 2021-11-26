@@ -3,7 +3,7 @@ Classes representing specific ways of representing dependencies
 """
 import inspect
 from threading import Lock
-from typing import Union, Type, Optional, Callable, TypeVar, NoReturn
+from typing import Union, Type, Optional, Callable, TypeVar, NoReturn, Iterator
 
 from .exceptions import (
     InvalidDependencyDefinition,
@@ -37,11 +37,33 @@ class ConstructionWithContainer(SpecialDepDefinition[X]):
         return resolver(container)
 
 
+class YieldWithoutContainer(SpecialDepDefinition[X]):
+    """Wraps a callable for constructing a type"""
+
+    def __init__(self, constructor: Callable[[], Iterator[X]]):
+        self.constructor = constructor
+
+    def get_instance(self, container: ReadableContainer) -> X:
+        resolver = self.constructor
+        return next(resolver())
+
+
+class YieldWithContainer(SpecialDepDefinition[X]):
+    """Wraps a generator for constructing a type"""
+
+    def __init__(self, constructor: Callable[[ReadableContainer], Iterator[X]]):
+        self.constructor = constructor
+
+    def get_instance(self, container: ReadableContainer) -> X:
+        resolver = self.constructor
+        return next(resolver(container))
+
+
 def construction(
     resolver: Callable,
 ) -> Union[ConstructionWithContainer, ConstructionWithoutContainer]:
     """
-    Takes a callable and returns a type definition
+    Takes a generator and returns a type definition
     :param reflector:
     :param resolver:
     :return:
@@ -52,6 +74,25 @@ def construction(
     if func_arity == 1:
         return ConstructionWithContainer(resolver)
     raise InvalidDependencyDefinition(f"Arity {func_arity} functions are not supported")
+
+
+def yielding_construction(
+    resolver: Callable,
+) -> Union[YieldWithContainer, YieldWithoutContainer]:
+    """
+    Takes a generator and returns a type definition
+    :param reflector:
+    :param resolver:
+    :return:
+    """
+    func_arity = arity(resolver)
+    if func_arity == 0:
+        return YieldWithoutContainer(resolver)
+    if func_arity == 1:
+        return YieldWithContainer(resolver)
+    raise InvalidDependencyDefinition(
+        f"Arity {func_arity} generators are not supported"
+    )
 
 
 class Alias(SpecialDepDefinition[X]):

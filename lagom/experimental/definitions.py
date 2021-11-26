@@ -1,3 +1,7 @@
+"""
+Similar to the main definitions module but these definitions do not
+yet have a stable interface.
+"""
 from ..definitions import X
 from ..interfaces import SpecialDepDefinition, ReadableContainer
 

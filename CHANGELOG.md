@@ -1,4 +1,14 @@
 # Changelog
+## 1.6.1 (UNRELEASED)
+
+### Enhancements
+None
+
+### Bug Fixes
+* Fixed bug which meant generator dependencies could not accept the container as an argument
+
+### Backwards incompatible changes
+None
 
 ## 1.6.0 (2021-11-25)
 

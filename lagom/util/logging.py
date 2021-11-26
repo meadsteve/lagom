@@ -1,4 +1,5 @@
-""" Help with logging within lagom
+"""
+Help with logging within lagom
 """
 
 from typing import TYPE_CHECKING

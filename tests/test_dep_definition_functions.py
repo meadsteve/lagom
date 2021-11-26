@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Iterator
+from typing import Iterator, Generator
 
 import pytest
 
@@ -80,6 +80,18 @@ def test_definition_functions_get_an_instance_of_the_container(container: Contai
     @dependency_definition(container)
     def my_constructor(c: Container) -> WrapperOfSomeKind:
         return WrapperOfSomeKind(c[MyComplexDep])
+
+    assert container[WrapperOfSomeKind].inner == container[MyComplexDep]
+
+
+def test_yielding_definition_functions_get_an_instance_of_the_container(
+    container: Container,
+):
+    container[MyComplexDep] = MyComplexDep(some_number=3)
+
+    @dependency_definition(container)
+    def my_constructor(c: Container) -> Generator[WrapperOfSomeKind, None, None]:
+        yield WrapperOfSomeKind(c[MyComplexDep])
 
     assert container[WrapperOfSomeKind].inner == container[MyComplexDep]
 
