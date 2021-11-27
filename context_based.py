@@ -11,7 +11,7 @@ X = TypeVar("X")
 
 
 class ContextContainer(Container):
-    exit_stack: Optional[ExitStack]
+    exit_stack: Optional[ExitStack] = None
 
     def __init__(self, container: Container, context_types: Collection[Type], context_singletons: Collection[Type] = tuple(), log_undefined_deps: Union[bool, logging.Logger] = False):
         super().__init__(container, log_undefined_deps)
@@ -21,13 +21,14 @@ class ContextContainer(Container):
             self[dep_type] = self._singleton_type_def(dep_type)
 
     def __enter__(self):
-        self.exit_stack = ExitStack()
+        if not self.exit_stack:
+            self.exit_stack = ExitStack()
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        assert self.exit_stack, "__exit__ called before __enter__"
-        self.exit_stack.close()
-        self.exit_stack = None
+        if self.exit_stack:
+            self.exit_stack.close()
+            self.exit_stack = None
 
     def _context_type_def(self, dep_type: Type):
         type_def = self.get_definition(Iterator[dep_type]) or self.get_definition(Generator[dep_type, None, None])  # type: ignore

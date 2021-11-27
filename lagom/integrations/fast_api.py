@@ -8,6 +8,7 @@ from typing import TypeVar, Optional, Type, List, Iterator
 from fastapi import Depends
 from starlette.requests import Request
 
+from context_based import ContextContainer
 from ..definitions import PlainInstance
 from ..interfaces import ExtendableContainer, ReadableContainer, WriteableContainer
 from ..updaters import update_container_singletons
@@ -43,7 +44,10 @@ class FastApiIntegration:
             """
             We use the state of the request object to store a single instance of the
             container. Request level singletons can then be defined on this container.
-            We only need to construct it once per request.
+            We only need to construct it once per request. This container is also
+            wrapped in a ContextContainer which is yielded to fastapi and can call
+            the __exit__ methods of any context managers used constructing objects
+            during the requests lifetime.
             :param request:
             :return:
             """
@@ -55,13 +59,16 @@ class FastApiIntegration:
                     self._container, self._request_singletons
                 )
                 request_container.define(Request, PlainInstance(request))
-                request.state.lagom_request_container = request_container
-
-            try:
+                context_container = ContextContainer(
+                    request_container, context_types=[]
+                )
+                request.state.lagom_request_container = context_container
+                with context_container:
+                    yield context_container
+            else:
+                # No need to "with" as it's already been done once and this
+                # will handle the exit
                 yield request.state.lagom_request_container
-            finally:
-                pass
-                # TODO: This is where resource freeing could occur
 
         def _resolver(
             container: ExtendableContainer = Depends(_container_from_request),
