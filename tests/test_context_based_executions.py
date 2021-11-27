@@ -49,7 +49,9 @@ def test_clean_up_of_loaded_contexts_happens_on_container_exit():
 def test_clean_up_of_loaded_contexts_happens_recursively_on_container_exit():
     SomeDep.global_clean_up_has_happened = False
 
-    with ContextContainer(container, context_types=[SomeDep, SomeWrapperDep]) as context_container:
+    with ContextContainer(
+        container, context_types=[SomeDep, SomeWrapperDep]
+    ) as context_container:
         assert isinstance(context_container[SomeWrapperDep], SomeWrapperDep)
         assert not SomeDep.global_clean_up_has_happened
         assert not SomeWrapperDep.global_clean_up_has_happened
