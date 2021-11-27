@@ -1,11 +1,8 @@
 from dataclasses import dataclass
 
 import pytest
-from fastapi.params import Depends
 from starlette.testclient import TestClient
 
-from lagom import Container
-from lagom.integrations.fast_api import FastApiIntegration
 from .fastapi_app import app, deps, Inner
 
 
@@ -21,18 +18,6 @@ class _FakeRequestState:
 class _FakeRequest:
     def __init__(self):
         self.state = _FakeRequestState()
-
-
-def test_the_fast_api_container_can_return_a_fastapi_dependency(container: Container):
-    container[ComplexDep] = ComplexDep("testing")
-
-    deps = FastApiIntegration(container)
-    dependency_injection = deps.depends(ComplexDep)
-    assert isinstance(dependency_injection, Depends)
-
-    # The fast api dependency injection would supply a real request
-    fake_request = _FakeRequest()
-    assert dependency_injection.dependency(fake_request) == ComplexDep("testing")  # type: ignore
 
 
 def test_request_singletons_are_the_same_within_a_request_context():

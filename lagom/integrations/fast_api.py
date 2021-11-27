@@ -39,9 +39,34 @@ class FastApiIntegration:
         :return:
         """
 
-        def _resolver(request: Request):
-            request_container = self._container_from_request(request)
-            return request_container.resolve(dep_type)
+        def _container_from_request(request: Request) -> Iterator[ReadableContainer]:
+            """
+            We use the state of the request object to store a single instance of the
+            container. Request level singletons can then be defined on this container.
+            We only need to construct it once per request.
+            :param request:
+            :return:
+            """
+            if (
+                not hasattr(request.state, "lagom_request_container")
+                or not request.state.lagom_request_container
+            ):
+                request_container = update_container_singletons(
+                    self._container, self._request_singletons
+                )
+                request_container.define(Request, PlainInstance(request))
+                request.state.lagom_request_container = request_container
+
+            try:
+                yield request.state.lagom_request_container
+            finally:
+                pass
+                # TODO: This is where resource freeing could occur
+
+        def _resolver(
+            container: ExtendableContainer = Depends(_container_from_request),
+        ):
+            return container.resolve(dep_type)
 
         return Depends(_resolver)
 
@@ -68,23 +93,3 @@ class FastApiIntegration:
             yield new_container_for_test
         finally:
             self._container = original
-
-    def _container_from_request(self, request: Request) -> ReadableContainer:
-        """
-        We use the state of the request object to store a single instance of the
-        container. Request level singletons can then be defined on this container.
-        We only need to construct it once per request.
-        :param request:
-        :return:
-        """
-        if (
-            not hasattr(request.state, "lagom_request_container")
-            or not request.state.lagom_request_container
-        ):
-            request_container = update_container_singletons(
-                self._container, self._request_singletons
-            )
-            request_container.define(Request, PlainInstance(request))
-            request.state.lagom_request_container = request_container
-
-        return request.state.lagom_request_container
