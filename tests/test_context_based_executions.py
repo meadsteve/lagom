@@ -5,6 +5,7 @@ import pytest
 
 from context_based import ContextContainer
 from lagom import Container, dependency_definition
+from lagom.exceptions import InvalidDependencyDefinition
 
 
 class SomeDep:
@@ -68,7 +69,7 @@ def test_clean_up_of_loaded_contexts_happens_recursively_on_container_exit():
 
 
 def test_it_fails_if_the_dependencies_arent_defined_correctly():
-    with pytest.raises(Exception) as failure:
+    with pytest.raises(InvalidDependencyDefinition) as failure:
         with ContextContainer(
             container, context_types=[SomeNotProperlySetupDef]
         ) as context_container:
