@@ -1,6 +1,8 @@
 from contextlib import contextmanager
 from typing import Iterator, Generator
 
+import pytest
+
 from context_based import ContextContainer
 from lagom import Container, dependency_definition
 
@@ -14,6 +16,10 @@ class SomeWrapperDep:
 
     def __init__(self, dep: SomeDep):
         pass
+
+
+class SomeNotProperlySetupDef:
+    pass
 
 
 container = Container()
@@ -48,6 +54,7 @@ def test_clean_up_of_loaded_contexts_happens_on_container_exit():
 
 def test_clean_up_of_loaded_contexts_happens_recursively_on_container_exit():
     SomeDep.global_clean_up_has_happened = False
+    SomeWrapperDep.global_clean_up_has_happened = False
 
     with ContextContainer(
         container, context_types=[SomeDep, SomeWrapperDep]
@@ -58,3 +65,14 @@ def test_clean_up_of_loaded_contexts_happens_recursively_on_container_exit():
 
     assert SomeDep.global_clean_up_has_happened
     assert SomeWrapperDep.global_clean_up_has_happened
+
+
+def test_it_fails_if_the_dependencies_arent_defined_correctly():
+    with pytest.raises(Exception) as failure:
+        with ContextContainer(
+            container, context_types=[SomeNotProperlySetupDef]
+        ) as context_container:
+            context_container.resolve(SomeNotProperlySetupDef)
+    assert "Either Iterator" in str(failure.value)
+    assert "or Generator" in str(failure.value)
+    assert "should be defined" in str(failure.value)
