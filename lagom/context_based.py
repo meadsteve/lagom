@@ -23,7 +23,23 @@ X = TypeVar("X")
 class ContextContainer(Container):
     """
     Wraps a regular container but is a ContextManager for use within a `with`.
+
+    >>> from tests.examples import SomeClass, SomeClassManager
+    >>> from lagom import Container
+    >>> from typing import ContextManager
+    >>>
+    >>> # The regular container
+    >>> c = Container()
+    >>>
+    >>> # register a context manager for SomeClass
+    >>> c[ContextManager[SomeClass]] = SomeClassManager
+    >>>
+    >>> context_c = ContextContainer(c, context_types=[SomeClass])
+    >>> with context_c:
+    ...     context_c[SomeClass]
+    <tests.examples.SomeClass object at ...>
     """
+
     exit_stack: Optional[ExitStack] = None
 
     def __init__(
