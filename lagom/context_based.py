@@ -1,5 +1,6 @@
 import logging
 from contextlib import ExitStack
+from copy import copy
 from typing import (
     Collection,
     Union,
@@ -13,7 +14,7 @@ from typing import (
 )
 
 from lagom import Container
-from lagom.definitions import ConstructionWithContainer, SingletonWrapper
+from lagom.definitions import ConstructionWithContainer, SingletonWrapper, Alias
 from lagom.exceptions import InvalidDependencyDefinition
 from lagom.interfaces import ReadableContainer, SpecialDepDefinition
 
@@ -73,6 +74,11 @@ class ContextContainer(Container):
                 f"This could be an Iterator[{dep_type}] or Generator[{dep_type}, None, None] "
                 f"with the @contextmanager decorator"
             )
+        if isinstance(type_def, Alias):
+            # Without this we create a definition that points to
+            # itself.
+            type_def = copy(type_def)
+            type_def.skip_definitions = True
         return ConstructionWithContainer(lambda c: self._context_resolver(c, type_def))  # type: ignore
 
     def _singleton_type_def(self, dep_type: Type):
