@@ -1,6 +1,16 @@
 import logging
 from contextlib import ExitStack
-from typing import Collection, Union, Type, TypeVar, Optional, cast, ContextManager, Iterator, Generator
+from typing import (
+    Collection,
+    Union,
+    Type,
+    TypeVar,
+    Optional,
+    cast,
+    ContextManager,
+    Iterator,
+    Generator,
+)
 
 from lagom import Container
 from lagom.definitions import ConstructionWithContainer, SingletonWrapper
@@ -13,7 +23,13 @@ X = TypeVar("X")
 class ContextContainer(Container):
     exit_stack: Optional[ExitStack] = None
 
-    def __init__(self, container: Container, context_types: Collection[Type], context_singletons: Collection[Type] = tuple(), log_undefined_deps: Union[bool, logging.Logger] = False):
+    def __init__(
+        self,
+        container: Container,
+        context_types: Collection[Type],
+        context_singletons: Collection[Type] = tuple(),
+        log_undefined_deps: Union[bool, logging.Logger] = False,
+    ):
         super().__init__(container, log_undefined_deps)
         for dep_type in set(context_types):
             self[dep_type] = self._context_type_def(dep_type)
@@ -33,7 +49,9 @@ class ContextContainer(Container):
     def _context_type_def(self, dep_type: Type):
         type_def = self.get_definition(Iterator[dep_type]) or self.get_definition(Generator[dep_type, None, None])  # type: ignore
         if type_def is None:
-            raise InvalidDependencyDefinition(f"Either Iterator[{dep_type}] or Generator[{dep_type}, None, None] should be defined")
+            raise InvalidDependencyDefinition(
+                f"Either Iterator[{dep_type}] or Generator[{dep_type}, None, None] should be defined"
+            )
         return ConstructionWithContainer(lambda c: self._context_resolver(c, type_def))  # type: ignore
 
     def _singleton_type_def(self, dep_type: Type):

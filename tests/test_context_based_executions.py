@@ -3,8 +3,8 @@ from typing import Iterator, Generator
 
 import pytest
 
-from context_based import ContextContainer
 from lagom import Container, dependency_definition
+from lagom.context_based import ContextContainer
 from lagom.exceptions import InvalidDependencyDefinition
 
 

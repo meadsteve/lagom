@@ -8,7 +8,7 @@ from typing import TypeVar, Optional, Type, List, Iterator
 from fastapi import Depends
 from starlette.requests import Request
 
-from context_based import ContextContainer
+from ..context_based import ContextContainer
 from ..definitions import PlainInstance
 from ..interfaces import ExtendableContainer, ReadableContainer, WriteableContainer
 from ..updaters import update_container_singletons
