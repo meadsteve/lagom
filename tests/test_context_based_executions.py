@@ -1,5 +1,5 @@
 from contextlib import contextmanager
-from typing import Iterator, Generator
+from typing import Iterator, Generator, ContextManager
 
 import pytest
 
@@ -21,6 +21,13 @@ class SomeWrapperDep:
 
 class SomeNotProperlySetupDef:
     pass
+
+
+class Thing:
+    contents: str
+
+    def __init__(self, contents: str):
+        self.contents = contents
 
 
 container = Container()
@@ -92,6 +99,20 @@ def test_it_fails_if_the_dependencies_arent_defined_correctly():
             container, context_types=[SomeNotProperlySetupDef]
         ) as context_container:
             context_container.resolve(SomeNotProperlySetupDef)
-    assert "Either Iterator" in str(failure.value)
-    assert "or Generator" in str(failure.value)
-    assert "should be defined" in str(failure.value)
+    assert f"A ContextManager[{str(SomeNotProperlySetupDef)}] should be defined" in str(
+        failure.value
+    )
+
+
+def test_it_works_with_actual_context_managers():
+    class ThingManager:
+        def __enter__(self):
+            return Thing("managed thing")
+
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            pass
+
+    container[ContextManager[Thing]] = ThingManager  # type: ignore
+
+    with ContextContainer(container, context_types=[Thing]) as context_container:
+        assert context_container.resolve(Thing).contents == "managed thing"

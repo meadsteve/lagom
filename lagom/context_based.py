@@ -21,6 +21,9 @@ X = TypeVar("X")
 
 
 class ContextContainer(Container):
+    """
+    Wraps a regular container but is a ContextManager for use within a `with`.
+    """
     exit_stack: Optional[ExitStack] = None
 
     def __init__(
@@ -47,14 +50,19 @@ class ContextContainer(Container):
             self.exit_stack = None
 
     def _context_type_def(self, dep_type: Type):
-        type_def = self.get_definition(Iterator[dep_type]) or self.get_definition(Generator[dep_type, None, None])  # type: ignore
+        type_def = self.get_definition(Iterator[dep_type]) or self.get_definition(Generator[dep_type, None, None]) or self.get_definition(ContextManager[dep_type])  # type: ignore
         if type_def is None:
             raise InvalidDependencyDefinition(
-                f"Either Iterator[{dep_type}] or Generator[{dep_type}, None, None] should be defined"
+                f"A ContextManager[{dep_type}] should be defined. "
+                f"This could be an Iterator[{dep_type}] or Generator[{dep_type}, None, None] "
+                f"with the @contextmanager decorator"
             )
         return ConstructionWithContainer(lambda c: self._context_resolver(c, type_def))  # type: ignore
 
     def _singleton_type_def(self, dep_type: Type):
+        """
+        The same as context_type_def but acts as a singleton within this container
+        """
         return SingletonWrapper(self._context_type_def(dep_type))
 
     def _context_resolver(self, c: ReadableContainer, type_def: SpecialDepDefinition):
