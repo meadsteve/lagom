@@ -1,23 +1,7 @@
-from dataclasses import dataclass
-
 import pytest
 from starlette.testclient import TestClient
 
 from .fastapi_app import app, deps, Inner
-
-
-@dataclass
-class ComplexDep:
-    something: str
-
-
-class _FakeRequestState:
-    lagom_request_container = None
-
-
-class _FakeRequest:
-    def __init__(self):
-        self.state = _FakeRequestState()
 
 
 def test_request_singletons_are_the_same_within_a_request_context():
