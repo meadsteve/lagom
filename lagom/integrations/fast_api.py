@@ -29,9 +29,11 @@ class FastApiIntegration:
         self,
         container: ExtendableContainer,
         request_singletons: Optional[List[Type]] = None,
+        request_context_singletons: Optional[List[Type]] = None,
     ):
         self._container = container
         self._request_singletons = request_singletons or []
+        self._request_context_singletons = request_context_singletons or []
 
     def depends(self, dep_type: Type[T]) -> T:
         """Returns a Depends object which FastAPI understands
@@ -60,7 +62,9 @@ class FastApiIntegration:
                 )
                 request_container.define(Request, PlainInstance(request))
                 context_container = ContextContainer(
-                    request_container, context_types=[]
+                    request_container,
+                    context_types=[],
+                    context_singletons=self._request_context_singletons,
                 )
                 request.state.lagom_request_container = context_container
                 with context_container:
@@ -81,7 +85,7 @@ class FastApiIntegration:
     def override_for_test(self) -> Iterator[WriteableContainer]:
         """
         Returns a ContextManager that returns an editiable container
-        that will temporaily alter the dependency injection resolution
+        that will temporarily alter the dependency injection resolution
         of all dependencies bound to this container.
 
             client = TestClient(app)

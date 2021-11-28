@@ -1,7 +1,7 @@
 import pytest
 from starlette.testclient import TestClient
 
-from .fastapi_app import app, deps, Inner
+from .fastapi_app import app, deps, Inner, ContextLoaded
 
 
 def test_request_singletons_are_the_same_within_a_request_context():
@@ -56,3 +56,11 @@ def test_deps_can_be_overridden_during_test_multiple_times():
     assert outer["data"] is None
     assert first["data"] == "first_level"
     assert second["data"] == "second_level"
+
+
+def test_deps_can_use_contexts_for_cleanup_tasks():
+    ContextLoaded.cleaned_up = False
+    client = TestClient(app)
+    response = client.get("with_some_context")
+    assert response.json() == {"cleaned_up": "False"}
+    assert ContextLoaded.cleaned_up
