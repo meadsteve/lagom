@@ -50,25 +50,14 @@ class FastApiIntegration:
             wrapped in a ContextContainer which is yielded to fastapi and can call
             the __exit__ methods of any context managers used constructing objects
             during the requests lifetime.
-            :param request:
-            :return:
             """
             if (
                 not hasattr(request.state, "lagom_request_container")
                 or not request.state.lagom_request_container
             ):
-                request_container = update_container_singletons(
-                    self._container, self._request_singletons
-                )
-                request_container.define(Request, PlainInstance(request))
-                context_container = ContextContainer(
-                    request_container,
-                    context_types=[],
-                    context_singletons=self._request_context_singletons,
-                )
-                request.state.lagom_request_container = context_container
-                with context_container:
-                    yield context_container
+                request.state.lagom_request_container = self._build_container(request)
+                with request.state.lagom_request_container:
+                    yield request.state.lagom_request_container
             else:
                 # No need to "with" as it's already been done once and this
                 # will handle the exit
@@ -104,3 +93,14 @@ class FastApiIntegration:
             yield new_container_for_test
         finally:
             self._container = original
+
+    def _build_container(self, request: Request) -> ContextContainer:
+        request_container = update_container_singletons(
+            self._container, self._request_singletons
+        )
+        request_container.define(Request, PlainInstance(request))
+        return ContextContainer(
+            request_container,
+            context_types=[],
+            context_singletons=self._request_context_singletons,
+        )
