@@ -119,3 +119,21 @@ def test_it_works_with_actual_context_managers():
 
     with ContextContainer(container, context_types=[Thing]) as context_container:
         assert context_container.resolve(Thing).contents == "managed thing"
+
+
+def test_the_container_can_be_reused():
+    original = ContextContainer(container, context_types=[SomeDep])
+    with original as context_container_1:
+        a = context_container_1.resolve(SomeDep)
+    with original as context_container_2:
+        b = context_container_2.resolve(SomeDep)
+    assert a != b
+
+
+def test_the_container_can_be_nested_though_this_has_no_meaning():
+    original = ContextContainer(container, context_types=[SomeDep])
+    with original as context_container_1:
+        a = context_container_1.resolve(SomeDep)
+        with context_container_1 as context_container_2:
+            b = context_container_2.resolve(SomeDep)
+    assert a != b
