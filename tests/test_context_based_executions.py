@@ -3,8 +3,12 @@ from typing import Iterator, Generator, ContextManager
 
 import pytest
 
-from lagom import Container, dependency_definition
-from lagom.context_based import ContextContainer
+from lagom import (
+    Container,
+    dependency_definition,
+    ContextContainer,
+)
+from lagom.decorators import context_dependency_definition
 from lagom.exceptions import InvalidDependencyDefinition
 
 
@@ -42,8 +46,7 @@ def _load_a_some_dep_then_clean() -> Generator[SomeDep, None, None]:
         SomeDep.global_clean_up_has_happened = True
 
 
-@dependency_definition(container)
-@contextmanager
+@context_dependency_definition(container)
 def _load_a_some_wrapper_dep_then_clean(c) -> Iterator[SomeWrapperDep]:
     try:
         yield SomeWrapperDep(c[SomeDep])

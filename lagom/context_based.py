@@ -67,7 +67,7 @@ class ContextContainer(Container):
             self.exit_stack = None
 
     def _context_type_def(self, dep_type: Type):
-        type_def = self.get_definition(Iterator[dep_type]) or self.get_definition(Generator[dep_type, None, None]) or self.get_definition(ContextManager[dep_type])  # type: ignore
+        type_def = self.get_definition(ContextManager[dep_type]) or self.get_definition(Iterator[dep_type]) or self.get_definition(Generator[dep_type, None, None])  # type: ignore
         if type_def is None:
             raise InvalidDependencyDefinition(
                 f"A ContextManager[{dep_type}] should be defined. "
