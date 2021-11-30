@@ -107,13 +107,13 @@ This can be defined in the container in two ways. Either with a generator the co
 manager decorator:
 
 ```python
-    @context_dependency_definition(container)
-    def my_constructor() -> Iterator[SomeResource]:
-        try:
-            yield SomeResource()
-        finally:
-            # TODO: do some tidy up now the request has finished
-            pass
+@context_dependency_definition(container)
+def my_constructor() -> Iterator[SomeResource]:
+    try:
+        yield SomeResource()
+    finally:
+        # TODO: do some tidy up now the request has finished
+        pass
 ```
 
 Alternatively if a `ContextManager` already exists for the class this can be used:
