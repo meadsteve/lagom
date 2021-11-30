@@ -102,7 +102,7 @@ def test_it_fails_if_the_dependencies_arent_defined_correctly():
             container, context_types=[SomeNotProperlySetupDef]
         ) as context_container:
             context_container.resolve(SomeNotProperlySetupDef)
-    assert f"A ContextManager[{str(SomeNotProperlySetupDef)}] should be defined" in str(
+    assert f'A ContextManager[{SomeNotProperlySetupDef}] should be defined' in str(
         failure.value
     )
 
