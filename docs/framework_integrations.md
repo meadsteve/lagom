@@ -90,6 +90,45 @@ once per request:
 deps = FastApiIntegration(container, request_singletons=[SomeClass])
 ```
 
+### Request level singletons - with clean up
+In addition to the request level singletons it's also possible to define types that
+are a singleton over the lifetime of the request and call some clean up code once
+the request has been handled. This is implemented using regular python context managers.
+
+When setting up the integration a list of types using context managers can be provided.
+
+```python
+deps = FastApiIntegration(container, request_context_singletons=[SomeClass])
+```
+
+When a dependency of type `SomeClass` is required lagom looks for `ContextManager[SomeClass]`.
+
+This can be defined in the container in two ways. Either with a generator the context
+manager decorator:
+
+```python
+    @context_dependency_definition(container)
+    def my_constructor() -> Iterator[SomeResource]:
+        try:
+            yield SomeResource()
+        finally:
+            # TODO: do some tidy up now the request has finished
+            pass
+```
+
+Alternatively if a `ContextManager` already exists for the class this can be used:
+
+```python
+class SomeResourceManager:
+    def __enter__(self):
+        return SomeResource()
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        # TODO: do some tidy up now the request has finished
+        pass
+
+container[ContextManager[SomeResource]] = SomeResourceManager
+```
+
 ## [Flask API](https://www.flaskapi.org/)
 An integration is provided for flask. It takes the flask app
 and a container then provides a wrapped `route` decorator to use:
