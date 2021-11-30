@@ -1,8 +1,8 @@
 # Changelog
-## 1.6.1 (UNRELEASED)
+## 1.7.0 (UNRELEASED)
 
 ### Enhancements
-None
+* Request lifetime instances with cleanup (using ContextManagers) for the FastApi integration.
 
 ### Bug Fixes
 * Fixed bug which meant generator dependencies could not accept the container as an argument

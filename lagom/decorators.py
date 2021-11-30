@@ -3,13 +3,18 @@ This module provides decorators for hooking an
 application into the container.s
 """
 import inspect
+from contextlib import contextmanager
 from functools import wraps
 from types import FunctionType
-from typing import List, Type, Callable, Tuple, TypeVar
+from typing import List, Type, Callable, Tuple, TypeVar, ContextManager
 
 from .container import Container
 from .definitions import Singleton, construction, yielding_construction
-from .exceptions import MissingReturnType, ClassesCannotBeDecorated
+from .exceptions import (
+    MissingReturnType,
+    ClassesCannotBeDecorated,
+    InvalidDependencyDefinition,
+)
 from .interfaces import SpecialDepDefinition
 from .util.reflection import reflect
 
@@ -78,6 +83,42 @@ def dependency_definition(container: Container, singleton: bool = False):
     return _decorator
 
 
+def context_dependency_definition(container: Container):
+    """
+    Turns the decorated function into a definition for a context manager
+    in the given container.
+
+    >>> from tests.examples import SomeClass
+    >>> from typing import Iterator
+    >>>
+    >>> c = Container()
+    >>>
+    >>> @context_dependency_definition(c)
+    ... def my_constructor() -> Iterator[SomeClass]:
+    ...     try:
+    ...         yield SomeClass()
+    ...     finally:
+    ...         pass # Any tidy up or resource closing could happen here
+    >>> with c[ContextManager[SomeClass]] as something:
+    ...     something
+    <tests.examples.SomeClass ...>
+
+    with container[ContextManager[MyComplexDep]] as dep:  # type: ignore
+        assert dep.some_number == 3
+    """
+
+    def _decorator(func):
+        if not inspect.isgeneratorfunction(func):
+            raise InvalidDependencyDefinition(
+                "context_dependency_definition must be given a generator"
+            )
+        dep_type = _generator_type(reflect(func).return_type)
+        container.define(ContextManager[dep_type], contextmanager(func))  # type: ignore
+        return func
+
+    return _decorator
+
+
 def _extract_definition_func_and_type(
     func,
 ) -> Tuple[SpecialDepDefinition, Type[T]]:
@@ -98,5 +139,9 @@ def _extract_definition_func_and_type(
 
     return (
         yielding_construction(func),
-        return_type.__args__[0],
-    )  # todo: something less hacky
+        _generator_type(return_type),
+    )
+
+
+def _generator_type(return_type):
+    return return_type.__args__[0]  # todo: something less hacky

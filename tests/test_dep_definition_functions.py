@@ -1,10 +1,10 @@
 from dataclasses import dataclass
-from typing import Iterator, Generator
+from typing import Iterator, Generator, ContextManager
 
 import pytest
 
 from lagom import Container
-from lagom.decorators import dependency_definition
+from lagom.decorators import dependency_definition, context_dependency_definition
 from lagom.exceptions import MissingReturnType
 
 global finally_was_executed
@@ -114,3 +114,28 @@ def test_functions_that_are_not_typed_raise_an_error(container: Container):
         @dependency_definition(container)
         def my_constructor():
             return MyComplexDep(some_number=5)
+
+
+def test_context_managers_can_be_defined_from_a_generator(container: Container):
+    @context_dependency_definition(container)
+    def my_constructor() -> Iterator[MyComplexDep]:
+        try:
+            yield MyComplexDep(some_number=3)
+        finally:
+            pass
+
+    with container[ContextManager[MyComplexDep]] as dep:  # type: ignore
+        assert dep.some_number == 3
+
+
+def test_defining_a_context_manager_does_not_define_the_managed_type_itself(
+    container: Container,
+):
+    @context_dependency_definition(container)
+    def my_constructor() -> Iterator[MyComplexDep]:
+        try:
+            yield MyComplexDep(some_number=3)
+        finally:
+            pass
+
+    assert container.get_definition(MyComplexDep) is None

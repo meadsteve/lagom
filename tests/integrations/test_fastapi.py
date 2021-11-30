@@ -1,38 +1,7 @@
-from dataclasses import dataclass
-
 import pytest
-from fastapi.params import Depends
 from starlette.testclient import TestClient
 
-from lagom import Container
-from lagom.integrations.fast_api import FastApiIntegration
-from .fastapi_app import app, deps, Inner
-
-
-@dataclass
-class ComplexDep:
-    something: str
-
-
-class _FakeRequestState:
-    lagom_request_container = None
-
-
-class _FakeRequest:
-    def __init__(self):
-        self.state = _FakeRequestState()
-
-
-def test_the_fast_api_container_can_return_a_fastapi_dependency(container: Container):
-    container[ComplexDep] = ComplexDep("testing")
-
-    deps = FastApiIntegration(container)
-    dependency_injection = deps.depends(ComplexDep)
-    assert isinstance(dependency_injection, Depends)
-
-    # The fast api dependency injection would supply a real request
-    fake_request = _FakeRequest()
-    assert dependency_injection.dependency(fake_request) == ComplexDep("testing")  # type: ignore
+from .fastapi_app import app, deps, Inner, ContextLoaded
 
 
 def test_request_singletons_are_the_same_within_a_request_context():
@@ -87,3 +56,11 @@ def test_deps_can_be_overridden_during_test_multiple_times():
     assert outer["data"] is None
     assert first["data"] == "first_level"
     assert second["data"] == "second_level"
+
+
+def test_deps_can_use_contexts_for_cleanup_tasks():
+    ContextLoaded.cleaned_up = False
+    client = TestClient(app)
+    response = client.get("with_some_context")
+    assert response.json() == {"cleaned_up": "False"}
+    assert ContextLoaded.cleaned_up
