@@ -103,7 +103,7 @@ deps = FastApiIntegration(container, request_context_singletons=[SomeClass])
 
 When a dependency of type `SomeClass` is required lagom looks for `ContextManager[SomeClass]`.
 
-This can be defined in the container in two ways. Either with a generator the context
+This can be defined in the container in two ways. Either with a generator and the context
 manager decorator:
 
 ```python
@@ -116,7 +116,7 @@ def my_constructor() -> Iterator[SomeResource]:
         pass
 ```
 
-Alternatively if a `ContextManager` already exists for the class this can be used:
+Or alternatively if a `ContextManager` already exists for the class this can be used:
 
 ```python
 class SomeResourceManager:
