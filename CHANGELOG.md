@@ -1,5 +1,5 @@
 # Changelog
-## 1.7.0 (UNRELEASED)
+## 1.7.0 (2021-11-30)
 
 ### Enhancements
 * Request lifetime instances with cleanup (using ContextManagers) for the FastApi integration.
