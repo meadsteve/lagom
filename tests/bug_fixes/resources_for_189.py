@@ -7,6 +7,7 @@ class SomeDep:
 
 container = Container()
 
+
 @bind_to_container(container)
 def a_bound_function(dep: SomeDep = injectable):
     return "ok"
