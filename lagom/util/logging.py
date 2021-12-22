@@ -15,7 +15,6 @@ if TYPE_CHECKING:
         def __init__(self):
             pass
 
-
 else:
 
     class NullLogger:
