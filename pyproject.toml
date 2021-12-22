@@ -29,3 +29,6 @@ env = ["pydantic >=1.0.0,<2.0.0"]
 [tool.flit.metadata.urls]
 Github = "https://github.com/meadsteve/lagom"
 Issues = "https://github.com/meadsteve/lagom/issues"
+
+[tool.black]
+target_version = ['py36', 'py37', 'py38', 'py39']
