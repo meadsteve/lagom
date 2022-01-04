@@ -161,7 +161,7 @@ def _dep_type_as_string(dep_type: Type):
     # This first check makes 3.6 behave the same as 3.7 and later
     if hasattr(typing, "GenericMeta") and isinstance(dep_type, typing.GenericMeta):  # type: ignore
         return str(dep_type)
-    elif hasattr(typing, "get_origin") and typing.get_origin(dep_type) is not None:   # type: ignore
+    elif hasattr(typing, "get_origin") and typing.get_origin(dep_type) is not None:  # type: ignore
         # repr() gives a more sensible output in version 3.10 for List[X] and others like this
         return repr(dep_type)
     elif hasattr(dep_type, "__name__"):
