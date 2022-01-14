@@ -19,7 +19,7 @@ nav:
     - Comparison to Alternatives: comparison.md
     - App Example: full_example.md
   - Development:
-    - Contributing: development_of_lagom.md
+    - Contributing: CONTRIBUTING.md
     - Change Log: CHANGELOG.md
     - Github: https://github.com/meadsteve/lagom
     - Issue Tracker: https://github.com/meadsteve/lagom/issues
