@@ -31,7 +31,7 @@ pip install lagom
 ```
 Note: if you decide to clone from source then make sure you use the latest version tag. The `master` branch may contain features that will be removed.
 
-For the versioning policy read here: [SemVer in Lagom](./docs/development_of_lagom.md#versioning---semver)
+For the versioning policy read here: [SemVer in Lagom](https://lagom-di.readthedocs.io/en/stable/development_of_lagom/#versioning-semver)
 
 ## Usage
 Everything in Lagom is based on types. To create an object
