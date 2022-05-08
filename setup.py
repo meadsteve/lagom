@@ -31,6 +31,7 @@ if LAGOM_COMPILE:
             'lagom/container.py',
             'lagom/context_based.py',
             'lagom/definitions.py',
+            'lagom/experimental/definitions.py',
             'lagom/updaters.py',
         ])
     )
