@@ -3,10 +3,18 @@ This module provides decorators for hooking an
 application into the container.s
 """
 import inspect
-from contextlib import contextmanager
+from contextlib import contextmanager, asynccontextmanager
 from functools import wraps
 from types import FunctionType
-from typing import List, Type, Callable, Tuple, TypeVar, ContextManager
+from typing import (
+    List,
+    Type,
+    Callable,
+    Tuple,
+    TypeVar,
+    ContextManager,
+    AsyncContextManager,
+)
 
 from .container import Container
 from .definitions import Singleton, construction, yielding_construction
@@ -108,12 +116,17 @@ def context_dependency_definition(container: Container):
     """
 
     def _decorator(func):
-        if not inspect.isgeneratorfunction(func):
+        if not inspect.isgeneratorfunction(func) and not inspect.isasyncgenfunction(
+            func
+        ):
             raise InvalidDependencyDefinition(
                 "context_dependency_definition must be given a generator"
             )
         dep_type = _generator_type(reflect(func).return_type)
-        container.define(ContextManager[dep_type], contextmanager(func))  # type: ignore
+        if inspect.isgeneratorfunction(func):
+            container.define(ContextManager[dep_type], contextmanager(func))  # type: ignore
+        if inspect.isasyncgenfunction(func):
+            container.define(AsyncContextManager[dep_type], asynccontextmanager(func))  # type: ignore
         return func
 
     return _decorator
@@ -134,7 +147,7 @@ def _extract_definition_func_and_type(
             f"Function {func.__name__} used as a definition must have a return type"
         )
 
-    if not inspect.isgeneratorfunction(func):
+    if not inspect.isgeneratorfunction(func) and not inspect.isasyncgenfunction(func):
         return construction(func), return_type
 
     return (

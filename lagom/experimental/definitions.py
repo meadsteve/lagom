@@ -2,7 +2,7 @@
 Similar to the main definitions module but these definitions do not
 yet have a stable interface.
 """
-from ..definitions import X
+from ..definitions import X, ConstructionWithContainer
 from ..interfaces import SpecialDepDefinition, ReadableContainer
 
 
@@ -17,3 +17,7 @@ class PlainFunction(SpecialDepDefinition[X]):
 
     def get_instance(self, _container: ReadableContainer) -> X:
         return self.callable_func
+
+
+class AsyncConstructionWithContainer(ConstructionWithContainer):
+    pass
