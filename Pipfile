@@ -5,7 +5,7 @@ verify_ssl = true
 
 [dev-packages]
 mypy = "==0.930"
-black = "==21.12b0"
+black = "~=22.3.0"
 flit = "~=3.0"
 interrogate = "~=1.2"
 safety = "~=1.9.0"
