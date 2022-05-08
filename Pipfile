@@ -20,7 +20,7 @@ pydantic = "~=1.8"
 # Needed for the integrations only
 starlette = "~=0.14"
 fastapi = "~=0.68"
-flask = "~=1.1"
+flask = "~=2.1"
 django = "~=3.0"
 click = "*"
 pytest-benchmark = "~=3.4.1"
