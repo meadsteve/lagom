@@ -12,3 +12,5 @@ venv
 Pipfile.lock
 
 lagom/githash.txt
+
+.idea
