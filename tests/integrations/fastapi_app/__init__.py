@@ -24,10 +24,20 @@ class ContextLoaded:
         return f"{self.cleaned_up}"
 
 
+class UnusedDepOne:
+    pass
+
+
+class UnusedDepTwo:
+    pass
+
+
 app = FastAPI()
 container = Container()
 deps = FastApiIntegration(
-    container, request_singletons=[Inner], request_context_singletons=[ContextLoaded]
+    container,
+    request_singletons=[UnusedDepOne, Inner, UnusedDepTwo],
+    request_context_singletons=[ContextLoaded],
 )
 
 
