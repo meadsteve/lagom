@@ -23,9 +23,16 @@ def test_a_new_container_can_be_made_with_singletons():
     assert isinstance(singleton_container[ThingOne], ThingOne)
 
 
+def test_a_new_container_with_singletons_leaves_the_original_unaffected():
+    singleton_container = update_container_singletons(c, [ThingOne])
+    singleton_container.resolve(ThingOne)
+    assert c[ThingOne] is not c[ThingOne]
+
+
 def test_a_new_container_can_be_made_with_many_types_as_singletons():
-    singleton_container = update_container_singletons(c, [ThingOne, ThingTwo, ThingThree])
+    singleton_container = update_container_singletons(
+        c, [ThingOne, ThingTwo, ThingThree]
+    )
     assert isinstance(singleton_container[ThingOne], ThingOne)
     assert isinstance(singleton_container[ThingTwo], ThingTwo)
     assert isinstance(singleton_container[ThingThree], ThingThree)
-
