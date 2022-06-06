@@ -9,6 +9,8 @@ that can generate starlette routes.
 Starlette endpoints are defined in the normal way. Any extra arguments are
 then provided by the container:
 ```python
+from lagom import injectable
+
 async def homepage(request, db: DBConnection = injectable):
     user = db.fetch_data_for_user(request.user)
     return PlainTextResponse(f"Hello {user.name}")
@@ -43,6 +45,7 @@ deps = FastApiIntegration(container)
 
 @app.get("/")
 async def homepage(request, db = deps.depends(DBConnection)):
+    #                              👆 This is a lagom method that works like FastAPI's
     user = db.fetch_data_for_user(request.user)
     return PlainTextResponse(f"Hello {user.name}")
 

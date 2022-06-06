@@ -32,13 +32,14 @@ class DevVersionOfThing(Thing):
 
 class ThingEnvironment(Env):
     # This maps to an environment variable THING_CONN
+    # Note: if the env variable is unset an error will be raised
+    #       as it is not marked as optional.
     thing_conn: str
 
     
 ## We define a dependency_definition function for
 ## our Thing which fetches the env from the container
 ## automatically loading the env variable.
-## Note: if the env variable is unset an error will be raised
 container = Container()
 
 @dependency_definition(container, singleton=True)
@@ -65,6 +66,7 @@ container = Container()
 
 Now = NewType("Now", datetime)
 
+#                  👇 lambda so it will be a new "now" each time it's needed
 container[Now] = lambda: datetime.now()
 
 
