@@ -19,6 +19,7 @@ nav:
     - Cookbook & Common Usage Patterns: cookbook.md
     - Comparison to Alternatives: comparison.md
     - App Example: full_example.md
+    - Exceptions: exceptions.md
   - Development:
     - Contributing: CONTRIBUTING.md
     - Change Log: CHANGELOG.md
@@ -29,3 +30,11 @@ nav:
 markdown_extensions:
   - pymdownx.highlight
   - pymdownx.superfences
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            members: []

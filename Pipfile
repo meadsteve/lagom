@@ -15,6 +15,7 @@ pytest-asyncio = "*"
 typing-extensions = "*"
 mkdocs = "~=1.2.2"
 mkdocs-material = "*"
+mkdocstrings = {version = "~=.19.0", extras = ["python"]}
 # Needed for the Env class
 pydantic = "~=1.8"
 # Needed for the integrations only
