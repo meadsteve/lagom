@@ -44,7 +44,8 @@ class MyDataSource:
     pass
     
 class SomeClass:
-   def __init__(datasource: MyDataSource)
+   #                        👇 type hint is used by lagom
+   def __init__(datasource: MyDataSource):
       pass
 
 container = Container()
@@ -55,10 +56,11 @@ and later if you extend your class no changes are needed to lagom:
 
 ```python
 class SomeClass:
-   def __init__(datasource: MyDataSource, service: SomeFeatureProvider)
+   #                                                👇 This is the change.
+   def __init__(datasource: MyDataSource, service: SomeFeatureProvider):
       pass
 
-# Note the following code is unchaged
+# Note the following code is unchanged
 container = Container()
 some_thing = container[SomeClass] # An instance of SomeClass will be built with an instance of MyDataSource provided
 ```
@@ -68,17 +70,19 @@ However, long term projects should consider using more [explicit configuration](
 
 ## Defining construction
 
-### Defining how to build a type if can't be inferred automatically
+### Defining how to build a type when it can't be inferred automatically
 If lagom can't infer how to build a type (or you don't want it to), you can instruct
 the container how to do this.
 
 ```python
+#                        👇 This lambda gets called each time
 container[SomeClass] = lambda: SomeClass("down", "spiral")
 ```
 
 if the type needs things from the container the lambda can take a
 single argument which is the container:
 ```python
+#                            👇 c is the lagom container
 container[SomeClass] = lambda c: SomeClass(c[SomeOtherDep], "spinning")
 ```
 

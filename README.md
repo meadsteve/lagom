@@ -42,7 +42,7 @@ some_thing = container[SomeClass]
 ```
 
 ### Auto-wiring (with zero configuration)
-Most of the time Lagom doesn't need to be told how to build your classes. If 
+Most of the time Lagom doesn't need to be told how to build your classes. If
 the `__init__` method has type hints then lagom will use these to inject
 the correct dependencies. The following will work without any special configuration:
 
@@ -51,7 +51,8 @@ class MyDataSource:
     pass
     
 class SomeClass:
-   def __init__(datasource: MyDataSource)
+   #                        👇 type hint is used by lagom
+   def __init__(datasource: MyDataSource):
       pass
 
 container = Container()
@@ -62,10 +63,11 @@ and later if you extend your class no changes are needed to lagom:
 
 ```python
 class SomeClass:
-   def __init__(datasource: MyDataSource, service: SomeFeatureProvider)
-      pass
+    #                                                👇 This is the change.
+    def __init__(datasource: MyDataSource, service: SomeFeatureProvider):
+        pass
 
-# Note the following code is unchaged
+# Note the following code is unchanged
 container = Container()
 some_thing = container[SomeClass] # An instance of SomeClass will be built with an instance of MyDataSource provided
 ```
