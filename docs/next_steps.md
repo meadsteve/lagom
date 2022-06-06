@@ -68,3 +68,40 @@ Although this requires extra code and encourages the creation of some extra clas
 a lot more information. It's explicit and standard python. There's no magic string based logic specific to lagom.
 IDEs and other tooling can automatically find every dependency which requires the primary database using
 normal static analysis.
+
+
+## Loading environment variables
+
+**Prerequisites** Using this feature requires [pydantic](https://github.com/samuelcolvin/pydantic/) to be installed
+
+The first step is to create one or more classes that describe the environment variables your application depends on.
+Lower case property names automatically map on to an uppercase environment variable of the same name.
+
+```python
+class MyWebEnv(Env):
+    port: str # maps to environment variable PORT 
+    host: str # maps to environment variable HOST
+
+class DBEnv(Env):
+    db_host: str# maps to environment variable DB_HOST
+    db_password: str# maps to environment variable DB_PASSWORD
+```
+Now any function or class requiring configuration can type hint on these classes and get the values from the envionment injected in:
+```python
+# Example usage:
+#    DB_HOST=localhost DB_PASSWORD=secret python myscript.py
+
+c = Container()
+
+@magic_bind_to_container(c)
+def main(env: DBEnv):
+    print(f"Config supplied: {env.db_host}, {env.db_password}")
+
+if __name__ == "__main__":
+   main()
+```
+
+For test purposes these classes can be created with explicitly set values:
+```python
+test_db_env = DBEnv(db_host="fake", db_password="skip")
+```
