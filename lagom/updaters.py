@@ -4,7 +4,9 @@ from lagom.definitions import SingletonWrapper, ConstructionWithoutContainer
 from lagom.interfaces import ExtendableContainer, WriteableContainer, ReadableContainer
 
 
-def update_container_singletons(container: ExtendableContainer, singletons: Iterable[Type]):
+def update_container_singletons(
+    container: ExtendableContainer, singletons: Iterable[Type]
+):
     new_container = container.clone()
     for dep in singletons:
         _define_singleton_in_new_container(new_container, container, dep)

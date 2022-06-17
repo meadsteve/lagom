@@ -37,22 +37,23 @@ class Book:
     async def author(self, loader: "AuthorLoader" = injectable) -> Author:
         return await loader.load(self.author_id)
 
+
 authors = [
     Author(author_id=1, name="F. Scott Fitzgerald"),
-    Author(author_id=2, name="Frank Herbert")
+    Author(author_id=2, name="Frank Herbert"),
 ]
 
 books = [
     Book(
-        title='The Great Gatsby',
+        title="The Great Gatsby",
         author_id=1,
     ),
     Book(
-        title='Dune',
+        title="Dune",
         author_id=2,
     ),
     Book(
-        title='Children of Dune',
+        title="Children of Dune",
         author_id=2,
     ),
 ]
@@ -96,12 +97,12 @@ async def test_the_data_gets_built_correctly():
 
     app = MyGraphQL(strawberry.Schema(query=Query))
 
-    result = await app.schema.execute(
-        query, context_value=await app.get_context()
-    )
+    result = await app.schema.execute(query, context_value=await app.get_context())
 
     assert result.errors is None
     assert result.data
-    assert result.data["books"] == [{'author': {'name': 'F. Scott Fitzgerald'}, 'title': 'The Great Gatsby'},
-                                    {'author': {'name': 'Frank Herbert'}, 'title': 'Dune'},
-                                    {'author': {'name': 'Frank Herbert'}, 'title': 'Children of Dune'}]
+    assert result.data["books"] == [
+        {"author": {"name": "F. Scott Fitzgerald"}, "title": "The Great Gatsby"},
+        {"author": {"name": "Frank Herbert"}, "title": "Dune"},
+        {"author": {"name": "Frank Herbert"}, "title": "Children of Dune"},
+    ]

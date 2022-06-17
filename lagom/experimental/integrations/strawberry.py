@@ -25,7 +25,11 @@ class StrawberryContainer(Container):
         super().__init__()
 
     def define(self, dep: Type[X], resolver: TypeResolver[X]) -> SpecialDepDefinition:
-        if isinstance(dep, _GenericAlias) and inspect.isclass(dep.__origin__) and issubclass(dep.__origin__, DataLoader):
+        if (
+            isinstance(dep, _GenericAlias)
+            and inspect.isclass(dep.__origin__)
+            and issubclass(dep.__origin__, DataLoader)
+        ):
             self._data_loader_types.add(dep)
         if inspect.isclass(dep) and issubclass(dep, DataLoader):
             self._data_loader_types.add(dep)
@@ -48,9 +52,15 @@ class StrawberryContainer(Container):
 
         def _wrapper(self, info: Info):
             if not info.context or CONTEXT_KEY not in info.context:
-                raise LagomNotAddedToStrawberryError("The context needs to be updated with container.hook_into_context")
+                raise LagomNotAddedToStrawberryError(
+                    "The context needs to be updated with container.hook_into_context"
+                )
             req_container: ReadableContainer = info.context[CONTEXT_KEY]
-            kwargs = {key: req_container.resolve(dep_type) for (key, dep_type) in keys_and_types}
+            kwargs = {
+                key: req_container.resolve(dep_type)
+                for (key, dep_type) in keys_and_types
+            }
             return field_func(self, **kwargs)
-        _wrapper.__annotations__['return'] = field_func.__annotations__['return']
+
+        _wrapper.__annotations__["return"] = field_func.__annotations__["return"]
         return _wrapper

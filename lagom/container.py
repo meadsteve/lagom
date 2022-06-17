@@ -179,7 +179,7 @@ class Container(
         return self._reflector.overview_of_cache
 
     def temporary_singletons(
-        self, singletons:Iterable[Type] = None
+        self, singletons: Iterable[Type] = None
     ) -> "_TemporaryInjectionContext":
         """
         Returns a context that loads a new container with singletons that only exist
