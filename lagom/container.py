@@ -14,6 +14,7 @@ from typing import (
     Optional,
     cast,
     Union,
+    Iterable,
 )
 
 from .definitions import (
@@ -178,7 +179,7 @@ class Container(
         return self._reflector.overview_of_cache
 
     def temporary_singletons(
-        self, singletons: List[Type] = None
+        self, singletons:Iterable[Type] = None
     ) -> "_TemporaryInjectionContext":
         """
         Returns a context that loads a new container with singletons that only exist

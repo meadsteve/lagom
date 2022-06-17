@@ -16,6 +16,7 @@ typing-extensions = "*"
 mkdocs = "~=1.2.2"
 mkdocs-material = "*"
 mkdocstrings = {version = "~=0.19.0", extras = ["python"]}
+pytest-benchmark = "~=3.4.1"
 # Needed for the Env class
 pydantic = "~=1.8"
 # Needed for the integrations only
@@ -24,4 +25,4 @@ fastapi = "~=0.68"
 flask = "~=2.1"
 django = "~=3.0"
 click = "*"
-pytest-benchmark = "~=3.4.1"
+strawberry-graphql = "*"
