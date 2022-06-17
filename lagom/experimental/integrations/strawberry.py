@@ -13,6 +13,10 @@ X = TypeVar("X")
 CONTEXT_KEY = "__lagom__.dependencies"
 
 
+class LagomNotAddedToStrawberryError(RuntimeError):
+    pass
+
+
 class StrawberryContainer(Container):
     _data_loader_types: Set[Type[DataLoader]]
 
@@ -43,6 +47,8 @@ class StrawberryContainer(Container):
         keys_and_types = [(key, spec.annotations[key]) for key in keys_to_bind]
 
         def _wrapper(self, info: Info):
+            if not info.context or CONTEXT_KEY not in info.context:
+                raise LagomNotAddedToStrawberryError("The context needs to be updated with container.hook_into_context")
             req_container: ReadableContainer = info.context[CONTEXT_KEY]
             kwargs = {key: req_container.resolve(dep_type) for (key, dep_type) in keys_and_types}
             return field_func(self, **kwargs)
