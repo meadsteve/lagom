@@ -1,12 +1,16 @@
 import inspect
-from typing import Set, Type, TypeVar, _GenericAlias
+from typing import Set, Type, TypeVar, _GenericAlias, MutableMapping
 
 from strawberry.dataloader import DataLoader
+from strawberry.types import Info
 
-from lagom import Container
-from lagom.interfaces import SpecialDepDefinition, TypeResolver
+from lagom import Container, injectable
+from lagom.interfaces import SpecialDepDefinition, TypeResolver, ReadableContainer
 
 X = TypeVar("X")
+
+
+CONTEXT_KEY = "__lagom__.dependencies"
 
 
 class StrawberryContainer(Container):
@@ -26,3 +30,21 @@ class StrawberryContainer(Container):
     def strawberry_context_container(self):
         with self.temporary_singletons(self._data_loader_types) as c:
             return c
+
+    def hook_into_context(self, context: MutableMapping):
+        context[CONTEXT_KEY] = self.strawberry_context_container()
+
+    def attach_field(container_self, field_func):
+        # TODO: I'm a bit copy pasted. dry me up. Maybe?
+        spec = container_self._get_spec_without_self(field_func)
+        keys_to_bind = (
+            key for (key, arg) in spec.defaults.items() if arg is injectable
+        )
+        keys_and_types = [(key, spec.annotations[key]) for key in keys_to_bind]
+
+        def _wrapper(self, info: Info):
+            req_container: ReadableContainer = info.context[CONTEXT_KEY]
+            kwargs = {key: req_container.resolve(dep_type) for (key, dep_type) in keys_and_types}
+            return field_func(self, **kwargs)
+        _wrapper.__annotations__['return'] = field_func.__annotations__['return']
+        return _wrapper
