@@ -1,5 +1,5 @@
 import inspect
-from typing import Set, Type, TypeVar, _GenericAlias, MutableMapping
+from typing import Set, Type, TypeVar, _GenericAlias, MutableMapping  # type: ignore[attr-defined]
 
 from strawberry.dataloader import DataLoader
 from strawberry.types import Info

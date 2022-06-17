@@ -101,6 +101,7 @@ async def test_the_data_gets_built_correctly():
     )
 
     assert result.errors is None
+    assert result.data
     assert result.data["books"] == [{'author': {'name': 'F. Scott Fitzgerald'}, 'title': 'The Great Gatsby'},
                                     {'author': {'name': 'Frank Herbert'}, 'title': 'Dune'},
                                     {'author': {'name': 'Frank Herbert'}, 'title': 'Children of Dune'}]
