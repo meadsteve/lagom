@@ -243,12 +243,10 @@ class Container(
         :return:
         """
         if not skip_definitions:
-            definition = self.get_definition(dep_type)
-            if definition:
+            if definition := self.get_definition(dep_type):
                 return definition.get_instance(self)
 
-        optional_dep_type = remove_optional_type(dep_type)
-        if optional_dep_type:
+        if optional_dep_type := remove_optional_type(dep_type):
             return self.resolve(optional_dep_type, suppress_error=True)
 
         return self._reflection_build_with_err_handling(dep_type, suppress_error)
@@ -283,11 +281,11 @@ class Container(
         keys_and_types = [(key, spec.annotations[key]) for key in keys_to_bind]
 
         _injection_context = self.temporary_singletons(shared)
-        update_container = container_updater if container_updater else _update_nothing
+        update_container = container_updater or _update_nothing
 
         def _update_args(supplied_args, supplied_kwargs):
             keys_to_skip = set(supplied_kwargs.keys())
-            keys_to_skip.update(spec.args[0 : len(supplied_args)])
+            keys_to_skip.update(spec.args[:len(supplied_args)])
             with _injection_context as invocation_container:
                 update_container(invocation_container, supplied_args, supplied_kwargs)
                 kwargs = {
@@ -328,7 +326,7 @@ class Container(
         """
         spec = self._get_spec_without_self(func)
 
-        update_container = container_updater if container_updater else _update_nothing
+        update_container = container_updater or _update_nothing
         _injection_context = self.temporary_singletons(shared)
 
         def _update_args(supplied_args, supplied_kwargs):
@@ -407,7 +405,7 @@ class Container(
         types_to_skip: Set[Type] = None,
     ):
         dep_keys_to_skip: List[str] = []
-        dep_keys_to_skip.extend(spec.args[0:skip_pos_up_to])
+        dep_keys_to_skip.extend(spec.args[:skip_pos_up_to])
         dep_keys_to_skip.extend(keys_to_skip or [])
         types_to_skip = types_to_skip or set()
         sub_deps = {
