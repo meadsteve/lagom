@@ -55,6 +55,24 @@ class DuplicateDefinition(ValueError, LagomException):
     pass
 
 
+class TypeOnlyAvailableAsAwaitable(SyntaxError, LagomException):
+    """The type is only available as Awaitable[T]"""
+
+    dep_type: str
+
+    def __init__(self, dep_type: Type):
+        """
+
+        :param dep_type: The type that could not be constructed without Awaitable
+        """
+        self.dep_type = _dep_type_as_string(dep_type)
+        if inspect.isabstract(dep_type):
+            super().__init__(
+                f"Unable to construct type {self.dep_type} as it is only available as an async."
+                "Try requesting Awaitable[{self.dep_type}] instead"
+            )
+
+
 class UnableToInvokeBoundFunction(TypeError, LagomException):
     """A function bound to the container could not be invoked"""
 
