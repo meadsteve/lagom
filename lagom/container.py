@@ -2,6 +2,7 @@ import functools
 import io
 import logging
 import typing
+
 from types import FunctionType, MethodType
 from typing import (
     Dict,
@@ -21,6 +22,7 @@ from .definitions import (
     Singleton,
     Alias,
     ConstructionWithoutContainer,
+    UnresolvableTypeDefinition,
 )
 from .exceptions import (
     UnresolvableType,
@@ -28,6 +30,7 @@ from .exceptions import (
     InvalidDependencyDefinition,
     RecursiveDefinitionError,
     DependencyNotDefined,
+    TypeOnlyAvailableAsAwaitable,
 )
 from .interfaces import (
     SpecialDepDefinition,
@@ -65,6 +68,8 @@ UNRESOLVABLE_TYPES = [
     typing.TextIO,
     typing.BinaryIO,
 ]
+
+_TYPE_AWAITABLE = type(typing.Awaitable)
 
 X = TypeVar("X")
 
@@ -161,6 +166,11 @@ class Container(
         definition = normalise(resolver)
         self._registered_types[dep] = definition
         self._registered_types[Optional[dep]] = definition  # type: ignore
+        if isinstance(dep, _TYPE_AWAITABLE):
+            inner_type = dep.__args__[0]
+            self._registered_types[inner_type] = UnresolvableTypeDefinition(
+                TypeOnlyAvailableAsAwaitable(inner_type)
+            )
         return definition
 
     @property
