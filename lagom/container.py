@@ -44,7 +44,12 @@ from .interfaces import (
 from .markers import injectable
 from .updaters import update_container_singletons
 from .util.logging import NullLogger
-from .util.reflection import FunctionSpec, CachingReflector, remove_optional_type
+from .util.reflection import (
+    FunctionSpec,
+    CachingReflector,
+    remove_optional_type,
+    remove_awaitable_type,
+)
 from .wrapping import apply_argument_updater
 
 UNRESOLVABLE_TYPES = [
@@ -68,8 +73,6 @@ UNRESOLVABLE_TYPES = [
     typing.TextIO,
     typing.BinaryIO,
 ]
-
-_TYPE_AWAITABLE = type(typing.Awaitable)
 
 X = TypeVar("X")
 
@@ -166,10 +169,13 @@ class Container(
         definition = normalise(resolver)
         self._registered_types[dep] = definition
         self._registered_types[Optional[dep]] = definition  # type: ignore
-        if isinstance(dep, _TYPE_AWAITABLE):
-            inner_type = dep.__args__[0]  # type: ignore
-            self._registered_types[inner_type] = UnresolvableTypeDefinition(
-                TypeOnlyAvailableAsAwaitable(inner_type)
+
+        # For awaitables we add a convenience exception to be thrown if code hints on the type
+        # without the awaitable.
+        awaitable_type = remove_awaitable_type(dep)
+        if awaitable_type:
+            self._registered_types[awaitable_type] = UnresolvableTypeDefinition(
+                TypeOnlyAvailableAsAwaitable(awaitable_type)
             )
         return definition
 

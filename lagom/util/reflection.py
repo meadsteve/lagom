@@ -14,7 +14,12 @@ from typing import (
     Sequence,
 )
 
+import typing
+
 RETURN_ANNOTATION = "return"
+
+
+_TYPE_AWAITABLE = type(typing.Awaitable)
 
 
 class FunctionSpec:
@@ -106,7 +111,7 @@ def _get_default_args(func):
     }
 
 
-def remove_optional_type(dep_type):
+def remove_optional_type(dep_type) -> Optional[Type]:
     """if the Type is Optional[T] returns T else None
 
     :param dep_type:
@@ -119,3 +124,14 @@ def remove_optional_type(dep_type):
     except:
         pass
     return None
+
+
+def remove_awaitable_type(dep_type) -> Optional[Type]:
+    """if the Type is Awaitable[T] returns T else None
+
+    :param dep_type:
+    :return:
+    """
+    if not isinstance(dep_type, _TYPE_AWAITABLE):
+        return None
+    return dep_type.__args__[0]  # type: ignore
