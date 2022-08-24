@@ -132,6 +132,4 @@ def remove_awaitable_type(dep_type) -> Optional[Type]:
     :param dep_type:
     :return:
     """
-    if not isinstance(dep_type, _TYPE_AWAITABLE):
-        return None
-    return dep_type.__args__[0]  # type: ignore
+    return dep_type.__args__[0] if isinstance(dep_type, _TYPE_AWAITABLE) else None
