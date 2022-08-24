@@ -61,7 +61,7 @@ def test_when_yielding_finally_can_be_used(container: Container):
             finally_was_executed = True
 
     container.resolve(MyComplexDep)
-    assert finally_was_executed is True
+    assert finally_was_executed
 
 
 def test_functions_can_be_made_into_singletons(container: Container):
