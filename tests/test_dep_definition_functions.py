@@ -3,7 +3,7 @@ from typing import Iterator, Generator, ContextManager
 
 import pytest
 
-from lagom import Container
+from lagom import Container, UnresolvableTypeDefinition
 from lagom.decorators import dependency_definition, context_dependency_definition
 from lagom.exceptions import MissingReturnType
 
@@ -138,4 +138,5 @@ def test_defining_a_context_manager_does_not_define_the_managed_type_itself(
         finally:
             pass
 
-    assert container.get_definition(MyComplexDep) is None
+    definition = container.get_definition(MyComplexDep)
+    assert isinstance(definition, UnresolvableTypeDefinition) or definition is None
