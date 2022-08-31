@@ -1,4 +1,15 @@
 # Changelog
+## PENDING 1.8.0 (YYYY-MM-DD)
+
+### Enhancements
+* Add helper exception if an async type is requested without being wrapped in Awaitable.
+
+### Bug Fixes
+None
+
+### Backwards incompatible changes
+None
+
 ## 1.7.1 (2022-05-25)
 
 ### Enhancements
