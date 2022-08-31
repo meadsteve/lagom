@@ -4,6 +4,7 @@ from typing import Awaitable
 import pytest
 
 from lagom import Container, dependency_definition
+from lagom.exceptions import TypeOnlyAvailableAsAwaitable
 
 
 @dataclass
@@ -29,3 +30,24 @@ async def test_alternative_way_of_defining_an_async_dep(container: Container):
     container[Awaitable[MyComplexDep]] = MyComplexDep.asyc_loader  # type: ignore
 
     assert (await container[Awaitable[MyComplexDep]]) == MyComplexDep(some_number=10)  # type: ignore
+
+
+@pytest.mark.asyncio
+async def test_defining_an_async_dep_provides_a_helpful_error_if_you_forget_awaitable(
+    container: Container,
+):
+    container[Awaitable[MyComplexDep]] = MyComplexDep.asyc_loader  # type: ignore
+
+    with pytest.raises(TypeOnlyAvailableAsAwaitable):
+        assert container[MyComplexDep]
+
+
+@pytest.mark.asyncio
+async def test_a_sync_and_async_version_can_be_defined(
+    container: Container,
+):
+    container[MyComplexDep] = lambda: MyComplexDep(5)
+    container[Awaitable[MyComplexDep]] = MyComplexDep.asyc_loader  # type: ignore
+
+    assert container[MyComplexDep]
+    assert container[Awaitable[MyComplexDep]]  # type: ignore

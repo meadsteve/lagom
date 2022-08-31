@@ -2,6 +2,7 @@ import functools
 import io
 import logging
 import typing
+
 from types import FunctionType, MethodType
 from typing import (
     Dict,
@@ -21,6 +22,7 @@ from .definitions import (
     Singleton,
     Alias,
     ConstructionWithoutContainer,
+    UnresolvableTypeDefinition,
 )
 from .exceptions import (
     UnresolvableType,
@@ -28,6 +30,7 @@ from .exceptions import (
     InvalidDependencyDefinition,
     RecursiveDefinitionError,
     DependencyNotDefined,
+    TypeOnlyAvailableAsAwaitable,
 )
 from .interfaces import (
     SpecialDepDefinition,
@@ -41,7 +44,12 @@ from .interfaces import (
 from .markers import injectable
 from .updaters import update_container_singletons
 from .util.logging import NullLogger
-from .util.reflection import FunctionSpec, CachingReflector, remove_optional_type
+from .util.reflection import (
+    FunctionSpec,
+    CachingReflector,
+    remove_optional_type,
+    remove_awaitable_type,
+)
 from .wrapping import apply_argument_updater
 
 UNRESOLVABLE_TYPES = [
@@ -161,6 +169,16 @@ class Container(
         definition = normalise(resolver)
         self._registered_types[dep] = definition
         self._registered_types[Optional[dep]] = definition  # type: ignore
+
+        # For awaitables we add a convenience exception to be thrown if code hints on the type
+        # without the awaitable.
+        awaitable_type = remove_awaitable_type(dep)
+        if awaitable_type:
+            # Unless there's already a sync version defined.
+            if awaitable_type not in self.defined_types:
+                self._registered_types[awaitable_type] = UnresolvableTypeDefinition(
+                    TypeOnlyAvailableAsAwaitable(awaitable_type)
+                )
         return definition
 
     @property
@@ -468,7 +486,6 @@ class EmptyDefinitionSet(DefinitionsSource):
 
 
 class _TemporaryInjectionContext:
-
     _base_container: Container
 
     def __init__(
