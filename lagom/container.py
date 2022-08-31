@@ -174,9 +174,11 @@ class Container(
         # without the awaitable.
         awaitable_type = remove_awaitable_type(dep)
         if awaitable_type:
-            self._registered_types[awaitable_type] = UnresolvableTypeDefinition(
-                TypeOnlyAvailableAsAwaitable(awaitable_type)
-            )
+            # Unless there's already a sync version defined.
+            if awaitable_type not in self.defined_types:
+                self._registered_types[awaitable_type] = UnresolvableTypeDefinition(
+                    TypeOnlyAvailableAsAwaitable(awaitable_type)
+                )
         return definition
 
     @property
@@ -484,7 +486,6 @@ class EmptyDefinitionSet(DefinitionsSource):
 
 
 class _TemporaryInjectionContext:
-
     _base_container: Container
 
     def __init__(
