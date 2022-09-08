@@ -19,7 +19,7 @@ jobs:
       with:
         python-version: 3.8
     - name: Install cibuildwheel
-      run: python -m pip install cibuildwheel==1.1.0
+      run: python -m pip install cibuildwheel==2.9.0
     - name: Build wheels
       env:
         CIBW_PROJECT_REQUIRES_PYTHON: ">=3.7.0"
