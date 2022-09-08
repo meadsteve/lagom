@@ -21,9 +21,11 @@ then
     exit 2
 fi
 
+# Build it
+pipenv run python -m build
+
 # Everything is okay. Tag and publish to pypi
-git rev-parse HEAD > lagom/githash.txt
-pipenv run flit publish
+# TODO: PUBLISH
 git tag -a "$version" -m "$version"
 git push origin "$version"
 exit 0
