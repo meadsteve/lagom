@@ -23,6 +23,7 @@ jobs:
     - name: Build wheels
       env:
         CIBW_PROJECT_REQUIRES_PYTHON: ">=3.7.0"
+        CIBW_BUILD: "cp3*"
       run: python -m cibuildwheel --output-dir wheelhouse
     - name: Publish
       env:
