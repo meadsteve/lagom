@@ -30,7 +30,7 @@ jobs:
         python -m build
     - name: Publish
       env:
-        TWINE_USERNAME: $
-        TWINE_PASSWORD: $
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: $PYPI_TOKEN
       run: |
         twine upload dist/*
