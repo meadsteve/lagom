@@ -24,7 +24,13 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install setuptools build
+        pip install setuptools build twine
     - name: Build
       run: |
         python -m build
+    - name: Publish
+      env:
+        TWINE_USERNAME: $
+        TWINE_PASSWORD: $
+      run: |
+        twine upload dist/*

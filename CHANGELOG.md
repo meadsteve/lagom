@@ -1,8 +1,12 @@
 # Changelog
-## PENDING 1.8.0 (YYYY-MM-DD)
+## PENDING 1.8.0-beta-1 (YYYY-MM-DD)
+
+### Breaking changes
+* 3.6 support dropped
 
 ### Enhancements
 * Add helper exception if an async type is requested without being wrapped in Awaitable.
+* Use mypyc to compile some parts of lagom for a speed bost
 
 ### Bug Fixes
 None
