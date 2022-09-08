@@ -4,7 +4,7 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-setuptools = "~=65.3.0"
+setuptools = "~=59.6.0"
 build = "~=0.8.0"
 mypy = "==0.971"
 black = "~=22.3.0"
