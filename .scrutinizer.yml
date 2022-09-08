@@ -2,6 +2,9 @@ build:
   environment:
     python:
       version: 3.9.9
+  dependencies:
+    override:
+      - pip install mypy==0.971
   nodes:
     coverage:
       dependencies:

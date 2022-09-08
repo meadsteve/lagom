@@ -21,9 +21,7 @@ then
     exit 2
 fi
 
-# Everything is okay. Tag and publish to pypi
-git rev-parse HEAD > lagom/githash.txt
-pipenv run flit publish
+# Pushing the tag will trigger a github action that builds the wheels and pushes them to pypi
 git tag -a "$version" -m "$version"
 git push origin "$version"
 exit 0

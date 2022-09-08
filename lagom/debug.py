@@ -6,9 +6,7 @@ from lagom import version
 
 
 def get_commit_hash():
-    dir_path = Path(os.path.dirname(os.path.realpath(__file__)))
-    with open(dir_path / "githash.txt") as f:
-        return f.read()
+    return "DISABLED_FOR_NOW"
 
 
 def get_build_info():
