@@ -33,4 +33,4 @@ jobs:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: $PYPI_TOKEN
       run: |
-        twine upload dist/*
+        twine upload --verbose dist/*
