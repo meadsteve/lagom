@@ -21,11 +21,7 @@ then
     exit 2
 fi
 
-# Build it
-pipenv run python -m build
-
-# Everything is okay. Tag and publish to pypi
-# TODO: PUBLISH
+# Pushing the tag will trigger a github action that builds the wheels and pushes them to pypi
 git tag -a "$version" -m "$version"
 git push origin "$version"
 exit 0

@@ -1,9 +1,9 @@
 name: Upload Python Package
 
-# TODO: switch to
-#      release:
-#        types: [created]
-on: [pull_request]
+on:
+  push:
+    tags:
+      - "v*"
 
 jobs:
   mac-and-windows-and-linux-publish:
