@@ -24,6 +24,9 @@ dependencies = []
 requires-python = ">=3.7"
 dynamic = ["version"]
 
+[tool.setuptools]
+py-modules = ["lagom"]
+
 [project.optional-dependencies]
 env = ["pydantic >=1.0.0,<2.0.0"]
 
