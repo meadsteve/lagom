@@ -3,7 +3,7 @@ name: Upload Python Package
 # TODO: switch to
 #      release:
 #        types: [created]
-on: [push, pull_request]
+on: [pull_request]
 
 jobs:
   deploy:
@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        python-version: ["3.6", "3.7", "3.8", "3.9", "3.10"]
+        python-version: ["3.7", "3.8", "3.9", "3.10"]
         os: [ubuntu-latest, macOS-latest, windows-latest]
 
     steps:
