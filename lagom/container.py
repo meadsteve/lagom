@@ -481,7 +481,7 @@ class EmptyDefinitionSet(DefinitionsSource):
         return None
 
     @property
-    def defined_types(self):
+    def defined_types(self) -> Set[Type]:
         return set()
 
 
@@ -508,5 +508,5 @@ class _TemporaryInjectionContext:
         pass
 
 
-def _update_nothing(_c: WriteableContainer, _a: List, _k: Dict):
+def _update_nothing(_c: WriteableContainer, _a: typing.Collection, _k: Dict):
     return None
