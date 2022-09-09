@@ -7,11 +7,15 @@ on:
 
 jobs:
   mac-and-windows-and-linux-publish:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.builds.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [macOS-latest, windows-latest, ubuntu-latest]
+        builds: [
+          {os: "macOS-latest", python_requires: ">=3.7.0"},
+          {os: "windows-latest", python_requires: ">=3.7.0"},
+          {os: "ubuntu-latest", python_requires: ">=3.7.0,<3.11.0"}
+        ]
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
@@ -22,9 +26,29 @@ jobs:
       run: python -m pip install cibuildwheel==2.9.0 twine==4.0.1
     - name: Build wheels
       env:
-        CIBW_PROJECT_REQUIRES_PYTHON: ">=3.7.0"
+        CIBW_PROJECT_REQUIRES_PYTHON: ${{ matrix.builds.python_requires }}
         CIBW_BUILD: "cp3*"
       run: python -m cibuildwheel --output-dir wheelhouse
+    - name: Publish
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+      run: |
+        twine upload --skip-existing wheelhouse/*
+  pure-python-wheel-publish-publish:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.8
+    - name: Install deps
+      run: python -m pip install wheel==0.37.1  twine==4.0.1
+    - name: Build pure python wheel
+      env:
+        LAGOM_SKIP_COMPILE: "1"
+      run: pip wheel -w wheelhouse .
     - name: Publish
       env:
         TWINE_USERNAME: __token__
