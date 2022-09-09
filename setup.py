@@ -19,7 +19,7 @@ def load_version(version_file_path):
 extras = {}
 
 
-if not bool(os.getenv('LAGOM_SKIP_COMPILE', '0')):
+if not bool(int(os.getenv('LAGOM_SKIP_COMPILE', '0'))):
     extras["ext_modules"] = mypycify([
         'lagom/container.py',
         'lagom/definitions.py',
