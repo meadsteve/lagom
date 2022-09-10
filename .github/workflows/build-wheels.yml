@@ -35,7 +35,7 @@ jobs:
         TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
       run: |
         twine upload --skip-existing wheelhouse/*
-  pure-python-wheel-publish-publish:
+  pure-python-wheel-publish:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2

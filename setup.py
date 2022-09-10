@@ -1,7 +1,5 @@
 import os
 
-
-from mypyc.build import mypycify
 from setuptools import setup
 
 
@@ -16,18 +14,17 @@ def load_version(version_file_path):
         raise RuntimeError(f"Unable to find version string in {version_file_path}")
 
 
-extras = {}
-
-
 if not bool(int(os.getenv('LAGOM_SKIP_COMPILE', '0'))):
-    extras["ext_modules"] = mypycify([
-        'lagom/container.py',
-        'lagom/definitions.py',
-    ])
-
-
-setup(
-    version=load_version("lagom/version.py"),
-    **extras
-)
+    from mypyc.build import mypycify
+    setup(
+        version=load_version("lagom/version.py"),
+        ext_modules=mypycify([
+            'lagom/container.py',
+            'lagom/definitions.py',
+        ])
+    )
+else:
+    setup(
+        version=load_version("lagom/version.py")
+    )
 
