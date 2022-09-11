@@ -1,9 +1,9 @@
 # Changelog
-## PENDING 1.8.0-beta-7 (YYYY-MM-DD)
+## PENDING 1.8.0-beta-10 (YYYY-MM-DD)
 
 ### Enhancements
 * Add helper exception if an async type is requested without being wrapped in Awaitable.
-* Use mypyc to compile some parts of lagom for a speed bost
+* Use mypyc to compile some parts of lagom for a speed boost. This is only available on some platforms. A non-compiled fallback is also built.
 
 ### Bug Fixes
 None
