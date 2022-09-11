@@ -21,6 +21,7 @@ if not bool(int(os.getenv('LAGOM_SKIP_COMPILE', '0'))):
         ext_modules=mypycify([
             'lagom/container.py',
             'lagom/definitions.py',
+            'lagom/updaters.py',
         ])
     )
 else:
