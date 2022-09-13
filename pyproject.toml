@@ -26,7 +26,7 @@ requires-python = ">=3.6"
 dynamic = ["version"]
 
 [tool.setuptools]
-packages = ["lagom", "lagom.util", "lagom.integrations", "lagom.experimental"]
+packages = ["lagom", "lagom.util", "lagom.integrations", "lagom.experimental", "lagom.experimental.integrations"]
 
 [project.optional-dependencies]
 env = ["pydantic >=1.0.0,<2.0.0"]
