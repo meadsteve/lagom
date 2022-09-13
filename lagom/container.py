@@ -3,6 +3,8 @@ import io
 import logging
 import typing
 
+from .compilaton import mypyc_attr
+
 from types import FunctionType, MethodType
 from typing import (
     Dict,
@@ -79,6 +81,7 @@ X = TypeVar("X")
 Unset: Any = object()
 
 
+@mypyc_attr(allow_interpreted_subclasses=True)
 class Container(
     WriteableContainer, ExtendableContainer, DefinitionsSource, ContainerDebugInfo
 ):
@@ -434,6 +437,7 @@ class Container(
         return self._reflector.get_function_spec(t.__init__).without_argument("self")
 
 
+@mypyc_attr(allow_interpreted_subclasses=True)
 class ExplicitContainer(Container):
     def resolve(
         self, dep_type: Type[X], suppress_error=False, skip_definitions=False

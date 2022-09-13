@@ -10,7 +10,7 @@ None
 
 ### Backwards incompatible changes
 * 3.6 is now no longer formally supported (though it may still work)
-* The container class can now no longer be extended as on some platforms it is a compiled class.
+* The compiled classes are less tolerant of slightly incorrectly typed arguments
 
 ### Benchmarking for compilation
 Running the benchmarking on a Darwin-CPython-3.8-64bit.
