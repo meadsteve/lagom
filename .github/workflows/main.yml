@@ -48,3 +48,31 @@ jobs:
     - name: Run Tests
       run: |
         pipenv run pytest tests -m "not benchmarking" -vv
+  test-non-compiled-build:
+    name: build-non-compiled-test-${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["pypy3.9"]
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        make setup
+        pip install build
+    - name: build wheel and then remove code
+      env:
+        LAGOM_SKIP_COMPILE: "1"
+      run: |
+        python -m build
+        rm -rf ./lagom
+    - name: install built wheel
+      run: |
+        find ./dist -name '*.whl'| head -n 1 | xargs pipenv install --skip-lock
+    - name: Run Tests
+      run: |
+        pipenv run pytest tests -m "not benchmarking" -vv
