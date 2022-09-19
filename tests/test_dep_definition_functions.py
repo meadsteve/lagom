@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Iterator, Generator, ContextManager
+from typing import Iterator, Generator, ContextManager, ClassVar
 
 import pytest
 
@@ -7,12 +7,10 @@ from lagom import Container, UnresolvableTypeDefinition
 from lagom.decorators import dependency_definition, context_dependency_definition
 from lagom.exceptions import MissingReturnType
 
-global finally_was_executed
-finally_was_executed = False
-
 
 @dataclass
 class MyComplexDep:
+    finally_was_executed: ClassVar[bool] = False
     some_number: int
 
 
@@ -49,19 +47,18 @@ def test_definition_functions_can_yield_instead_of_returning(container: Containe
 
 
 def test_when_yielding_finally_can_be_used(container: Container):
-    global finally_was_executed
-    finally_was_executed = False
+    MyComplexDep.finally_was_executed = False
 
     @dependency_definition(container)
     def my_constructor() -> Iterator[MyComplexDep]:
-        global finally_was_executed
         try:
             yield MyComplexDep(some_number=5)
         finally:
-            finally_was_executed = True
+            MyComplexDep.finally_was_executed = True
 
-    container.resolve(MyComplexDep)
-    assert finally_was_executed is True
+    dep = container.resolve(MyComplexDep)
+    assert isinstance(dep, MyComplexDep)
+    assert MyComplexDep.finally_was_executed is True
 
 
 def test_functions_can_be_made_into_singletons(container: Container):
