@@ -1,5 +1,5 @@
 # Changelog
-## PENDING 1.8.0-beta-10 (YYYY-MM-DD)
+## PENDING 2.0.0-beta-1 (YYYY-MM-DD)
 
 ### Enhancements
 * Add helper exception if an async type is requested without being wrapped in Awaitable.
@@ -9,7 +9,8 @@
 None
 
 ### Backwards incompatible changes
-None
+* 3.6 is now no longer formally supported (though it may still work)
+* The compiled classes are less tolerant of slightly incorrectly typed arguments
 
 ### Benchmarking for compilation
 Running the benchmarking on a Darwin-CPython-3.8-64bit.

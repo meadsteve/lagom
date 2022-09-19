@@ -14,6 +14,7 @@ from typing import (
 )
 
 from lagom import Container
+from lagom.compilaton import mypyc_attr
 from lagom.definitions import ConstructionWithContainer, SingletonWrapper, Alias
 from lagom.exceptions import InvalidDependencyDefinition
 from lagom.interfaces import ReadableContainer, SpecialDepDefinition
@@ -21,6 +22,7 @@ from lagom.interfaces import ReadableContainer, SpecialDepDefinition
 X = TypeVar("X")
 
 
+@mypyc_attr(allow_interpreted_subclasses=True)
 class ContextContainer(Container):
     """
     Wraps a regular container but is a ContextManager for use within a `with`.

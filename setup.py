@@ -20,6 +20,7 @@ if not bool(int(os.getenv('LAGOM_SKIP_COMPILE', '0'))):
         version=load_version("lagom/version.py"),
         ext_modules=mypycify([
             'lagom/container.py',
+            'lagom/context_based.py',
             'lagom/definitions.py',
             'lagom/updaters.py',
         ])

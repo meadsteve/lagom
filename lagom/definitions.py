@@ -110,6 +110,9 @@ class Alias(SpecialDepDefinition[X]):
             self.alias_type, skip_definitions=self.skip_definitions
         )
 
+    def __copy__(self):
+        return Alias(self.alias_type, self.skip_definitions)
+
 
 class SingletonWrapper(SpecialDepDefinition[X]):
     """Builds only once then saves the built instance"""
