@@ -46,6 +46,7 @@ def test_definition_functions_can_yield_instead_of_returning(container: Containe
     assert first.some_number == 5
 
 
+@pytest.mark.pypy_failing
 def test_when_yielding_finally_can_be_used(container: Container):
     MyComplexDep.finally_was_executed = False
 
