@@ -22,6 +22,9 @@ only be involved at the top level to pull everything together.
  
 You can see a [comparison to other frameworks here](https://lagom-di.readthedocs.io/en/stable/comparison/)
 
+## 🎉 Version 2.0.0 is now released! 🎉
+For users of python 3.7 and above this should require no changes. Full details can be found in the release notes [upgrade instructions](https://lagom-di.readthedocs.io/en/stable/CHANGELOG/#upgrade-instructions).
+
 ## Installation
 ```bash
 pip install lagom
