@@ -1,5 +1,5 @@
 # Changelog
-## PENDING 2.0.0-beta-1 (YYYY-MM-DD)
+## PENDING 2.0.0 (2022-09-26)
 
 ### Enhancements
 * Add helper exception if an async type is requested without being wrapped in Awaitable.
@@ -30,6 +30,16 @@ test_plain (0001_baselin)         250.3910 (3.49)        780.7970 (1.33)     289
 test_magic (0001_baselin)         271.6470 (3.79)      1,122.6480 (1.91)     314.4931 (3.61)      65.8549 (3.14)     291.0765 (3.56)     24.0800 (4.59)      230;353        3.1797 (0.28)       2718           1
 ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ```
+
+### Upgrade instructions
+Python 3.6 is no longer supported so this upgrade will not be possible. This release of the code may still work
+but this version and future releases will not be tested against 3.6.
+
+For python 3.7 and above the core parts of the library are now compiled and published to pypi. The interface for this
+new release is intended to be compatible with the 1.7.X version, but you should test before deploying to 
+production and report any bugs. The compiled version (and therefore performance improvements) is only available for
+CPython, other python runtimes are supported through a pure python wheel. 
+
 
 ## 1.7.1 (2022-05-25)
 

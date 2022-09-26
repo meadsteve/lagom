@@ -31,6 +31,9 @@ packages = ["lagom", "lagom.util", "lagom.integrations", "lagom.experimental", "
 env = ["pydantic >=1.0.0,<2.0.0"]
 
 [project.urls]
+Documentation = "https://lagom-di.readthedocs.io/"
+Changelog = "https://lagom-di.readthedocs.io/en/stable/CHANGELOG/"
 Homepage = "https://lagom-di.readthedocs.io/"
 Github = "https://github.com/meadsteve/lagom"
+Source = "https://github.com/meadsteve/lagom"
 Issues = "https://github.com/meadsteve/lagom/issues"
