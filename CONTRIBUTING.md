@@ -17,7 +17,12 @@ make test # To make sure the build will pass
 ## Versioning - Semver
 This library follows semver as closely as possible (mistakes may occur).
 The public interface is considered to be everything in `lagom.__all__`. Anything
-else is considered an internal implementation detail.
+else is considered an internal implementation detail. 
+
+As of version 2 performance is not considered as part of the public interface. The library
+added a compilation step which for some platforms gives a speed boost. This may need to be taken away in 
+the future to keep the library maintainable. The build process has benchmark tests to help manage the perfomance
+in pure python even though this is not part of the public interface.
 
 The `lagom.experimental` module is an exception to this. This is a place
 for new code to be released. The public interface of this code may change
