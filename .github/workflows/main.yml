@@ -84,3 +84,32 @@ jobs:
     - name: Run Tests
       run: |
         pipenv run pytest tests -m "not benchmarking and not pypy_failing" -vv
+  temp-py11-benchmark:
+    name: temp-py11-benchmark
+    runs-on: macOS-latest
+    strategy:
+      matrix:
+        python-version: ["3.11.0-rc.2"]
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install build dependencies
+        run: |
+          make setup
+          pip install build
+      - name: Run Bechmarking to generate the baseline
+        run: |
+          pipenv run pytest tests -m "benchmarking" -vv --benchmark-save=baseline --benchmark-max-time=10 --benchmark-disable-gc
+      - name: build wheel and then remove code
+        run: |
+          python -m build
+          rm -rf ./lagom
+      - name: install built wheel
+        run: |
+          find ./dist -name '*.whl'| head -n 1 | xargs pipenv install --skip-lock
+      - name: Run Bechmarking aginst pure python benchmark
+        run: |
+          pipenv run pytest tests -m "benchmarking" -vv --benchmark-save=baseline --benchmark-max-time=10 --benchmark-compare=0001 --benchmark-compare-fail=mean:50% --benchmark-disable-gc
