@@ -1,7 +1,7 @@
 # Next Steps
 
 ## Multiple versions of a dependency
-It is very likely that at some point you will have multiple instances of a single type, and you'll 
+It is very likely that at some point you will have multiple instances of a single type that you want lagom to build, and you'll 
 want to control which instance is used when constructing a resource.
 
 Take for example the case of a database. Let's say we have a primary read/write DB and a read replica. 
