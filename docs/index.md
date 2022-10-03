@@ -24,7 +24,8 @@ pip install lagom
 # poetry add lagom
 ```
 
-For the versioning policy read here: [SemVer in Lagom](./development_of_lagom.md#versioning-semver)
+For the versioning policy and details of what's considered as part of the public interface read here: 
+[SemVer in Lagom](./development_of_lagom.md#versioning-semver).
 
 ## Usage
 Everything in Lagom is based on types. To create an object
