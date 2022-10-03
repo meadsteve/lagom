@@ -24,7 +24,7 @@ added a compilation step which for some platforms gives a speed boost. This may 
 the future to keep the library maintainable. The build process has benchmark tests to help manage the perfomance
 in pure python even though this is not part of the public interface.
 
-The `lagom.experimental` module is an exception to this. This is a place
+The `lagom.experimental` module is an exception and does not follow semver. This is a place
 for new code to be released. The public interface of this code may change
 before it settles down and gets moved out of the experimental module.
 
