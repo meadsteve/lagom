@@ -39,6 +39,8 @@ jobs:
         make setup
         pip install build
     - name: build wheel and then remove code
+      env:
+        LAGOM_COMPILE: "1"
       run: |
         python -m build
         rm -rf ./lagom

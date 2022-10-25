@@ -14,7 +14,16 @@ def load_version(version_file_path):
         raise RuntimeError(f"Unable to find version string in {version_file_path}")
 
 
-if not bool(int(os.getenv('LAGOM_SKIP_COMPILE', '0'))):
+if os.getenv('LAGOM_SKIP_COMPILE') and os.getenv('LAGOM_COMPILE'):
+    raise Exception("Both LAGOM_SKIP_COMPILE and LAGOM_COMPILE ")
+elif os.getenv('LAGOM_COMPILE'):
+    LAGOM_COMPILE = bool(int(os.environ['LAGOM_COMPILE']))
+elif os.getenv('LAGOM_SKIP_COMPILE'):
+    LAGOM_COMPILE = not bool(int(bool(int(os.environ['LAGOM_SKIP_COMPILE']))))
+else:
+    LAGOM_COMPILE = False
+
+if LAGOM_COMPILE:
     from mypyc.build import mypycify
     setup(
         version=load_version("lagom/version.py"),

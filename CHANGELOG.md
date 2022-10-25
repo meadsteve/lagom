@@ -1,4 +1,15 @@
 # Changelog
+## 2.0.1 (UNRELEASED)
+### Enhancements
+None
+
+### Bug Fixes
+* Make compilation is not the default but opt in. This fixes issues with untested platforms that would not support compilation.
+
+### Backwards incompatible changes
+None
+
+
 ## 2.0.0 (2022-09-26)
 
 ### Enhancements
