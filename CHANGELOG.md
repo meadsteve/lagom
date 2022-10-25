@@ -1,5 +1,5 @@
 # Changelog
-## 2.0.1 (UNRELEASED)
+## 2.0.1 (2022-10-25)
 ### Enhancements
 None
 
