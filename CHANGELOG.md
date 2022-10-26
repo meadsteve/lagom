@@ -1,4 +1,14 @@
 # Changelog
+## 2.1.0 (PENDING)
+### Enhancements
+* Adds formal 3.11 support
+
+### Bug Fixes
+None
+
+### Backwards incompatible changes
+None
+
 ## 2.0.1 (2022-10-25)
 ### Enhancements
 None
@@ -8,7 +18,6 @@ None
 
 ### Backwards incompatible changes
 None
-
 
 ## 2.0.0 (2022-09-26)
 
