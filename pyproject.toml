@@ -1,5 +1,5 @@
 [tool.black]
-target_version = ['py36', 'py37', 'py38', 'py39']
+target_version = ['py37', 'py38', 'py39', 'py310']
 
 [build-system]
 requires = ["setuptools>=59.6.0", "wheel", "mypy==0.971"]
@@ -17,6 +17,7 @@ classifiers = [
   "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
   "Topic :: Software Development :: Libraries",
   "Typing :: Typed",
 ]
