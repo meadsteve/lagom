@@ -12,9 +12,9 @@ jobs:
       fail-fast: false
       matrix:
         builds: [
-          {os: "macOS-latest", python_requires: ">=3.7.0"},
-          {os: "windows-latest", python_requires: ">=3.7.0"},
-          {os: "ubuntu-latest", python_requires: ">=3.7.0"}
+          {os: "macOS-latest", python_requires: ">=3.7.0", archs: "auto"},
+          {os: "windows-latest", python_requires: ">=3.7.0", archs: "auto"},
+          {os: "ubuntu-latest", python_requires: ">=3.7.0", archs: "auto64"}
         ]
     steps:
     - uses: actions/checkout@v2
@@ -29,6 +29,7 @@ jobs:
         CIBW_ENVIRONMENT: LAGOM_COMPILE=1
         CIBW_PROJECT_REQUIRES_PYTHON: ${{ matrix.builds.python_requires }}
         CIBW_BUILD: "cp3*"
+        CIBW_ARCHS:  ${{ matrix.builds.archs }}
       run: python -m cibuildwheel --output-dir wheelhouse
     - name: Publish
       env:
