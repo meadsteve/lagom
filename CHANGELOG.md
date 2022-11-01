@@ -1,5 +1,5 @@
 # Changelog
-## 2.1.0 (PENDING)
+## 2.1.0 (2022-11-01)
 ### Enhancements
 * Adds formal 3.11 support
 
