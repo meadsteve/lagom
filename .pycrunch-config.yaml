@@ -1,4 +1,7 @@
 # documentation https://pycrunch.com/docs/configuration-file
+discovery:
+  exclusions:
+    - tests/benchmarking
 engine:
     runtime: pytest
     enable-web-ui: false
