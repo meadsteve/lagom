@@ -81,6 +81,18 @@ def test_context_instances_can_be_made_singletons():
     assert SomeDep.global_clean_up_has_happened
 
 
+def test_context_instance_singletons_only_have_a_lifespan_of_the_with():
+    SomeDep.global_clean_up_has_happened = False
+    context_container = ContextContainer(
+        container, context_types=[], context_singletons=[SomeDep]
+    )
+    with context_container as c:
+        one = c[SomeDep]
+    with context_container as c:
+        two = c[SomeDep]
+    assert one is not two
+
+
 def test_clean_up_of_loaded_contexts_happens_recursively_on_container_exit():
     SomeDep.global_clean_up_has_happened = False
     SomeWrapperDep.global_clean_up_has_happened = False

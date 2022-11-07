@@ -11,6 +11,7 @@ from typing import (
     ContextManager,
     Iterator,
     Generator,
+    List,
 )
 
 from lagom import Container
@@ -44,6 +45,7 @@ class ContextContainer(Container):
     """
 
     exit_stack: Optional[ExitStack] = None
+    _managed_singletons: List[SingletonWrapper]
 
     def __init__(
         self,
@@ -53,10 +55,13 @@ class ContextContainer(Container):
         log_undefined_deps: Union[bool, logging.Logger] = False,
     ):
         super().__init__(container, log_undefined_deps)
+        self._managed_singletons = []
         for dep_type in set(context_types):
             self[dep_type] = self._context_type_def(dep_type)
         for dep_type in set(context_singletons):
-            self[dep_type] = self._singleton_type_def(dep_type)
+            managed_singleton = self._singleton_type_def(dep_type)
+            self._managed_singletons.append(managed_singleton)
+            self[dep_type] = managed_singleton
 
     def __enter__(self):
         if not self.exit_stack:
@@ -67,6 +72,8 @@ class ContextContainer(Container):
         if self.exit_stack:
             self.exit_stack.close()
             self.exit_stack = None
+        for managed_singleton in self._managed_singletons:
+            managed_singleton.reset()
 
     def _context_type_def(self, dep_type: Type):
         type_def = self.get_definition(ContextManager[dep_type]) or self.get_definition(Iterator[dep_type]) or self.get_definition(Generator[dep_type, None, None])  # type: ignore

@@ -145,6 +145,13 @@ class SingletonWrapper(SpecialDepDefinition[X]):
         finally:
             self._thread_lock.release()
 
+    def reset(self):
+        try:
+            self._thread_lock.acquire()
+            self._instance = None
+        finally:
+            self._thread_lock.release()
+
 
 class Singleton(SingletonWrapper[X]):
     """Builds only once then saves the built instance"""

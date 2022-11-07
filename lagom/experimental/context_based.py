@@ -15,6 +15,7 @@ from typing import (
     Iterator,
     Generator,
     AsyncGenerator,
+    List,
 )
 
 from lagom.container import Container
@@ -45,9 +46,13 @@ class AwaitableSingleton(Generic[T]):
                     self.instance = await self.constructor.get_instance(self.container)
         return self.instance
 
+    def reset(self):
+        self.instance = None
+
 
 class AsyncContextContainer(Container):
     async_exit_stack: Optional[AsyncExitStack] = None
+    _managed_singletons: List[Union[SingletonWrapper, AwaitableSingleton]]
 
     def __init__(
         self,
@@ -57,14 +62,16 @@ class AsyncContextContainer(Container):
         log_undefined_deps: Union[bool, logging.Logger] = False,
     ):
         super().__init__(container, log_undefined_deps)
+        self._managed_singletons = []
         for dep_type in set(context_types):
             managed_dep = self._context_type_def(dep_type)
             key = Awaitable[dep_type] if isinstance(managed_dep, AsyncConstructionWithContainer) else dep_type  # type: ignore
             self[key] = managed_dep  # type: ignore
         for dep_type in set(context_singletons):
-            managed_dep = self._singleton_type_def(dep_type)
-            key = AwaitableSingleton[dep_type] if isinstance(managed_dep, AwaitableSingleton) else dep_type  # type: ignore
-            self[key] = managed_dep  # type: ignore
+            managed_singleton = self._singleton_type_def(dep_type)
+            self._managed_singletons.append(managed_singleton)
+            key = AwaitableSingleton[dep_type] if isinstance(managed_singleton, AwaitableSingleton) else dep_type  # type: ignore
+            self[key] = managed_singleton  # type: ignore
 
     async def __aenter__(self):
         if not self.async_exit_stack:
@@ -75,6 +82,8 @@ class AsyncContextContainer(Container):
         if self.async_exit_stack:
             await self.async_exit_stack.aclose()
             self.async_exit_stack = None
+        for managed_singleton in self._managed_singletons:
+            managed_singleton.reset()
 
     def _context_type_def(self, dep_type: Type):
         type_def = self.get_definition(ContextManager[dep_type]) or self.get_definition(Iterator[dep_type]) or self.get_definition(Generator[dep_type, None, None]) or self.get_definition(AsyncGenerator[dep_type, None]) or self.get_definition(AsyncContextManager[dep_type])  # type: ignore
