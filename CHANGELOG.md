@@ -1,4 +1,15 @@
 # Changelog
+## 2.2.0 (UNRELEASED)
+### Enhancements
+* Adds working version of experimental AsyncContextContainer. This is the async version of the ContextContainer. At this
+point the code and interface should be considered unstable although every effort to avoid breaking it will be taken.
+
+### Bug Fixes
+* Fixed bug in ContextContainer where singletons lived longer than the `with` block. 
+
+### Backwards incompatible changes
+None
+
 ## 2.1.0 (2022-11-01)
 ### Enhancements
 * Adds formal 3.11 support
