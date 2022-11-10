@@ -44,8 +44,8 @@ class ContextContainer(Container):
     >>> c[ContextManager[SomeClass]] = SomeClassManager
     >>>
     >>> context_c = ContextContainer(c, context_types=[SomeClass])
-    >>> with context_c:
-    ...     context_c[SomeClass]
+    >>> with context_c as c:
+    ...     c[SomeClass]
     <tests.examples.SomeClass object at ...>
     """
 
