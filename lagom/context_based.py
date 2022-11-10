@@ -11,13 +11,19 @@ from typing import (
     ContextManager,
     Iterator,
     Generator,
+    Callable,
+    List,
 )
 
 from lagom import Container
 from lagom.compilaton import mypyc_attr
 from lagom.definitions import ConstructionWithContainer, SingletonWrapper, Alias
 from lagom.exceptions import InvalidDependencyDefinition
-from lagom.interfaces import ReadableContainer, SpecialDepDefinition
+from lagom.interfaces import (
+    ReadableContainer,
+    SpecialDepDefinition,
+    CallTimeContainerUpdate,
+)
 
 X = TypeVar("X")
 
@@ -89,6 +95,40 @@ class ContextContainer(Container):
         if self.exit_stack:
             self.exit_stack.close()
             self.exit_stack = None
+
+    def partial(
+        self,
+        func: Callable[..., X],
+        shared: List[Type] = None,
+        container_updater: Optional[CallTimeContainerUpdate] = None,
+    ) -> Callable[..., X]:
+        def _with_context(*args, **kwargs):
+            with self as c:
+                # TODO: Try and move this partial outside the function as this is expensive
+                base_partial = super(ContextContainer, c).partial(
+                    func, shared, container_updater
+                )
+                return base_partial(*args, **kwargs)
+
+        return _with_context
+
+    def magic_partial(
+        self,
+        func: Callable[..., X],
+        shared: List[Type] = None,
+        keys_to_skip: List[str] = None,
+        skip_pos_up_to: int = 0,
+        container_updater: Optional[CallTimeContainerUpdate] = None,
+    ) -> Callable[..., X]:
+        def _with_context(*args, **kwargs):
+            with self as c:
+                # TODO: Try and move this partial outside the function as this is expensive
+                base_partial = super(ContextContainer, c).magic_partial(
+                    func, shared, keys_to_skip, skip_pos_up_to, container_updater
+                )
+                return base_partial(*args, **kwargs)
+
+        return _with_context
 
     def _context_type_def(self, dep_type: Type):
         type_def = self.get_definition(ContextManager[dep_type]) or self.get_definition(Iterator[dep_type]) or self.get_definition(Generator[dep_type, None, None])  # type: ignore

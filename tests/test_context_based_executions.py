@@ -7,6 +7,7 @@ from lagom import (
     Container,
     dependency_definition,
     ContextContainer,
+    injectable,
 )
 from lagom.decorators import context_dependency_definition
 from lagom.exceptions import InvalidDependencyDefinition
@@ -149,3 +150,29 @@ def test_the_container_can_be_nested_though_this_has_no_meaning():
         with context_container_1 as context_container_2:
             b = context_container_2.resolve(SomeDep)
     assert a != b
+
+
+def test_a_partial_function_cleans_up_the_loaded_contexts_after_execution():
+    SomeDep.global_clean_up_has_happened = False
+    context_container = ContextContainer(container, context_types=[SomeDep])
+
+    def _some_func(dep: SomeDep = injectable):
+        return dep
+
+    wrapped_func = context_container.partial(_some_func)
+
+    assert isinstance(wrapped_func(), SomeDep)
+    assert SomeDep.global_clean_up_has_happened
+
+
+def test_a_magic_partial_function_cleans_up_the_loaded_contexts_after_execution():
+    SomeDep.global_clean_up_has_happened = False
+    context_container = ContextContainer(container, context_types=[SomeDep])
+
+    def _some_func(dep: SomeDep):
+        return dep
+
+    wrapped_func = context_container.magic_partial(_some_func)
+
+    assert isinstance(wrapped_func(), SomeDep)
+    assert SomeDep.global_clean_up_has_happened
