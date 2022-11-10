@@ -1,3 +1,4 @@
+import inspect
 import logging
 from asyncio import Lock
 from contextlib import AsyncExitStack
@@ -15,15 +16,22 @@ from typing import (
     Iterator,
     Generator,
     AsyncGenerator,
+    Callable,
+    List,
 )
 
 from lagom.container import Container
 from lagom.definitions import Alias, ConstructionWithContainer, SingletonWrapper
-from lagom.exceptions import InvalidDependencyDefinition
+from lagom.exceptions import InvalidDependencyDefinition, MissingFeature
 from lagom.experimental.definitions import AsyncConstructionWithContainer
-from lagom.interfaces import ReadableContainer, SpecialDepDefinition
+from lagom.interfaces import (
+    ReadableContainer,
+    SpecialDepDefinition,
+    CallTimeContainerUpdate,
+)
 
 T = TypeVar("T")
+X = TypeVar("X")
 
 
 class AwaitableSingleton(Generic[T]):
@@ -102,6 +110,50 @@ class AsyncContextContainer(Container):
         if self.async_exit_stack:
             await self.async_exit_stack.aclose()
             self.async_exit_stack = None
+
+    def partial(
+        self,
+        func: Callable[..., X],
+        shared: List[Type] = None,
+        container_updater: Optional[CallTimeContainerUpdate] = None,
+    ) -> Callable[..., X]:
+        if not inspect.iscoroutinefunction(func):
+            raise MissingFeature(
+                "AsyncContextManager currently can only deal with async functions"
+            )
+
+        async def _with_context(*args, **kwargs):
+            async with self as c:
+                # TODO: Try and move this partial outside the function as this is expensive
+                base_partial = super(AsyncContextContainer, c).partial(
+                    func, shared, container_updater
+                )
+                return await base_partial(*args, **kwargs)  # type: ignore
+
+        return _with_context
+
+    def magic_partial(
+        self,
+        func: Callable[..., X],
+        shared: List[Type] = None,
+        keys_to_skip: List[str] = None,
+        skip_pos_up_to: int = 0,
+        container_updater: Optional[CallTimeContainerUpdate] = None,
+    ) -> Callable[..., X]:
+        if not inspect.iscoroutinefunction(func):
+            raise MissingFeature(
+                "AsyncContextManager currently can only deal with async functions"
+            )
+
+        async def _with_context(*args, **kwargs):
+            async with self as c:
+                # TODO: Try and move this partial outside the function as this is expensive
+                base_partial = super(AsyncContextContainer, c).magic_partial(
+                    func, shared, keys_to_skip, skip_pos_up_to, container_updater
+                )
+                return await base_partial(*args, **kwargs)  # type: ignore
+
+        return _with_context
 
     def _context_type_def(self, dep_type: Type):
         type_def = self.get_definition(ContextManager[dep_type]) or self.get_definition(Iterator[dep_type]) or self.get_definition(Generator[dep_type, None, None]) or self.get_definition(AsyncGenerator[dep_type, None]) or self.get_definition(AsyncContextManager[dep_type])  # type: ignore

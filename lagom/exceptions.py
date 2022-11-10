@@ -175,6 +175,12 @@ class InvalidEnvironmentVariables(LagomException):
         )
 
 
+class MissingFeature(LagomException):
+    """This is raised by code in the experimental module. It represents a feature that is planned but not implemented"""
+
+    pass
+
+
 def _dep_type_as_string(dep_type: Type):
     # This first check makes 3.6 behave the same as 3.7 and later
     if hasattr(typing, "GenericMeta") and isinstance(dep_type, typing.GenericMeta):  # type: ignore

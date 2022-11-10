@@ -3,7 +3,7 @@ from typing import ContextManager, AsyncGenerator, Awaitable
 
 import pytest
 
-from lagom import Container, dependency_definition
+from lagom import Container, dependency_definition, injectable
 from lagom.decorators import context_dependency_definition
 from lagom.exceptions import InvalidDependencyDefinition
 from lagom.experimental.context_based import AsyncContextContainer, AwaitableSingleton
@@ -187,3 +187,33 @@ async def test_the_container_can_be_nested_though_this_has_no_meaning():
         async with context_container_1 as context_container_2:
             b = context_container_2.resolve(Awaitable[SomeDep])
     assert a != b
+
+
+@pytest.mark.asyncio
+async def test_a_partial_function_cleans_up_the_loaded_contexts_after_execution():
+    SomeDep.global_clean_up_has_happened = False
+    context_container = AsyncContextContainer(container, context_types=[SomeDep])
+
+    async def _some_func(dep: Awaitable[SomeDep] = injectable):
+        return await dep
+
+    wrapped_func = context_container.partial(_some_func)
+
+    returned_dep = await wrapped_func()
+    assert isinstance(returned_dep, SomeDep)
+    assert SomeDep.global_clean_up_has_happened
+
+
+@pytest.mark.asyncio
+async def test_a_magic_partial_function_cleans_up_the_loaded_contexts_after_execution():
+    SomeDep.global_clean_up_has_happened = False
+    context_container = AsyncContextContainer(container, context_types=[SomeDep])
+
+    async def _some_func(dep: Awaitable[SomeDep]):
+        return await dep
+
+    wrapped_func = context_container.magic_partial(_some_func)
+
+    returned_dep = await wrapped_func()
+    assert isinstance(returned_dep, SomeDep)
+    assert SomeDep.global_clean_up_has_happened
