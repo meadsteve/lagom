@@ -1,5 +1,5 @@
 # Changelog
-## 2.2.0 (UNRELEASED)
+## 2.2.0 (2022-11-10)
 ### Enhancements
 * Adds working version of experimental AsyncContextContainer. This is the async version of the ContextContainer. At this
 point the code and interface should be considered unstable although every effort to avoid breaking it will be taken.
