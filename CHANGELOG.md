@@ -3,6 +3,8 @@
 ### Enhancements
 * Adds working version of experimental AsyncContextContainer. This is the async version of the ContextContainer. At this
 point the code and interface should be considered unstable although every effort to avoid breaking it will be taken.
+* Binding a function to a ContextContainer (or the new AsyncContextContainer) automatically wraps the bound function in 
+a "with"
 
 ### Bug Fixes
 * Fixed bug in ContextContainer where singletons lived longer than the `with` block. 
