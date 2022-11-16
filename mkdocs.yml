@@ -12,6 +12,7 @@ nav:
   - Usage:
     - Getting Started: index.md
     - Next Steps: next_steps.md
+    - Lifetimes with cleanup: clean_up.md
     - Framework Integrations: framework_integrations.md
     - Moving to Explicit Definitions: explicit_definitions.md
     - Testing Code Using Lagom: testing_with_lagom.md
