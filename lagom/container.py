@@ -293,10 +293,10 @@ class Container(
         )
         keys_and_types = [(key, spec.annotations[key]) for key in keys_to_bind]
 
-        _injection_context = self.temporary_singletons(shared)
+        base_injection_context = self.temporary_singletons(shared)
         update_container = container_updater if container_updater else _update_nothing
 
-        def _update_args(supplied_args, supplied_kwargs):
+        def _update_args(_injection_context, supplied_args, supplied_kwargs):
             keys_to_skip = set(supplied_kwargs.keys())
             keys_to_skip.update(spec.args[0 : len(supplied_args)])
             with _injection_context as invocation_container:
@@ -309,7 +309,7 @@ class Container(
             kwargs.update(supplied_kwargs)
             return supplied_args, kwargs
 
-        return apply_argument_updater(func, _update_args, spec)
+        return apply_argument_updater(func, base_injection_context, _update_args, spec)
 
     def magic_partial(
         self,
@@ -340,9 +340,9 @@ class Container(
         spec = self._get_spec_without_self(func)
 
         update_container = container_updater if container_updater else _update_nothing
-        _injection_context = self.temporary_singletons(shared)
+        base_injection_context = self.temporary_singletons(shared)
 
-        def _update_args(supplied_args, supplied_kwargs):
+        def _update_args(_injection_context, supplied_args, supplied_kwargs):
             final_keys_to_skip = (keys_to_skip or []) + list(supplied_kwargs.keys())
             final_skip_pos_up_to = max(skip_pos_up_to, len(supplied_args))
             with _injection_context as invocation_container:
@@ -356,7 +356,9 @@ class Container(
             kwargs.update(supplied_kwargs)
             return supplied_args, kwargs
 
-        return apply_argument_updater(func, _update_args, spec, catch_errors=True)
+        return apply_argument_updater(
+            func, base_injection_context, _update_args, spec, catch_errors=True
+        )
 
     def clone(self) -> "Container":
         """returns a copy of the container
@@ -491,6 +493,7 @@ class EmptyDefinitionSet(DefinitionsSource):
 
 class _TemporaryInjectionContext:
     _base_container: Container
+    _update_function: Optional[Callable[[Container], Container]] = None
 
     def __init__(
         self,
@@ -498,8 +501,9 @@ class _TemporaryInjectionContext:
         update_function: Optional[Callable[[Container], Container]] = None,
     ):
         self._base_container = container
-        if update_function:
-            self._build_temporary_container = lambda: update_function(
+        self._update_function = update_function
+        if self._update_function:
+            self._build_temporary_container = lambda: self._update_function(
                 self._base_container
             )
         else:
@@ -510,6 +514,9 @@ class _TemporaryInjectionContext:
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
+
+    def rebound_to(self, new_container):
+        return _TemporaryInjectionContext(new_container, self._update_function)
 
 
 def _update_nothing(_c: WriteableContainer, _a: typing.Collection, _k: Dict):
