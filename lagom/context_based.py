@@ -23,6 +23,7 @@ from lagom.interfaces import (
     ReadableContainer,
     SpecialDepDefinition,
     CallTimeContainerUpdate,
+    ContainerBoundFunction,
 )
 
 X = TypeVar("X")
@@ -101,14 +102,15 @@ class ContextContainer(Container):
         func: Callable[..., X],
         shared: Optional[List[Type]] = None,
         container_updater: Optional[CallTimeContainerUpdate] = None,
-    ) -> Callable[..., X]:
+    ) -> ContainerBoundFunction[X]:
+        base_partial = super(ContextContainer, self).partial(
+            func, shared, container_updater
+        )
+
         def _with_context(*args, **kwargs):
+
             with self as c:
-                # TODO: Try and move this partial outside the function as this is expensive
-                base_partial = super(ContextContainer, c).partial(
-                    func, shared, container_updater
-                )
-                return base_partial(*args, **kwargs)
+                return base_partial.rebind(c)(*args, **kwargs)
 
         return _with_context
 
@@ -119,14 +121,14 @@ class ContextContainer(Container):
         keys_to_skip: Optional[List[str]] = None,
         skip_pos_up_to: int = 0,
         container_updater: Optional[CallTimeContainerUpdate] = None,
-    ) -> Callable[..., X]:
+    ) -> ContainerBoundFunction[X]:
+        base_partial = super(ContextContainer, self).magic_partial(
+            func, shared, keys_to_skip, skip_pos_up_to, container_updater
+        )
+
         def _with_context(*args, **kwargs):
             with self as c:
-                # TODO: Try and move this partial outside the function as this is expensive
-                base_partial = super(ContextContainer, c).magic_partial(
-                    func, shared, keys_to_skip, skip_pos_up_to, container_updater
-                )
-                return base_partial(*args, **kwargs)
+                return base_partial.rebind(c)(*args, **kwargs)
 
         return _with_context
 

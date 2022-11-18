@@ -28,6 +28,7 @@ from lagom.interfaces import (
     ReadableContainer,
     SpecialDepDefinition,
     CallTimeContainerUpdate,
+    ContainerBoundFunction,
 )
 
 T = TypeVar("T")
@@ -116,7 +117,7 @@ class AsyncContextContainer(Container):
         func: Callable[..., X],
         shared: Optional[List[Type]] = None,
         container_updater: Optional[CallTimeContainerUpdate] = None,
-    ) -> Callable[..., X]:
+    ) -> ContainerBoundFunction[X]:
         if not inspect.iscoroutinefunction(func):
             raise MissingFeature(
                 "AsyncContextManager currently can only deal with async functions"
@@ -139,7 +140,7 @@ class AsyncContextContainer(Container):
         keys_to_skip: Optional[List[str]] = None,
         skip_pos_up_to: int = 0,
         container_updater: Optional[CallTimeContainerUpdate] = None,
-    ) -> Callable[..., X]:
+    ) -> ContainerBoundFunction[X]:
         if not inspect.iscoroutinefunction(func):
             raise MissingFeature(
                 "AsyncContextManager currently can only deal with async functions"

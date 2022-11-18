@@ -14,6 +14,7 @@ from typing import (
     Optional,
     Dict,
     NoReturn,
+    Protocol,
 )
 
 X = TypeVar("X")
@@ -181,6 +182,14 @@ class ContainerDebugInfo(ABC):
         definitions
         :return:
         """
+        pass
+
+
+class ContainerBoundFunction(Protocol[X]):
+    def __call__(self, *args, **kwargs) -> X:
+        pass
+
+    def rebind(self, container: ReadableContainer) -> "ContainerBoundFunction[X]":
         pass
 
 
