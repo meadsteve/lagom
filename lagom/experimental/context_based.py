@@ -122,14 +122,13 @@ class AsyncContextContainer(Container):
             raise MissingFeature(
                 "AsyncContextManager currently can only deal with async functions"
             )
+        base_partial = super(AsyncContextContainer, self).partial(
+            func, shared, container_updater
+        )
 
         async def _with_context(*args, **kwargs):
             async with self as c:
-                # TODO: Try and move this partial outside the function as this is expensive
-                base_partial = super(AsyncContextContainer, c).partial(
-                    func, shared, container_updater
-                )
-                return await base_partial(*args, **kwargs)  # type: ignore
+                return await base_partial.rebind(c)(*args, **kwargs)  # type: ignore
 
         return _with_context
 
@@ -145,14 +144,13 @@ class AsyncContextContainer(Container):
             raise MissingFeature(
                 "AsyncContextManager currently can only deal with async functions"
             )
+        base_partial = super(AsyncContextContainer, self).magic_partial(
+            func, shared, keys_to_skip, skip_pos_up_to, container_updater
+        )
 
         async def _with_context(*args, **kwargs):
             async with self as c:
-                # TODO: Try and move this partial outside the function as this is expensive
-                base_partial = super(AsyncContextContainer, c).magic_partial(
-                    func, shared, keys_to_skip, skip_pos_up_to, container_updater
-                )
-                return await base_partial(*args, **kwargs)  # type: ignore
+                return await base_partial.rebind(c)(*args, **kwargs)  # type: ignore
 
         return _with_context
 
