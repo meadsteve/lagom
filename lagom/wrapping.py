@@ -12,7 +12,7 @@ from .interfaces import ReadableContainer, ContainerBoundFunction
 from .util.reflection import FunctionSpec
 
 
-class ContainerBoundFunc:
+class RegularFunc(ContainerBoundFunction):
     """
     Represents a function that has been bound to a container
     """
@@ -35,14 +35,14 @@ class ContainerBoundFunc:
         return inner_func(*bound_args, **bound_kwargs)
 
     def rebind(self, container: ReadableContainer):
-        return ContainerBoundFunc(
+        return RegularFunc(
             self._inner_func,
-            self._base_injection_context.rebound_to(container),
+            self._base_injection_context.rebind(container),
             self._argument_updater,
         )
 
 
-class ContainerAsyncBoundFunc:
+class AsyncFunc(ContainerBoundFunction):
     """
     Represents an async function that has been bound to a container
     """
@@ -55,6 +55,9 @@ class ContainerAsyncBoundFunc:
         self._inner_func = inner_func
         self._base_injection_context = base_injection_context
         self._argument_updater = argument_updater
+
+    def __call__(self, *args, **kwargs):
+        return self.__async_call__(*args, **kwargs)
 
     async def __async_call__(self, *args, **kwargs):
         argument_updater = self._argument_updater
@@ -79,9 +82,9 @@ class ContainerAsyncBoundFunc:
         return _coroutine_func
 
     def rebind(self, container: ReadableContainer):
-        return ContainerAsyncBoundFunc(
+        return AsyncFunc(
             self._inner_func,
-            self._base_injection_context.rebound_to(container),
+            self._base_injection_context.rebind(container),
             self._argument_updater,
         ).as_coroutine()
 
@@ -99,15 +102,13 @@ def apply_argument_updater(
     inner_func = func if not catch_errors else _wrap_func_in_error_handling(func, spec)
     if inspect.iscoroutinefunction(func):
 
-        _bound_func = ContainerAsyncBoundFunc(
+        _bound_func = AsyncFunc(
             inner_func, base_injection_context, argument_updater
         ).as_coroutine()
 
     else:
 
-        _bound_func = ContainerBoundFunc(
-            inner_func, base_injection_context, argument_updater
-        )
+        _bound_func = RegularFunc(inner_func, base_injection_context, argument_updater)
 
     return functools.wraps(func)(_bound_func)
 

@@ -185,7 +185,12 @@ class ContainerDebugInfo(ABC):
         pass
 
 
-class ContainerBoundFunction(Protocol[X]):
+class ContainerBoundItem(Protocol):
+    def rebind(self, container: ReadableContainer) -> "ContainerBoundItem":
+        pass
+
+
+class ContainerBoundFunction(ContainerBoundItem, Protocol[X]):
     def __call__(self, *args, **kwargs) -> X:
         pass
 

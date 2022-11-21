@@ -34,5 +34,5 @@ class TemporaryInjectionContext:
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
 
-    def rebound_to(self, new_container):
+    def rebind(self, new_container):
         return TemporaryInjectionContext(new_container, self._update_function)
