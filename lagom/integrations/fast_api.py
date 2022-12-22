@@ -95,10 +95,11 @@ class FastApiIntegration:
             self._container = original
 
     def _build_container(self, request: Request) -> ContextContainer:
+        container = self._container.clone()
+        container.define(Request, PlainInstance(request))
         request_container = update_container_singletons(
-            self._container, self._request_singletons
+            container, self._request_singletons
         )
-        request_container.define(Request, PlainInstance(request))
         return ContextContainer(
             request_container,
             context_types=[],
