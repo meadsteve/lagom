@@ -64,10 +64,13 @@ async def read_main(outer_one=deps.depends(Outer), outer_two=deps.depends(Outer)
 async def another_route(dep_one=deps.depends(Inner)):
     return {"data": dep_one.msg}
 
+
 @app.get("/request_injected_request_singleton")
 async def request_injected_request_singleton(
-        dep_one=deps.depends(RequestInjectedSingleton)):
+    dep_one=deps.depends(RequestInjectedSingleton),
+):
     return {"data": dep_one.request.url.path}
+
 
 @app.get("/with_some_context")
 async def a_route_with_context(dep_one=deps.depends(ContextLoaded)):
