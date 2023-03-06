@@ -114,7 +114,7 @@ class AsyncContextContainer(Container):
     def partial(
         self,
         func: Callable[..., X],
-        shared: List[Type] = None,
+        shared: Optional[List[Type]] = None,
         container_updater: Optional[CallTimeContainerUpdate] = None,
     ) -> Callable[..., X]:
         if not inspect.iscoroutinefunction(func):
@@ -135,8 +135,8 @@ class AsyncContextContainer(Container):
     def magic_partial(
         self,
         func: Callable[..., X],
-        shared: List[Type] = None,
-        keys_to_skip: List[str] = None,
+        shared: Optional[List[Type]] = None,
+        keys_to_skip: Optional[List[str]] = None,
         skip_pos_up_to: int = 0,
         container_updater: Optional[CallTimeContainerUpdate] = None,
     ) -> Callable[..., X]:

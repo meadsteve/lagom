@@ -14,6 +14,7 @@ from typing import (
     TypeVar,
     ContextManager,
     AsyncContextManager,
+    Optional,
 )
 
 from .container import Container
@@ -31,7 +32,7 @@ R = TypeVar("R")
 
 
 def bind_to_container(
-    container: Container, shared: List[Type] = None
+    container: Container, shared: Optional[List[Type]] = None
 ) -> Callable[[Callable[..., R]], Callable[..., R]]:
     def _decorator(func):
         if not isinstance(func, FunctionType):
@@ -42,7 +43,7 @@ def bind_to_container(
 
 
 def magic_bind_to_container(
-    container: Container, shared: List[Type] = None
+    container: Container, shared: Optional[List[Type]] = None
 ) -> Callable[[Callable[..., R]], Callable[..., R]]:
     """Decorates the function so that it's uses the container to construct things
 
