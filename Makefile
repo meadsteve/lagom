@@ -4,7 +4,7 @@ PIPENV_VERBOSITY=-1
 setup: setup_pipenv install
 
 setup_pipenv:
-	pip install pipenv==2021.5.29
+	pip install pipenv==2023.2.18
 
 install:
 	pipenv install --dev --skip-lock
