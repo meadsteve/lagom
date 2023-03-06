@@ -8,7 +8,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10"]
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
 
     steps:
     - uses: actions/checkout@v2
@@ -20,10 +20,12 @@ jobs:
       run: |
         make setup
     - name: Run Bechmarking
+      id: run_benchmark
       run: |
         make benchmark
     - uses: actions/upload-artifact@v2
       name: Save Benchmarks
+      if: success() || steps.run_benchmark.conclusion == 'failure'
       with:
         name: benchmark-results
         path: .benchmarks/
