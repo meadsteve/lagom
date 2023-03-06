@@ -1,4 +1,14 @@
 # Changelog
+## 2.3.0 (2023-03-06)
+### Enhancements
+* Request level singletons can now depend on the request in the fastapi integration. Added in #231 thanks to @alkimake.
+
+### Bug Fixes
+None
+
+### Backwards incompatible changes
+None
+
 ## 2.2.0 (2022-11-10)
 ### Enhancements
 * Adds working version of experimental AsyncContextContainer. This is the async version of the ContextContainer. At this
