@@ -19,6 +19,13 @@ def test_request_singletons_are_different_for_new_requests():
     assert data_one["outer_one"] != data_two["outer_one"]
 
 
+def test_request_singletons_also_have_request_class():
+    client = TestClient(app)
+    data = client.get("/request_injected_request_singleton").json()
+
+    assert data["data"] == "/request_injected_request_singleton"
+
+
 def test_deps_can_be_overridden_during_test():
     client = TestClient(app)
     with deps.override_for_test() as c:
