@@ -50,14 +50,6 @@ jobs:
     - name: Run Tests
       run: |
         pipenv run pytest tests -m "not benchmarking" -vv
-    - name: Run Bechmarking
-      run: |
-        make benchmark
-    - uses: actions/upload-artifact@v2
-      name: Save Benchmarks
-      with:
-        name: benchmark-compiled-results
-        path: .benchmarks/
   test-non-compiled-build:
     name: build-non-compiled-test-${{ matrix.python-version }}
     runs-on: ubuntu-latest
