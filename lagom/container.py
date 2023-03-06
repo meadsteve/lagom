@@ -199,7 +199,7 @@ class Container(
         return self._reflector.overview_of_cache
 
     def temporary_singletons(
-        self, singletons: List[Type] = None
+        self, singletons: Optional[List[Type]] = None
     ) -> "_TemporaryInjectionContext":
         """
         Returns a context that loads a new container with singletons that only exist
@@ -267,7 +267,7 @@ class Container(
     def partial(
         self,
         func: Callable[..., X],
-        shared: List[Type] = None,
+        shared: Optional[List[Type]] = None,
         container_updater: Optional[CallTimeContainerUpdate] = None,
     ) -> Callable[..., X]:
         """Takes a callable and returns a callable bound to the container
@@ -314,8 +314,8 @@ class Container(
     def magic_partial(
         self,
         func: Callable[..., X],
-        shared: List[Type] = None,
-        keys_to_skip: List[str] = None,
+        shared: Optional[List[Type]] = None,
+        keys_to_skip: Optional[List[str]] = None,
         skip_pos_up_to: int = 0,
         container_updater: Optional[CallTimeContainerUpdate] = None,
     ) -> Callable[..., X]:
@@ -413,9 +413,9 @@ class Container(
         self,
         spec: FunctionSpec,
         suppress_error=False,
-        keys_to_skip: List[str] = None,
+        keys_to_skip: Optional[List[str]] = None,
         skip_pos_up_to=0,
-        types_to_skip: Set[Type] = None,
+        types_to_skip: Optional[Set[Type]] = None,
     ):
         dep_keys_to_skip: List[str] = []
         dep_keys_to_skip.extend(spec.args[0:skip_pos_up_to])

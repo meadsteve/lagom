@@ -48,8 +48,8 @@ class StarletteIntegration:
         path: str,
         endpoint: Callable,
         *,
-        methods: List[str] = None,
-        name: str = None,
+        methods: Optional[List[str]] = None,
+        name: Optional[str] = None,
         include_in_schema: bool = True,
     ) -> Route:
         """Returns an instance of a starlette Route
@@ -77,8 +77,8 @@ class StarletteIntegration:
         path: str,
         endpoint: Callable,
         *,
-        methods: List[str] = None,
-        name: str = None,
+        methods: Optional[List[str]] = None,
+        name: Optional[str] = None,
         include_in_schema: bool = True,
     ) -> Route:
         """Returns an instance of a starlette Route
@@ -106,7 +106,7 @@ class StarletteIntegration:
         path: str,
         endpoint: Callable,
         *,
-        name: str = None,
+        name: Optional[str] = None,
     ) -> WebSocketRoute:
         """Returns an instance of a starlette WebSocketRoute
         The callable endpoint is bound to the container so dependencies can be
@@ -125,7 +125,7 @@ class StarletteIntegration:
         path: str,
         endpoint: Callable,
         *,
-        name: str = None,
+        name: Optional[str] = None,
     ) -> WebSocketRoute:
         """Returns an instance of a starlette WebSocketRoute
         The callable endpoint is bound to the container so dependencies can be
