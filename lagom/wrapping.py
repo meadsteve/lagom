@@ -4,7 +4,7 @@ bound to a container
 """
 import functools
 import inspect
-from typing import Callable
+from typing import Protocol, Any
 
 from .exceptions import UnableToInvokeBoundFunction
 from .injection_context import TemporaryInjectionContext
@@ -12,14 +12,23 @@ from .interfaces import ReadableContainer, ContainerBoundFunction
 from .util.reflection import FunctionSpec
 
 
+class _Callable(Protocol):
+    """
+    This is a bit of a hack so that a callable can be provided to a class without mypy thinking its a class method
+    """
+
+    def __call__(self, *args, **kwargs) -> Any:
+        pass
+
+
 class RegularFunc(ContainerBoundFunction):
     """
     Represents a function that has been bound to a container
     """
 
-    _argument_updater: Callable
+    _argument_updater: _Callable
     _base_injection_context: TemporaryInjectionContext
-    _inner_func: Callable
+    _inner_func: _Callable
 
     def __init__(self, inner_func, base_injection_context, argument_updater):
         self._inner_func = inner_func
@@ -47,9 +56,9 @@ class AsyncFunc(ContainerBoundFunction):
     Represents an async function that has been bound to a container
     """
 
-    _argument_updater: Callable
+    _argument_updater: _Callable
     _base_injection_context: TemporaryInjectionContext
-    _inner_func: Callable
+    _inner_func: _Callable
 
     def __init__(self, inner_func, base_injection_context, argument_updater):
         self._inner_func = inner_func
