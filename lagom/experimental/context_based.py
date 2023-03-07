@@ -55,6 +55,33 @@ class AwaitableSingleton(Generic[T]):
         return self.instance
 
 
+class _AsyncContextBoundFunction(ContainerBoundFunction[X]):
+    """
+    Represents an instance of a function bound to an async context container
+    """
+
+    async_context_container: "AsyncContextContainer"
+    partially_bound_function: ContainerBoundFunction
+
+    def __init__(
+        self,
+        async_context_container: "AsyncContextContainer",
+        partially_bound_function: ContainerBoundFunction,
+    ):
+        self.async_context_container = async_context_container
+        self.partially_bound_function = partially_bound_function
+
+    async def __call__(self, *args, **kwargs) -> X:  # type: ignore # TODO: figure out what this should be for async
+        async with self.async_context_container as c:
+            return await self.partially_bound_function.rebind(c)(*args, **kwargs)
+
+    def rebind(self, container: ReadableContainer) -> "ContainerBoundFunction[X]":
+        return _AsyncContextBoundFunction(
+            self.async_context_container,
+            self.partially_bound_function.rebind(container),
+        )
+
+
 class AsyncContextContainer(Container):
     async_exit_stack: Optional[AsyncExitStack] = None
     _context_types: Collection[Type]
@@ -126,11 +153,7 @@ class AsyncContextContainer(Container):
             func, shared, container_updater
         )
 
-        async def _with_context(*args, **kwargs):
-            async with self as c:
-                return await base_partial.rebind(c)(*args, **kwargs)  # type: ignore
-
-        return _with_context
+        return _AsyncContextBoundFunction(self, base_partial)
 
     def magic_partial(
         self,
@@ -148,11 +171,7 @@ class AsyncContextContainer(Container):
             func, shared, keys_to_skip, skip_pos_up_to, container_updater
         )
 
-        async def _with_context(*args, **kwargs):
-            async with self as c:
-                return await base_partial.rebind(c)(*args, **kwargs)  # type: ignore
-
-        return _with_context
+        return _AsyncContextBoundFunction(self, base_partial)
 
     def _context_type_def(self, dep_type: Type):
         type_def = self.get_definition(ContextManager[dep_type]) or self.get_definition(Iterator[dep_type]) or self.get_definition(Generator[dep_type, None, None]) or self.get_definition(AsyncGenerator[dep_type, None]) or self.get_definition(AsyncContextManager[dep_type])  # type: ignore

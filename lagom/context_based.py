@@ -29,6 +29,32 @@ from lagom.interfaces import (
 X = TypeVar("X")
 
 
+class _ContextBoundFunction(ContainerBoundFunction[X]):
+    """
+    Represents an instance of a function bound to a context container
+    """
+
+    context_container: "ContextContainer"
+    partially_bound_function: ContainerBoundFunction
+
+    def __init__(
+        self,
+        context_container: "ContextContainer",
+        partially_bound_function: ContainerBoundFunction,
+    ):
+        self.context_container = context_container
+        self.partially_bound_function = partially_bound_function
+
+    def __call__(self, *args, **kwargs) -> X:
+        with self.context_container as c:
+            return self.partially_bound_function.rebind(c)(*args, **kwargs)
+
+    def rebind(self, container: ReadableContainer) -> "ContainerBoundFunction[X]":
+        return _ContextBoundFunction(
+            self.context_container, self.partially_bound_function.rebind(container)
+        )
+
+
 @mypyc_attr(allow_interpreted_subclasses=True)
 class ContextContainer(Container):
     """
@@ -107,12 +133,7 @@ class ContextContainer(Container):
             func, shared, container_updater
         )
 
-        def _with_context(*args, **kwargs):
-
-            with self as c:
-                return base_partial.rebind(c)(*args, **kwargs)
-
-        return _with_context
+        return _ContextBoundFunction(self, base_partial)
 
     def magic_partial(
         self,
@@ -126,11 +147,7 @@ class ContextContainer(Container):
             func, shared, keys_to_skip, skip_pos_up_to, container_updater
         )
 
-        def _with_context(*args, **kwargs):
-            with self as c:
-                return base_partial.rebind(c)(*args, **kwargs)
-
-        return _with_context
+        return _ContextBoundFunction(self, base_partial)
 
     def _context_type_def(self, dep_type: Type):
         type_def = self.get_definition(ContextManager[dep_type]) or self.get_definition(Iterator[dep_type]) or self.get_definition(Generator[dep_type, None, None])  # type: ignore
