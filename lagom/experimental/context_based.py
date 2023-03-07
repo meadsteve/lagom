@@ -71,7 +71,10 @@ class _AsyncContextBoundFunction(ContainerBoundFunction[X]):
         self.async_context_container = async_context_container
         self.partially_bound_function = partially_bound_function
 
-    async def __call__(self, *args, **kwargs) -> X:  # type: ignore # TODO: figure out what this should be for async
+    def __call__(self, *args, **kwargs) -> X:
+        return self.__async_call__(*args, **kwargs)
+
+    async def __async_call__(self, *args, **kwargs):
         async with self.async_context_container as c:
             return await self.partially_bound_function.rebind(c)(*args, **kwargs)
 
