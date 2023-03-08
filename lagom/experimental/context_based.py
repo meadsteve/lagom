@@ -62,12 +62,14 @@ class _AsyncContextBoundFunction(ContainerBoundFunction[X]):
     Represents an instance of a function bound to an async context container
     """
 
-    __slots__ = ("async_context_container", "partially_bound_function")
-
     async_context_container: "AsyncContextContainer"
     partially_bound_function: ContainerBoundFunction
 
-    __dict__: Dict = dict()
+    __slots__ = (
+        "async_context_container",
+        "partially_bound_function",
+        "__dict__"
+    )
 
     def __init__(
         self,
@@ -92,13 +94,10 @@ class _AsyncContextBoundFunction(ContainerBoundFunction[X]):
             )
         )
 
-    def __getattr__(self, item):
-        if item not in self.__slots__:
-            raise Exception(f"{item} doesn't exist")
-        if item == "async_context_container":
-            return self.async_context_container
-        if item == "partially_bound_function":
-            return self.partially_bound_function
+    def __getattribute__(self, item):
+        if item == "__dict__":
+            return {}
+        return super().__getattribute__(item)
 
 
 class AsyncContextContainer(Container):

@@ -36,12 +36,13 @@ class _ContextBoundFunction(ContainerBoundFunction[X]):
     Represents an instance of a function bound to a context container
     """
 
-    __slots__ = ("context_container", "partially_bound_function")
+    __slots__ = (
+        "context_container",
+        "partially_bound_function",
+    )
 
     context_container: "ContextContainer"
     partially_bound_function: ContainerBoundFunction
-
-    __dict__: Dict = dict()
 
     def __init__(
         self,
@@ -62,13 +63,10 @@ class _ContextBoundFunction(ContainerBoundFunction[X]):
             )
         )
 
-    def __getattr__(self, item):
-        if item not in self.__slots__:
-            raise Exception(f"{item} doesn't exist")
-        if item == "context_container":
-            return self.context_container
-        if item == "partially_bound_function":
-            return self.partially_bound_function
+    def __getattribute__(self, item):
+        if item == "__dict__":
+            return {}
+        return super().__getattribute__(item)
 
 
 @mypyc_attr(allow_interpreted_subclasses=True)
