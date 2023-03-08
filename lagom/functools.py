@@ -8,8 +8,13 @@ from functools import wraps as functools_wraps, WRAPPER_UPDATES
 def wraps(wrapped):
     """
     This has the same functionality as single arity functools.wraps but deals with the case
-    where wrapped may not have __dict__
+    where the wrapping object may not have __dict__
     """
-    return functools_wraps(
-        wrapped, updated=WRAPPER_UPDATES if hasattr(wrapped, "__dict__") else tuple()
-    )
+
+    def _wrapper(wrapping):
+        return functools_wraps(
+            wrapped,
+            updated=WRAPPER_UPDATES if hasattr(wrapping, "__dict__") else tuple(),
+        )(wrapping)
+
+    return _wrapper
