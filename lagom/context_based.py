@@ -1,6 +1,7 @@
 import logging
 from contextlib import ExitStack
 from copy import copy
+from functools import wraps
 from typing import (
     Collection,
     Union,
@@ -50,8 +51,10 @@ class _ContextBoundFunction(ContainerBoundFunction[X]):
             return self.partially_bound_function.rebind(c)(*args, **kwargs)
 
     def rebind(self, container: ReadableContainer) -> "ContainerBoundFunction[X]":
-        return _ContextBoundFunction(
-            self.context_container, self.partially_bound_function.rebind(container)
+        return wraps(self.partially_bound_function)(
+            _ContextBoundFunction(
+                self.context_container, self.partially_bound_function.rebind(container)
+            )
         )
 
 
@@ -133,7 +136,7 @@ class ContextContainer(Container):
             func, shared, container_updater
         )
 
-        return _ContextBoundFunction(self, base_partial)
+        return wraps(base_partial)(_ContextBoundFunction(self, base_partial))
 
     def magic_partial(
         self,
@@ -147,7 +150,7 @@ class ContextContainer(Container):
             func, shared, keys_to_skip, skip_pos_up_to, container_updater
         )
 
-        return _ContextBoundFunction(self, base_partial)
+        return wraps(base_partial)(_ContextBoundFunction(self, base_partial))
 
     def _context_type_def(self, dep_type: Type):
         type_def = self.get_definition(ContextManager[dep_type]) or self.get_definition(Iterator[dep_type]) or self.get_definition(Generator[dep_type, None, None])  # type: ignore

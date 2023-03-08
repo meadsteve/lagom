@@ -3,6 +3,7 @@ import logging
 from asyncio import Lock
 from contextlib import AsyncExitStack
 from copy import copy
+from functools import wraps
 from typing import (
     Optional,
     Type,
@@ -79,9 +80,11 @@ class _AsyncContextBoundFunction(ContainerBoundFunction[X]):
             return await self.partially_bound_function.rebind(c)(*args, **kwargs)
 
     def rebind(self, container: ReadableContainer) -> "ContainerBoundFunction[X]":
-        return _AsyncContextBoundFunction(
-            self.async_context_container,
-            self.partially_bound_function.rebind(container),
+        return wraps(self.partially_bound_function)(
+            _AsyncContextBoundFunction(
+                self.async_context_container,
+                self.partially_bound_function.rebind(container),
+            )
         )
 
 
@@ -156,7 +159,7 @@ class AsyncContextContainer(Container):
             func, shared, container_updater
         )
 
-        return _AsyncContextBoundFunction(self, base_partial)
+        return wraps(base_partial)(_AsyncContextBoundFunction(self, base_partial))
 
     def magic_partial(
         self,
@@ -174,7 +177,7 @@ class AsyncContextContainer(Container):
             func, shared, keys_to_skip, skip_pos_up_to, container_updater
         )
 
-        return _AsyncContextBoundFunction(self, base_partial)
+        return wraps(base_partial)(_AsyncContextBoundFunction(self, base_partial))
 
     def _context_type_def(self, dep_type: Type):
         type_def = self.get_definition(ContextManager[dep_type]) or self.get_definition(Iterator[dep_type]) or self.get_definition(Generator[dep_type, None, None]) or self.get_definition(AsyncGenerator[dep_type, None]) or self.get_definition(AsyncContextManager[dep_type])  # type: ignore
