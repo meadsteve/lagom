@@ -59,6 +59,14 @@ class _ContextBoundFunction(ContainerBoundFunction[X]):
             )
         )
 
+    def __getattr__(self, item):
+        if item not in self.__slots__:
+            raise Exception(f"{item} doesn't exist")
+        if item == "context_container":
+            return self.context_container
+        if item == "partially_bound_function":
+            return self.partially_bound_function
+
 
 @mypyc_attr(allow_interpreted_subclasses=True)
 class ContextContainer(Container):

@@ -89,6 +89,14 @@ class _AsyncContextBoundFunction(ContainerBoundFunction[X]):
             )
         )
 
+    def __getattr__(self, item):
+        if item not in self.__slots__:
+            raise Exception(f"{item} doesn't exist")
+        if item == "async_context_container":
+            return self.async_context_container
+        if item == "partially_bound_function":
+            return self.partially_bound_function
+
 
 class AsyncContextContainer(Container):
     async_exit_stack: Optional[AsyncExitStack] = None
