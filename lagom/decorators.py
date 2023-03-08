@@ -111,9 +111,6 @@ def context_dependency_definition(container: Container):
     >>> with c[ContextManager[SomeClass]] as something:
     ...     something
     <tests.examples.SomeClass ...>
-
-    with container[ContextManager[MyComplexDep]] as dep:  # type: ignore
-        assert dep.some_number == 3
     """
 
     def _decorator(func):
