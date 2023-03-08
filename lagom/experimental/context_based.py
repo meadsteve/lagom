@@ -64,7 +64,6 @@ class _AsyncContextBoundFunction(ContainerBoundFunction[X]):
 
     async_context_container: "AsyncContextContainer"
     partially_bound_function: ContainerBoundFunction
-    __dict__: Dict
 
     __slots__ = ("async_context_container", "partially_bound_function")
 
@@ -90,11 +89,6 @@ class _AsyncContextBoundFunction(ContainerBoundFunction[X]):
                 self.partially_bound_function.rebind(container),
             )
         )
-
-    def __getattribute__(self, item):
-        if item == "__dict__":
-            return {}
-        return super().__getattribute__(item)
 
 
 class AsyncContextContainer(Container):

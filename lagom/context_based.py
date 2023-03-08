@@ -40,7 +40,6 @@ class _ContextBoundFunction(ContainerBoundFunction[X]):
 
     context_container: "ContextContainer"
     partially_bound_function: ContainerBoundFunction
-    __dict__: Dict
 
     def __init__(
         self,
@@ -60,11 +59,6 @@ class _ContextBoundFunction(ContainerBoundFunction[X]):
                 self.context_container, self.partially_bound_function.rebind(container)
             )
         )
-
-    def __getattribute__(self, item):
-        if item == "__dict__":
-            return {}
-        return super().__getattribute__(item)
 
 
 @mypyc_attr(allow_interpreted_subclasses=True)
