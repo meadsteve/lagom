@@ -61,6 +61,8 @@ class _AsyncContextBoundFunction(ContainerBoundFunction[X]):
     Represents an instance of a function bound to an async context container
     """
 
+    __slots__ = ("async_context_container", "partially_bound_function")
+
     async_context_container: "AsyncContextContainer"
     partially_bound_function: ContainerBoundFunction
 
