@@ -64,12 +64,9 @@ class _AsyncContextBoundFunction(ContainerBoundFunction[X]):
 
     async_context_container: "AsyncContextContainer"
     partially_bound_function: ContainerBoundFunction
+    __dict__: Dict
 
-    __slots__ = (
-        "async_context_container",
-        "partially_bound_function",
-        "__dict__"
-    )
+    __slots__ = ("async_context_container", "partially_bound_function")
 
     def __init__(
         self,

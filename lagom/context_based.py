@@ -36,13 +36,11 @@ class _ContextBoundFunction(ContainerBoundFunction[X]):
     Represents an instance of a function bound to a context container
     """
 
-    __slots__ = (
-        "context_container",
-        "partially_bound_function",
-    )
+    __slots__ = ("context_container", "partially_bound_function")
 
     context_container: "ContextContainer"
     partially_bound_function: ContainerBoundFunction
+    __dict__: Dict
 
     def __init__(
         self,
