@@ -73,7 +73,7 @@ class FastApiIntegration:
     @contextmanager
     def override_for_test(self) -> Iterator[WriteableContainer]:
         """
-        Returns a ContextManager that returns an editiable container
+        Returns a ContextManager that returns an editable container
         that will temporarily alter the dependency injection resolution
         of all dependencies bound to this container.
 
