@@ -14,6 +14,7 @@ from typing import (
     Generator,
     Callable,
     List,
+    Dict,
 )
 
 from lagom import Container
@@ -39,6 +40,8 @@ class _ContextBoundFunction(ContainerBoundFunction[X]):
 
     context_container: "ContextContainer"
     partially_bound_function: ContainerBoundFunction
+
+    __dict__: Dict = dict()
 
     def __init__(
         self,

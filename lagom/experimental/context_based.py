@@ -19,6 +19,7 @@ from typing import (
     AsyncGenerator,
     Callable,
     List,
+    Dict,
 )
 
 from lagom.container import Container
@@ -65,6 +66,8 @@ class _AsyncContextBoundFunction(ContainerBoundFunction[X]):
 
     async_context_container: "AsyncContextContainer"
     partially_bound_function: ContainerBoundFunction
+
+    __dict__: Dict = dict()
 
     def __init__(
         self,
