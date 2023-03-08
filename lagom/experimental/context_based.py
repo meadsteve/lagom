@@ -3,7 +3,6 @@ import logging
 from asyncio import Lock
 from contextlib import AsyncExitStack
 from copy import copy
-from functools import wraps
 from typing import (
     Optional,
     Type,
@@ -23,6 +22,7 @@ from typing import (
 )
 
 from lagom.container import Container
+from lagom.functools import wraps
 from lagom.definitions import Alias, ConstructionWithContainer, SingletonWrapper
 from lagom.exceptions import InvalidDependencyDefinition, MissingFeature
 from lagom.experimental.definitions import AsyncConstructionWithContainer

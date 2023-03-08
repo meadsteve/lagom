@@ -4,7 +4,6 @@ application into the container.s
 """
 import inspect
 from contextlib import contextmanager, asynccontextmanager
-from functools import wraps
 from types import FunctionType
 from typing import (
     List,
@@ -18,6 +17,7 @@ from typing import (
 )
 
 from .container import Container
+from .functools import wraps
 from .definitions import Singleton, construction, yielding_construction
 from .exceptions import (
     MissingReturnType,

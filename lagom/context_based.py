@@ -1,7 +1,6 @@
 import logging
 from contextlib import ExitStack
 from copy import copy
-from functools import wraps
 from typing import (
     Collection,
     Union,
@@ -17,7 +16,8 @@ from typing import (
     Dict,
 )
 
-from lagom import Container
+from lagom.container import Container
+from lagom.functools import wraps
 from lagom.compilaton import mypyc_attr
 from lagom.definitions import ConstructionWithContainer, SingletonWrapper, Alias
 from lagom.exceptions import InvalidDependencyDefinition
