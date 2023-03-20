@@ -121,6 +121,7 @@ class UnresolvableType(ValueError, LagomException):
                 return unresolvable_deps
             unresolvable_deps.append(error.dep_type)
             error = error.__cause__
+        # This should never happen
         unresolvable_deps.append("...")
         return unresolvable_deps
 
