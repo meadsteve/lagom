@@ -180,7 +180,7 @@ class Container(
             # Unless there's already a sync version defined.
             if awaitable_type not in self.defined_types:
                 self._registered_types[awaitable_type] = UnresolvableTypeDefinition(
-                    TypeOnlyAvailableAsAwaitable(awaitable_type)
+                    awaitable_type, TypeOnlyAvailableAsAwaitable(awaitable_type)
                 )
         return definition
 

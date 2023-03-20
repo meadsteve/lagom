@@ -65,8 +65,9 @@ def test_raises_error_with_the_dep_that_couldnt_be_built_at_the_top_level(contai
     with pytest.raises(UnresolvableType) as e_info:
         container.resolve(UnfulfilledDeps)
     assert (
-        str(e_info.value) == "Unable to construct dependency of type UnfulfilledDeps "
+        "Unable to construct dependency of type UnfulfilledDeps "
         "The constructor probably has some unresolvable dependencies"
+        in str(e_info.value)
     )
 
 
@@ -83,16 +84,18 @@ def test_composite_type_failures_still_throw_sensible_errors(container):
 
 
 def test_types_can_be_explicitly_made_unresolvable(container: Container):
-    container[SomeDep] = UnresolvableTypeDefinition("You can't resolve SomeDep")
+    container[SomeDep] = UnresolvableTypeDefinition(
+        SomeDep, "You can't resolve SomeDep"
+    )
     with pytest.raises(TypeResolutionBlocked) as err:
         container.resolve(SomeDep)
-    assert str(err.value) == "You can't resolve SomeDep"
+    assert "You can't resolve SomeDep" in str(err.value)
 
 
 def test_types_can_be_explicitly_made_unresolvable_with_a_custom_exception(
     container: Container,
 ):
-    container[SomeDep] = UnresolvableTypeDefinition(SyntaxError("nopes"))
+    container[SomeDep] = UnresolvableTypeDefinition(SomeDep, SyntaxError("nopes"))
     with pytest.raises(SyntaxError) as err:
         container.resolve(SomeDep)
     assert str(err.value) == "nopes"
@@ -117,3 +120,28 @@ def test_circular_imports_raise_a_clear_error(container):
     err_string = str(e_info.value)
     assert "When trying to build dependency of type " in err_string
     assert "This could indicate a circular definition somewhere." in err_string
+
+
+class MyTypedHTTPClient:
+    def __init__(self, _stuff: MyMissingDep):
+        pass
+
+
+class MyDataProvider:
+    def __init__(self, _stuff: MyTypedHTTPClient):
+        pass
+
+
+class MyService:
+    def __init__(self, _stuff: MyDataProvider):
+        pass
+
+
+def test_error_displays_dependency_list(container):
+    with pytest.raises(UnresolvableType) as e_info:
+        container.resolve(MyService)
+    assert (
+        str(e_info.value) == "Unable to construct dependency of type MyService "
+        "The constructor probably has some unresolvable dependencies: "
+        "MyService => MyDataProvider => MyTypedHTTPClient => MyMissingDep => str => str"
+    )

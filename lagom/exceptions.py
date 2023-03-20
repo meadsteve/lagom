@@ -108,11 +108,30 @@ class UnresolvableType(ValueError, LagomException):
                 "The constructor probably has some unresolvable dependencies"
             )
 
+    def __str__(self):
+        return f"{super().__str__()}: {str.join(' => ', self.get_unresolvable_deps_sequence())}"
+
+    def get_unresolvable_deps_sequence(self) -> typing.List[str]:
+        """Returns the dependency stack with the last element being the dependency source of the exception"""
+        error: typing.Optional[BaseException] = self
+        unresolvable_deps: typing.List[str] = []
+
+        for _loop_guard in range(100):  # This means there is probably a recursion
+            if not (error and isinstance(error, UnresolvableType)):
+                return unresolvable_deps
+            unresolvable_deps.append(error.dep_type)
+            error = error.__cause__
+        unresolvable_deps.append("...")
+        return unresolvable_deps
+
 
 class TypeResolutionBlocked(UnresolvableType):
     """The type was explicitly blocked by configuration"""
 
-    def __init__(self, msg: str):
+    dep_type: str
+
+    def __init__(self, dep_type: typing.Type, msg: str):
+        self.dep_type = _dep_type_as_string(dep_type)
         super(ValueError, self).__init__(msg)
 
 
@@ -126,7 +145,6 @@ class RecursiveDefinitionError(SyntaxError, LagomException):
         :param dep_type: The type that could not be constructed
         """
         self.dep_type = dep_type
-
         super().__init__(
             f"When trying to build dependency of type '{_dep_type_as_string(dep_type)}' python hit a recursion limit. "
             "This could indicate a circular definition somewhere."
