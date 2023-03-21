@@ -170,16 +170,18 @@ class UnresolvableTypeDefinition(SpecialDepDefinition[NoReturn]):
     Used to represent a type that should not be built by the container
     """
 
+    dep_type: Type
     _msg_or_exception: Union[str, Exception]
 
-    def __init__(self, msg_or_exception: Union[str, Exception]):
+    def __init__(self, dep_type: Type, msg_or_exception: Union[str, Exception]):
+        self.dep_type = dep_type
         self._msg_or_exception = msg_or_exception
 
     def get_instance(self, container: ReadableContainer) -> NoReturn:
         if isinstance(self._msg_or_exception, Exception):
             raise self._msg_or_exception
         else:
-            raise TypeResolutionBlocked(self._msg_or_exception)
+            raise TypeResolutionBlocked(self.dep_type, self._msg_or_exception)
 
 
 def normalise(
