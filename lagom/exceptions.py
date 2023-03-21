@@ -116,7 +116,7 @@ class UnresolvableType(ValueError, LagomException):
         error: typing.Optional[BaseException] = self
         unresolvable_deps: typing.List[str] = []
 
-        for _loop_guard in range(100):  # This means there is probably a problem with __cause__
+        for _loop_guard in range(100):
             if not (error and isinstance(error, UnresolvableType)):
                 return unresolvable_deps
             unresolvable_deps.append(error.dep_type)
