@@ -49,7 +49,7 @@ jobs:
         find ./dist -name '*.whl'| head -n 1 | xargs pipenv install --skip-lock
     - name: Run Tests
       run: |
-        pipenv run pytest tests -m "not benchmarking not mypyc_failing" -vv
+        pipenv run pytest tests -m "not benchmarking and not mypyc_failing" -vv
     - name: Run Benchmarking
       run: |
         make benchmark
