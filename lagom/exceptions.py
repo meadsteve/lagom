@@ -131,8 +131,8 @@ class TypeResolutionBlocked(UnresolvableType):
 
     dep_type: str
 
-    def __init__(self, dep_type: typing.Type, msg: str):
-        self.dep_type = _dep_type_as_string(dep_type)
+    def __init__(self, dep_type: typing.Optional[typing.Type], msg: str):
+        self.dep_type = _dep_type_as_string(dep_type) if dep_type else ""
         super(ValueError, self).__init__(msg)
 
 

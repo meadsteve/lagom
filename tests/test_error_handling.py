@@ -84,9 +84,7 @@ def test_composite_type_failures_still_throw_sensible_errors(container):
 
 
 def test_types_can_be_explicitly_made_unresolvable(container: Container):
-    container[SomeDep] = UnresolvableTypeDefinition(
-        SomeDep, "You can't resolve SomeDep"
-    )
+    container[SomeDep] = UnresolvableTypeDefinition("You can't resolve SomeDep")
     with pytest.raises(TypeResolutionBlocked) as err:
         container.resolve(SomeDep)
     assert "You can't resolve SomeDep" in str(err.value)
@@ -95,7 +93,7 @@ def test_types_can_be_explicitly_made_unresolvable(container: Container):
 def test_types_can_be_explicitly_made_unresolvable_with_a_custom_exception(
     container: Container,
 ):
-    container[SomeDep] = UnresolvableTypeDefinition(SomeDep, SyntaxError("nopes"))
+    container[SomeDep] = UnresolvableTypeDefinition(SyntaxError("nopes"))
     with pytest.raises(SyntaxError) as err:
         container.resolve(SomeDep)
     assert str(err.value) == "nopes"

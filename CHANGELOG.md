@@ -1,4 +1,14 @@
 # Changelog
+## 2.4.1 (2023-03-21)
+### Enhancements
+None
+
+### Bug Fixes
+* Fixes BC breaking change in UnresolvableType definition released in 2.4.0.
+
+### Backwards incompatible changes
+None
+
 ## 2.4.0 (2023-03-21)
 ### Enhancements
 * Better error messages when UnresolvableType is raised. The dependency chain is now printed. Thanks to @bastienexertier via #235
