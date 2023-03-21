@@ -137,6 +137,7 @@ class MyService:
         pass
 
 
+@pytest.mark.mypyc_failing
 def test_error_displays_dependency_list(container):
     with pytest.raises(UnresolvableType) as e_info:
         container.resolve(MyService)
