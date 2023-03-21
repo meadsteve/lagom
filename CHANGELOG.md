@@ -1,4 +1,14 @@
 # Changelog
+## 2.4.0 (2023-03-21)
+### Enhancements
+* Better error messages when UnresolvableType is raised. The dependency chain is now printed. Thanks to @bastienexertier via #235
+
+### Bug Fixes
+None
+
+### Backwards incompatible changes
+None
+
 ## 2.3.0 (2023-03-06)
 ### Enhancements
 * Request level singletons can now depend on the request in the fastapi integration. Added in #231 thanks to @alkimake.
