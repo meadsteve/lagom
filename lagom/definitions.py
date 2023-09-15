@@ -1,9 +1,19 @@
 """
 Classes representing specific ways of representing dependencies
 """
+import asyncio
 import inspect
 from threading import Lock
-from typing import Union, Type, Optional, Callable, TypeVar, NoReturn, Iterator
+from typing import (
+    Union,
+    Type,
+    Optional,
+    Callable,
+    TypeVar,
+    NoReturn,
+    Iterator,
+    Awaitable,
+)
 
 from .exceptions import (
     InvalidDependencyDefinition,
@@ -13,6 +23,29 @@ from .interfaces import SpecialDepDefinition, ReadableContainer, TypeResolver
 from .util.functional import arity
 
 X = TypeVar("X")
+AX = Awaitable[X]
+
+
+class AsyncConstructionWithoutContainer(SpecialDepDefinition[AX]):
+    """Wraps an awaitable for constructing a type"""
+
+    def __init__(self, constructor: Callable[[], AX]):
+        self.constructor = constructor
+
+    def get_instance(self, container: ReadableContainer) -> AX:
+        resolver = self.constructor
+        return asyncio.ensure_future(resolver())
+
+
+class AsyncConstructionWithContainer(SpecialDepDefinition[AX]):
+    """Wraps an awaitable for constructing a type"""
+
+    def __init__(self, constructor: Callable[[ReadableContainer], AX]):
+        self.constructor = constructor
+
+    def get_instance(self, container: ReadableContainer) -> Awaitable[AX]:
+        resolver = self.constructor
+        return asyncio.ensure_future(resolver(container))
 
 
 class ConstructionWithoutContainer(SpecialDepDefinition[X]):
@@ -57,6 +90,23 @@ class YieldWithContainer(SpecialDepDefinition[X]):
     def get_instance(self, container: ReadableContainer) -> X:
         resolver = self.constructor
         return next(resolver(container))
+
+
+def async_construction(
+    resolver: Callable,
+) -> Union[AsyncConstructionWithContainer, AsyncConstructionWithoutContainer]:
+    """
+    Takes a generator and returns a type definition
+    :param reflector:
+    :param resolver:
+    :return:
+    """
+    func_arity = arity(resolver)
+    if func_arity == 0:
+        return AsyncConstructionWithoutContainer(resolver)
+    if func_arity == 1:
+        return AsyncConstructionWithContainer(resolver)
+    raise InvalidDependencyDefinition(f"Arity {func_arity} functions are not supported")
 
 
 def construction(
@@ -199,7 +249,7 @@ def normalise(
     elif inspect.isfunction(resolver):
         return construction(resolver)  # type: ignore
     elif inspect.iscoroutinefunction(resolver):
-        return construction(resolver)  # type: ignore
+        return async_construction(resolver)
     elif inspect.isclass(resolver):
         return Alias(resolver, skip_alias_definitions)
     else:
