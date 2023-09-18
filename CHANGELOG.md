@@ -1,4 +1,14 @@
 # Changelog
+## 2.4.2 (PENDING)
+### Enhancements
+None
+
+### Bug Fixes
+* Awaitable singleton no longer raises RuntimeError on second usage - thanks to @thiromi
+
+### Backwards incompatible changes
+None
+
 ## 2.4.1 (2023-03-21)
 ### Enhancements
 None

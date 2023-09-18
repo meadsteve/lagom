@@ -10,3 +10,4 @@ Thanks for early feedback on the documentation and design go to Mohammed, Henrin
   * @MisterKeefe
   * @alkimake
   * @bastienexertier
+  * @thiromi
