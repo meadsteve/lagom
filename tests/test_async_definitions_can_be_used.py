@@ -3,7 +3,7 @@ from typing import Awaitable
 
 import pytest
 
-from lagom import Container, dependency_definition
+from lagom import Container, dependency_definition, Singleton
 from lagom.exceptions import TypeOnlyAvailableAsAwaitable
 
 
@@ -30,6 +30,14 @@ async def test_alternative_way_of_defining_an_async_dep(container: Container):
     container[Awaitable[MyComplexDep]] = MyComplexDep.asyc_loader  # type: ignore
 
     assert (await container[Awaitable[MyComplexDep]]) == MyComplexDep(some_number=10)  # type: ignore
+
+
+@pytest.mark.asyncio
+async def test_async_singleton_do_not_raise_runtime_error(container: Container):
+    container[Awaitable[MyComplexDep]] = Singleton(MyComplexDep.asyc_loader)  # type: ignore[type-abstract]
+
+    assert (await container[Awaitable[MyComplexDep]]) == MyComplexDep(some_number=10)  # type: ignore[type-abstract]
+    assert (await container[Awaitable[MyComplexDep]]) == MyComplexDep(some_number=10)  # type: ignore[type-abstract]
 
 
 @pytest.mark.asyncio
