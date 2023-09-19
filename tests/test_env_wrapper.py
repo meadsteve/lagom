@@ -8,7 +8,7 @@ from lagom.exceptions import MissingEnvVariable, InvalidEnvironmentVariables
 
 
 class MyEnv(Env):
-    example_value: Optional[str]
+    example_value: Optional[str] = None
 
 
 class MyEnvWithPrefix(Env):

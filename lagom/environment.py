@@ -26,7 +26,7 @@ from typing import ClassVar, Optional
 from .exceptions import MissingEnvVariable, InvalidEnvironmentVariables
 
 try:
-    from pydantic.main import BaseModel, ValidationError
+    from pydantic import BaseModel, ValidationError
 except ImportError as error:
     raise ImportError(
         "Using Env requires pydantic to be installed. Try `pip install lagom[env]`"
@@ -65,9 +65,7 @@ class Env(ABC, BaseModel):
                 super().__init__(**kwargs)
         except ValidationError as validation_error:
             missing_field_errors = [
-                e
-                for e in validation_error.errors()
-                if e["type"] == "value_error.missing"
+                e for e in validation_error.errors() if e["type"] == "missing"
             ]
             if missing_field_errors:
                 env_names = self._env_names_from_pydantic_errors(missing_field_errors)
