@@ -20,11 +20,11 @@ mkdocs = "~=1.2.2"
 mkdocs-material = "*"
 mkdocstrings = {version = "~=0.19.0", extras = ["python"]}
 # Needed for the Env class
-pydantic = "~=1.8"
+pydantic = "~=2.0"
 # Needed for the integrations only
 starlette = "~=0.14"
 httpx = "~=0.23.0"
-fastapi = "~=0.68"
+fastapi = "~=0.100"
 flask = "~=2.1"
 django = "~=3.0"
 click = "*"
