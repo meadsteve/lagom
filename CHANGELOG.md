@@ -1,4 +1,14 @@
 # Changelog
+## 2.5.0 (2023-09-20)
+### Enhancements
+* Add support for pydantic v2. Thanks to @rickythefox
+
+### Bug Fixes
+None
+
+### Backwards incompatible changes
+None
+
 ## 2.4.2 (2023-09-20)
 ### Enhancements
 None
