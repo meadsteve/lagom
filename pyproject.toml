@@ -29,7 +29,7 @@ dynamic = ["version"]
 packages = ["lagom", "lagom.util", "lagom.integrations", "lagom.experimental", "lagom.experimental.integrations"]
 
 [project.optional-dependencies]
-env = ["pydantic >=1.0.0,<2.0.0"]
+env = ["pydantic >=1.0.0,<3.0.0"]
 
 [project.urls]
 Documentation = "https://lagom-di.readthedocs.io/"
