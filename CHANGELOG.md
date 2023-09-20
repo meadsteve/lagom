@@ -1,5 +1,5 @@
 # Changelog
-## 2.4.2 (PENDING)
+## 2.4.2 (2023-09-20)
 ### Enhancements
 None
 
