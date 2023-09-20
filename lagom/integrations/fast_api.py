@@ -56,7 +56,7 @@ class FastApiIntegration:
                 or not request.state.lagom_request_container
             ):
                 request.state.lagom_request_container = self._build_container(request)
-                with request.state.lagom_request_container as c:
+                with request.state.lagom_request_container.clone() as c:
                     yield c
             else:
                 # No need to "with" as it's already been done once and this

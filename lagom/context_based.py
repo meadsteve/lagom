@@ -1,3 +1,4 @@
+import contextlib
 import logging
 from contextlib import ExitStack
 from copy import copy
@@ -44,7 +45,7 @@ class ContextContainer(Container):
     >>> c[ContextManager[SomeClass]] = SomeClassManager
     >>>
     >>> context_c = ContextContainer(c, context_types=[SomeClass])
-    >>> with context_c as c:
+    >>> with context_c.clone() as c:
     ...     c[SomeClass]
     <tests.examples.SomeClass object at ...>
     """
@@ -52,6 +53,7 @@ class ContextContainer(Container):
     exit_stack: Optional[ExitStack] = None
     _context_types: Collection[Type]
     _context_singletons: Collection[Type]
+    _cloned = False
 
     def __init__(
         self,
@@ -68,14 +70,20 @@ class ContextContainer(Container):
         """returns a copy of the container
         :return:
         """
-        return ContextContainer(
+        container = ContextContainer(
             self,
             context_types=self._context_types,
             context_singletons=self._context_singletons,
             log_undefined_deps=self._undefined_logger,
         )
+        container._cloned = True
+        return container
 
     def __enter__(self):
+        if not self._cloned:
+            raise RuntimeError(
+                "Context container must be cloned before usage in a with block"
+            )
         if not self.exit_stack:
             # All actual context definitions happen on a clone so that there's isolation between invocations
             in_context = self.clone()
@@ -103,7 +111,7 @@ class ContextContainer(Container):
         container_updater: Optional[CallTimeContainerUpdate] = None,
     ) -> Callable[..., X]:
         def _with_context(*args, **kwargs):
-            with self as c:
+            with self.clone() as c:
                 # TODO: Try and move this partial outside the function as this is expensive
                 base_partial = super(ContextContainer, c).partial(
                     func, shared, container_updater
@@ -121,7 +129,7 @@ class ContextContainer(Container):
         container_updater: Optional[CallTimeContainerUpdate] = None,
     ) -> Callable[..., X]:
         def _with_context(*args, **kwargs):
-            with self as c:
+            with self.clone() as c:
                 # TODO: Try and move this partial outside the function as this is expensive
                 base_partial = super(ContextContainer, c).magic_partial(
                     func, shared, keys_to_skip, skip_pos_up_to, container_updater

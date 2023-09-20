@@ -73,7 +73,7 @@ context_container = ContextContainer(
 
 
 def _example_function(num: int) -> None:
-    with context_container as c:
+    with context_container.clone() as c:
         service1 = c[MyService]
         service2 = c[MyService]
         print(

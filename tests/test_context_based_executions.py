@@ -58,14 +58,18 @@ def _load_a_some_wrapper_dep_then_clean(c) -> Iterator[SomeWrapperDep]:
 def test_clean_up_of_loaded_contexts_happens_on_container_exit():
     SomeDep.global_clean_up_has_happened = False
 
-    with ContextContainer(container, context_types=[SomeDep]) as context_container:
+    with ContextContainer(
+        container, context_types=[SomeDep]
+    ).clone() as context_container:
         assert isinstance(context_container[SomeDep], SomeDep)
         assert not SomeDep.global_clean_up_has_happened
     assert SomeDep.global_clean_up_has_happened
 
 
 def test_context_instances_are_not_singletons():
-    with ContextContainer(container, context_types=[SomeDep]) as context_container:
+    with ContextContainer(
+        container, context_types=[SomeDep]
+    ).clone() as context_container:
         one = context_container[SomeDep]
         two = context_container[SomeDep]
         assert one is not two
@@ -75,7 +79,7 @@ def test_context_instances_can_be_made_singletons():
     SomeDep.global_clean_up_has_happened = False
     with ContextContainer(
         container, context_types=[], context_singletons=[SomeDep]
-    ) as context_container:
+    ).clone() as context_container:
         one = context_container[SomeDep]
         two = context_container[SomeDep]
         assert one is two
@@ -87,9 +91,9 @@ def test_context_instance_singletons_only_have_a_lifespan_of_the_with():
     context_container = ContextContainer(
         container, context_types=[], context_singletons=[SomeDep]
     )
-    with context_container as c:
+    with context_container.clone() as c:
         one = c[SomeDep]
-    with context_container as c:
+    with context_container.clone() as c:
         two = c[SomeDep]
     assert one is not two
 
@@ -100,7 +104,7 @@ def test_clean_up_of_loaded_contexts_happens_recursively_on_container_exit():
 
     with ContextContainer(
         container, context_types=[SomeDep, SomeWrapperDep]
-    ) as context_container:
+    ).clone() as context_container:
         assert isinstance(context_container[SomeWrapperDep], SomeWrapperDep)
         assert not SomeDep.global_clean_up_has_happened
         assert not SomeWrapperDep.global_clean_up_has_happened
@@ -113,7 +117,7 @@ def test_it_fails_if_the_dependencies_arent_defined_correctly():
     with pytest.raises(InvalidDependencyDefinition) as failure:
         with ContextContainer(
             container, context_types=[SomeNotProperlySetupDef]
-        ) as context_container:
+        ).clone() as context_container:
             context_container.resolve(SomeNotProperlySetupDef)
     assert f"A ContextManager[{SomeNotProperlySetupDef}] should be defined" in str(
         failure.value
@@ -130,25 +134,18 @@ def test_it_works_with_actual_context_managers():
 
     container[ContextManager[Thing]] = ThingManager  # type: ignore
 
-    with ContextContainer(container, context_types=[Thing]) as context_container:
+    with ContextContainer(
+        container, context_types=[Thing]
+    ).clone() as context_container:
         assert context_container.resolve(Thing).contents == "managed thing"
 
 
 def test_the_container_can_be_reused():
     original = ContextContainer(container, context_types=[SomeDep])
-    with original as context_container_1:
+    with original.clone() as context_container_1:
         a = context_container_1.resolve(SomeDep)
-    with original as context_container_2:
+    with original.clone() as context_container_2:
         b = context_container_2.resolve(SomeDep)
-    assert a != b
-
-
-def test_the_container_can_be_nested_though_this_has_no_meaning():
-    original = ContextContainer(container, context_types=[SomeDep])
-    with original as context_container_1:
-        a = context_container_1.resolve(SomeDep)
-        with context_container_1 as context_container_2:
-            b = context_container_2.resolve(SomeDep)
     assert a != b
 
 
