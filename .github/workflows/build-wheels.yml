@@ -12,9 +12,9 @@ jobs:
       fail-fast: false
       matrix:
         builds: [
-          {os: "macOS-latest", python_requires: ">=3.7.0", archs: "auto", skip: "cp310-macosx_x86_64 cp311-macosx_x86_64"},
-          {os: "windows-latest", python_requires: ">=3.7.0", archs: "auto", skip: ""},
-          {os: "ubuntu-latest", python_requires: ">=3.7.0", archs: "auto64", skip: ""}
+          {os: "macOS-latest", python_requires: ">=3.8.0", archs: "auto", skip: "cp310-macosx_x86_64 cp311-macosx_x86_64"},
+          {os: "windows-latest", python_requires: ">=3.8.0", archs: "auto", skip: ""},
+          {os: "ubuntu-latest", python_requires: ">=3.8.0", archs: "auto64", skip: ""}
         ]
     steps:
     - uses: actions/checkout@v2
