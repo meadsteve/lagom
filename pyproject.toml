@@ -2,7 +2,7 @@
 target_version = ['py37', 'py38', 'py39', 'py310']
 
 [build-system]
-requires = ["setuptools>=59.6.0", "wheel", "mypy==0.971"]
+requires = ["setuptools>=68.2.2", "wheel", "mypy==0.971"]
 build-backend = "setuptools.build_meta"
 
 [project]
