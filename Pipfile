@@ -6,7 +6,7 @@ verify_ssl = true
 [dev-packages]
 setuptools = "~=68.2.2"
 build = "~=0.8.0"
-mypy = "~=1.7.0"
+mypy = "~=1.0.1"
 black = "~=23.11.0"
 interrogate = "~=1.2"
 safety = "~=1.9.0"
@@ -30,5 +30,5 @@ django = "~=3.0"
 click = "*"
 
 [packages]
-mypy = "*"
+mypy = "~=1.0.1"
 black = "*"
