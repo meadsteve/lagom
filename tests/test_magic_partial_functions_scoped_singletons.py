@@ -101,7 +101,6 @@ def test_partial_application_returns_something_that_is_considered_a_function(
 
 
 def test_invocation_level_singletons_respect_container_singletons(container: Container):
-
     container[SomeCache] = Singleton(SomeCache)
 
     @magic_bind_to_container(container, shared=[SomeCache])

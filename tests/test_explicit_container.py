@@ -37,7 +37,6 @@ def test_an_can_build_with_basic_lambdas(explicit_container: Container):
 
 
 def test_aliases_arent_valid_as_they_require_reflection(explicit_container: Container):
-
     with pytest.raises(InvalidDependencyDefinition) as e_info:
         explicit_container[SomethingBiggerToBuild] = SomethingBiggerToBuild
 
@@ -47,7 +46,6 @@ def test_aliases_arent_valid_as_they_require_reflection(explicit_container: Cont
 def test_singletons_with_aliases_arent_valid_as_they_require_reflection(
     explicit_container: Container,
 ):
-
     with pytest.raises(InvalidDependencyDefinition) as e_info:
         explicit_container[SomethingBiggerToBuild] = Singleton(SomethingBiggerToBuild)
 
