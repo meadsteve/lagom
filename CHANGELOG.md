@@ -1,4 +1,14 @@
 # Changelog
+## 2.6.0 (2023-11-19)
+### Enhancements
+* Supports python 3.12
+
+### Bug Fixes
+None
+
+### Backwards incompatible changes
+* Formal support for 3.7 dropped - but the code should still work
+
 ## 2.5.0 (2023-09-20)
 ### Enhancements
 * Add support for pydantic v2. Thanks to @rickythefox
