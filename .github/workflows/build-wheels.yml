@@ -12,16 +12,16 @@ jobs:
       fail-fast: false
       matrix:
         builds: [
-          {os: "macOS-latest", python_requires: ">=3.8.0", archs: "auto", skip: "cp310-macosx_x86_64 cp311-macosx_x86_64"},
-          {os: "windows-latest", python_requires: ">=3.8.0", archs: "auto", skip: ""},
-          {os: "ubuntu-latest", python_requires: ">=3.8.0", archs: "auto64", skip: ""}
+          {os: "macOS-latest", python_requires: ">=3.9.0", archs: "auto", skip: "cp310-macosx_x86_64 cp311-macosx_x86_64"},
+          {os: "windows-latest", python_requires: ">=3.9.0", archs: "auto", skip: ""},
+          {os: "ubuntu-latest", python_requires: ">=3.9.0", archs: "auto64", skip: ""}
         ]
     steps:
     - uses: actions/checkout@v2
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with:
-        python-version: 3.8
+        python-version: 3.9
     - name: Install deps
       run: python -m pip install cibuildwheel==2.12.0 twine==4.0.2
     - name: Build wheels
@@ -45,7 +45,7 @@ jobs:
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
-        python-version: 3.8
+        python-version: 3.9
     - name: Install deps
       run: python -m pip install wheel==0.37.1  twine==4.0.2
     - name: Build pure python wheel
