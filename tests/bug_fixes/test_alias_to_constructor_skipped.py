@@ -1,6 +1,7 @@
 """
 https://github.com/meadsteve/lagom/issues/150
 """
+
 from lagom import Container
 
 
