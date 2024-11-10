@@ -1,6 +1,7 @@
 """
 Exceptions raised by the library
 """
+
 import inspect
 import typing
 from abc import ABC

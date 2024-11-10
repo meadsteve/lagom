@@ -1,6 +1,7 @@
 """
 Flask API (https://www.flaskapi.org/)
 """
+
 from typing import Type, List, Optional, Any, Dict, Callable
 
 from flask import Flask, request

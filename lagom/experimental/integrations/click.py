@@ -1,6 +1,7 @@
 """
 Integration layer for Click https://click.palletsprojects.com/
 """
+
 from typing import Optional, List, Type, Callable
 
 from click import utils, decorators

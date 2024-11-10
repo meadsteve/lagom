@@ -1,4 +1,5 @@
 """Module for helping with debugging and issue logging"""
+
 import os
 from pathlib import Path
 
