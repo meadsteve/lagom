@@ -37,6 +37,7 @@ dependencies = DjangoIntegration(container, models=[Question], request_singleton
 ```
 
 """
+
 import types
 from typing import TypeVar, Generic, List, Type, Optional, Any
 

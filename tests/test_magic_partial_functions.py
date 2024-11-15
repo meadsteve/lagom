@@ -137,7 +137,9 @@ def test_deps_are_loaded_at_call_time_not_definition_time():
 
 def test_name_and_docs_are_kept():
     assert another_example_function.__name__ == "another_example_function"
-    assert another_example_function.__doc__ == "\n    I am DOCS\n    "
+    # Note: whitespace stripping because some versions of python format the docs differently
+    #       and we don't care too much about that. just that content is kept.
+    assert another_example_function.__doc__.strip() == "I am DOCS"  # type: ignore[union-attr]
 
 
 def test_partials_can_be_provided_with_an_update_method(container: Container):

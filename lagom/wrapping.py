@@ -2,6 +2,7 @@
 Code in this module is used to wrap and decorate functions that have been
 bound to a container
 """
+
 import functools
 import inspect
 

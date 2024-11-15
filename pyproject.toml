@@ -1,8 +1,8 @@
 [tool.black]
-target_version = ['py38', 'py39', 'py310', 'py311', 'py312']
+target_version = ['py39', 'py310', 'py311', 'py312', 'py313']
 
 [build-system]
-requires = ["setuptools>=68.2.2", "wheel", "mypy==0.971"]
+requires = ["setuptools>=75.3.0", "wheel", "mypy==0.971"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -13,17 +13,16 @@ authors = [{ name = "Meadsteve", email = "steve@meadsteve.dev" }]
 license = { file = "LICENSE" }
 classifiers = [
   "License :: OSI Approved :: MIT License",
-  "Programming Language :: Python :: 3.7",
-  "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Topic :: Software Development :: Libraries",
   "Typing :: Typed",
 ]
 dependencies = []
-requires-python = ">=3.7"
+requires-python = ">=3.9"
 dynamic = ["version"]
 
 [tool.setuptools]
