@@ -1,6 +1,7 @@
 """
 Classes representing specific ways of representing dependencies
 """
+
 import asyncio
 import inspect
 from threading import Lock

@@ -1,6 +1,7 @@
 """
 Interfaces shared by modules within the lagom package
 """
+
 from abc import ABC, abstractmethod
 from typing import (
     Generic,

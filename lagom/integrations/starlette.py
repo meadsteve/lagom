@@ -1,6 +1,7 @@
 """
 For use with Starlette (https://www.starlette.io/)
 """
+
 from typing import List, Type, Callable, Optional, Union
 
 from starlette.routing import Route, WebSocketRoute

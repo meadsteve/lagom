@@ -1,5 +1,6 @@
 """Extra information about the reflection API
 """
+
 import inspect
 from functools import lru_cache
 from typing import (
