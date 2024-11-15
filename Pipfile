@@ -26,7 +26,7 @@ starlette = "~=0.14"
 httpx = "~=0.23.0"
 fastapi = "~=0.100"
 flask = "~=3.0.3"
-django = "~=3.0"
+django = "~=5.1"
 click = "*"
 
 [packages]
