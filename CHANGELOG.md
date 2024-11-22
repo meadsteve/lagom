@@ -1,5 +1,5 @@
 # Changelog
-## 2.7.0 (2023-11-19)
+## 2.7.0 (2024-11-22)
 ### Enhancements
 * Supports python 3.13
 
