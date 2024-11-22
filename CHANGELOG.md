@@ -1,4 +1,14 @@
 # Changelog
+## 2.7.0 (2023-11-19)
+### Enhancements
+* Supports python 3.13
+
+### Bug Fixes
+None
+
+### Backwards incompatible changes
+* Formal support for 3.8 dropped
+
 ## 2.6.0 (2023-11-19)
 ### Enhancements
 * Supports python 3.12

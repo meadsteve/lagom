@@ -2,6 +2,7 @@
 Extra pieces for the flask integration that aren't quite stable.
 For the stable code for flask see lagom.integrations.flask
 """
+
 from typing import List, Type, Optional, Callable, Dict
 
 from flask.blueprints import Blueprint

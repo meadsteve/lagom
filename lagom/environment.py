@@ -19,6 +19,7 @@ def some_function(env: DBEnv):
     do_something(env.db_host, env.db_password)
 
 """
+
 import os
 from abc import ABC
 from typing import ClassVar, Optional
