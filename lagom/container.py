@@ -253,6 +253,15 @@ class Container(
         :param skip_definitions:
         :return:
         """
+        return self._resolve(dep_type, suppress_error, skip_definitions)
+
+    def _resolve(
+        self,
+        dep_type: Type[X],
+        suppress_error=False,
+        skip_definitions=False,
+        default: X = Unset,
+    ) -> X:
         if not skip_definitions:
             definition = self.get_definition(dep_type)
             if definition:
@@ -262,7 +271,9 @@ class Container(
         if optional_dep_type:
             return self.resolve(optional_dep_type, suppress_error=True)
 
-        return self._reflection_build_with_err_handling(dep_type, suppress_error)
+        return self._reflection_build_with_err_handling(
+            dep_type, suppress_error, default=default
+        )
 
     def partial(
         self,
@@ -384,12 +395,10 @@ class Container(
         self.define(dep, resolver)
 
     def _reflection_build_with_err_handling(
-        self, dep_type: Type[X], suppress_error: bool
+        self, dep_type: Type[X], suppress_error: bool, *, default: X = Unset
     ) -> X:
         try:
-            if dep_type in UNRESOLVABLE_TYPES:
-                raise UnresolvableType(dep_type)
-            return self._reflection_build(dep_type)
+            return self._reflection_build(dep_type, default=default)
         except UnresolvableType as inner_error:
             if not suppress_error:
                 raise UnresolvableType(dep_type) from inner_error
@@ -397,12 +406,16 @@ class Container(
         except RecursionError as recursion_error:
             raise RecursiveDefinitionError(dep_type) from recursion_error
 
-    def _reflection_build(self, dep_type: Type[X]) -> X:
+    def _reflection_build(self, dep_type: Type[X], default: X = Unset) -> X:
         self._undefined_logger.warning(
             f"Undefined dependency. Using reflection for {dep_type}",
             extra={"undefined_dependency": dep_type},
         )
         spec = self._reflector.get_function_spec(dep_type.__init__)
+        if dep_type in UNRESOLVABLE_TYPES:
+            if default is not Unset:
+                return default
+            raise UnresolvableType(dep_type)
         sub_deps = self._infer_dependencies(spec, types_to_skip={dep_type})
         try:
             return dep_type(**sub_deps)  # type: ignore
@@ -422,7 +435,11 @@ class Container(
         dep_keys_to_skip.extend(keys_to_skip or [])
         types_to_skip = types_to_skip or set()
         sub_deps = {
-            key: self.resolve(sub_dep_type, suppress_error=suppress_error)
+            key: self._resolve(
+                sub_dep_type,
+                suppress_error=suppress_error,
+                default=spec.defaults.get(key, Unset),
+            )
             for (key, sub_dep_type) in spec.annotations.items()
             if sub_dep_type != Any
             and (key not in dep_keys_to_skip)
