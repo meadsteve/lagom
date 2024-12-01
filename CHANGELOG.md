@@ -1,4 +1,18 @@
 # Changelog
+## 2.7.2 (NEXT)
+### Enhancements
+None
+
+### Bug Fixes
+* Honour defaults when constructing dependencies if they value can't be constructed by the container.
+
+## 2.7.1 (2024-11-29)
+### Enhancements
+None
+
+### Bug Fixes
+* Fixes build issues blocking publishing to pypi
+
 ## 2.7.0 (2024-11-22)
 ### Enhancements
 * Supports python 3.13
