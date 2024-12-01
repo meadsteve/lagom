@@ -406,7 +406,7 @@ class Container(
         except RecursionError as recursion_error:
             raise RecursiveDefinitionError(dep_type) from recursion_error
 
-    def _reflection_build(self, dep_type: Type[X], default: X = Unset) -> X:
+    def _reflection_build(self, dep_type: Type[X], *, default: X = Unset) -> X:
         self._undefined_logger.warning(
             f"Undefined dependency. Using reflection for {dep_type}",
             extra={"undefined_dependency": dep_type},
