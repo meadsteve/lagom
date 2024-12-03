@@ -137,6 +137,24 @@ class TypeResolutionBlocked(UnresolvableType):
         super(ValueError, self).__init__(msg)
 
 
+class CircularDefinitionError(RuntimeError, LagomException):
+    dep_type: Type
+    type_stack: typing.Set[Type]
+
+    def __init__(self, dep_type: Type, type_stack: typing.Set[Type]):
+        """
+        :param dep_type: The type that could not be constructed
+        """
+        self.dep_type = dep_type
+        self.type_stack = type_stack
+
+        type_stack_string = ", ".join([_dep_type_as_string(t) for t in type_stack])
+        super().__init__(
+            f"When trying to build dependency of type '{_dep_type_as_string(dep_type)}' lagom needed the same type. Types being built: '{type_stack_string}'"
+            "This could indicate a circular definition somewhere."
+        )
+
+
 class RecursiveDefinitionError(SyntaxError, LagomException):
     """Whilst trying to resolve the type python exceeded the recursion depth"""
 

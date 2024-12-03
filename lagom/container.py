@@ -33,6 +33,7 @@ from .exceptions import (
     RecursiveDefinitionError,
     DependencyNotDefined,
     TypeOnlyAvailableAsAwaitable,
+    CircularDefinitionError,
 )
 from .interfaces import (
     SpecialDepDefinition,
@@ -253,7 +254,9 @@ class Container(
         :param skip_definitions:
         :return:
         """
-        return self._resolve(dep_type, suppress_error, skip_definitions)
+        return self._resolve(
+            dep_type, suppress_error, skip_definitions, type_stack=set()
+        )
 
     def _resolve(
         self,
@@ -261,6 +264,7 @@ class Container(
         suppress_error=False,
         skip_definitions=False,
         default: X = Unset,
+        type_stack: Optional[Set[Type]] = None,
     ) -> X:
         if not skip_definitions:
             definition = self.get_definition(dep_type)
@@ -272,7 +276,7 @@ class Container(
             return self.resolve(optional_dep_type, suppress_error=True)
 
         return self._reflection_build_with_err_handling(
-            dep_type, suppress_error, default=default
+            dep_type, suppress_error, default=default, type_stack=type_stack
         )
 
     def partial(
@@ -395,10 +399,17 @@ class Container(
         self.define(dep, resolver)
 
     def _reflection_build_with_err_handling(
-        self, dep_type: Type[X], suppress_error: bool, *, default: X = Unset
+        self,
+        dep_type: Type[X],
+        suppress_error: bool,
+        *,
+        default: X = Unset,
+        type_stack: Optional[Set[Type]] = None,
     ) -> X:
         try:
-            return self._reflection_build(dep_type, default=default)
+            return self._reflection_build(
+                dep_type, default=default, type_stack=type_stack
+            )
         except UnresolvableType as inner_error:
             if not suppress_error:
                 raise UnresolvableType(dep_type) from inner_error
@@ -406,7 +417,17 @@ class Container(
         except RecursionError as recursion_error:
             raise RecursiveDefinitionError(dep_type) from recursion_error
 
-    def _reflection_build(self, dep_type: Type[X], *, default: X = Unset) -> X:
+    def _reflection_build(
+        self,
+        dep_type: Type[X],
+        *,
+        default: X = Unset,
+        type_stack: Optional[Set[Type]] = None,
+    ) -> X:
+        type_stack = set(type_stack or [])
+        if dep_type in type_stack:
+            raise CircularDefinitionError(dep_type, type_stack)
+        type_stack.add(dep_type)
         self._undefined_logger.warning(
             f"Undefined dependency. Using reflection for {dep_type}",
             extra={"undefined_dependency": dep_type},
@@ -416,7 +437,9 @@ class Container(
             if default is not Unset:
                 return default
             raise UnresolvableType(dep_type)
-        sub_deps = self._infer_dependencies(spec, types_to_skip={dep_type})
+        sub_deps = self._infer_dependencies(
+            spec, types_to_skip={dep_type}, type_stack=type_stack
+        )
         try:
             return dep_type(**sub_deps)  # type: ignore
         except TypeError as type_error:
@@ -429,6 +452,7 @@ class Container(
         keys_to_skip: Optional[List[str]] = None,
         skip_pos_up_to=0,
         types_to_skip: Optional[Set[Type]] = None,
+        type_stack: Optional[Set[Type]] = None,
     ):
         dep_keys_to_skip: List[str] = []
         dep_keys_to_skip.extend(spec.args[0:skip_pos_up_to])
@@ -439,6 +463,7 @@ class Container(
                 sub_dep_type,
                 suppress_error=suppress_error,
                 default=spec.defaults.get(key, Unset),
+                type_stack=type_stack,
             )
             for (key, sub_dep_type) in spec.annotations.items()
             if sub_dep_type != Any

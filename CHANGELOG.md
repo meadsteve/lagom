@@ -5,6 +5,7 @@ None
 
 ### Bug Fixes
 * Honour defaults when constructing dependencies if they value can't be constructed by the container.
+* Exception raised when a dependency definition causes a circle.
 
 ## 2.7.1 (2024-11-29)
 ### Enhancements
