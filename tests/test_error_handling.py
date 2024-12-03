@@ -10,6 +10,7 @@ from lagom.exceptions import (
     UnresolvableType,
     RecursiveDefinitionError,
     TypeResolutionBlocked,
+    CircularDefinitionError,
 )
 
 
@@ -109,11 +110,8 @@ class B:
         pass
 
 
-@pytest.mark.skip(
-    reason="This behaviour is a nice to have but is execution env dependent"
-)
 def test_circular_imports_raise_a_clear_error(container):
-    with pytest.raises(RecursiveDefinitionError) as e_info:
+    with pytest.raises(CircularDefinitionError) as e_info:
         container.resolve(A)
     err_string = str(e_info.value)
     assert "When trying to build dependency of type " in err_string
