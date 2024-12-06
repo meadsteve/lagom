@@ -1,5 +1,5 @@
 # Changelog
-## 2.7.2 (NEXT)
+## 2.7.2 (2024-12-06)
 ### Enhancements
 None
 
