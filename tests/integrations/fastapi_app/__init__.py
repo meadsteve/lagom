@@ -87,5 +87,7 @@ async def a_route_with_context(dep_one=deps.depends(ContextLoaded)):
 
 
 @app.get("/with_double_context")
-async def a_route_with_two_contexts(dep_one=deps.depends(ContextLoaded), dep_two=deps.depends(ContextLoaded)):
+async def a_route_with_two_contexts(
+    dep_one=deps.depends(ContextLoaded), dep_two=deps.depends(ContextLoaded)
+):
     return {"one": str(dep_one), "two": str(dep_two)}
