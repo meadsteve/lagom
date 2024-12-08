@@ -1,6 +1,6 @@
 """Module for tracking the version of the library"""
 
-__version__ = "2.7.3"
+__version__ = "2.7.4"
 
 if __name__ == "__main__":
     print(__version__)
