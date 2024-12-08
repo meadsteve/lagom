@@ -1,5 +1,5 @@
 from contextlib import contextmanager
-from typing import Iterator
+from typing import Iterator, ClassVar
 
 from fastapi import FastAPI, Request
 
@@ -23,7 +23,15 @@ class Outer:
 
 
 class ContextLoaded:
-    cleaned_up = False
+
+    cleaned: ClassVar[list["ContextLoaded"]] = []
+
+    def __init__(self):
+        self.cleaned_up = False
+
+    def clean_up(self):
+        self.__class__.cleaned.append(self)
+        self.cleaned_up = True
 
     def __str__(self):
         return f"{self.cleaned_up}"
@@ -49,10 +57,11 @@ deps = FastApiIntegration(
 @dependency_definition(container)
 @contextmanager
 def _load_then_clean() -> Iterator[ContextLoaded]:
+    var = ContextLoaded()
     try:
-        yield ContextLoaded()
+        yield var
     finally:
-        ContextLoaded.cleaned_up = True
+        var.clean_up()
 
 
 @app.get("/")
@@ -75,3 +84,8 @@ async def request_injected_request_singleton(
 @app.get("/with_some_context")
 async def a_route_with_context(dep_one=deps.depends(ContextLoaded)):
     return {"cleaned_up": str(dep_one)}
+
+
+@app.get("/with_double_context")
+async def a_route_with_two_contexts(dep_one=deps.depends(ContextLoaded), dep_two=deps.depends(ContextLoaded)):
+    return {"one": str(dep_one), "two": str(dep_two)}
