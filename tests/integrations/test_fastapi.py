@@ -66,8 +66,23 @@ def test_deps_can_be_overridden_during_test_multiple_times():
 
 
 def test_deps_can_use_contexts_for_cleanup_tasks():
-    ContextLoaded.cleaned_up = False
+    ContextLoaded.cleaned = []
     client = TestClient(app)
     response = client.get("with_some_context")
+
     assert response.json() == {"cleaned_up": "False"}
-    assert ContextLoaded.cleaned_up
+
+    assert len(ContextLoaded.cleaned) == 1
+    assert ContextLoaded.cleaned[0].cleaned_up
+
+
+def test_deps_can_use_multiple_context_defs_without_issue():
+    ContextLoaded.cleaned = []
+    client = TestClient(app)
+    response = client.get("with_double_context")
+
+    assert response.json() == {"one": "False", "two": "False"}
+
+    # There's only one because it is actually a singleton
+    assert len(ContextLoaded.cleaned) == 1
+    assert ContextLoaded.cleaned[0].cleaned_up
