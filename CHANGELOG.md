@@ -1,4 +1,12 @@
 # Changelog
+## 2.7.4 (2024-12-08)
+### Enhancements
+None
+
+### Bug Fixes
+* Fixes compilation issues so all supported versions of python now have a compiled build.
+
+
 ## 2.7.2 (2024-12-06)
 ### Enhancements
 None
