@@ -37,6 +37,9 @@ class AsyncConstructionWithoutContainer(SpecialDepDefinition[AX]):
         resolver = self.constructor
         return asyncio.ensure_future(resolver())
 
+    def __copy__(self):
+        return AsyncConstructionWithoutContainer(self.constructor)
+
 
 class AsyncConstructionWithContainer(SpecialDepDefinition[AX]):
     """Wraps an awaitable for constructing a type"""
@@ -47,6 +50,9 @@ class AsyncConstructionWithContainer(SpecialDepDefinition[AX]):
     def get_instance(self, container: ReadableContainer) -> Awaitable[AX]:
         resolver = self.constructor
         return asyncio.ensure_future(resolver(container))
+
+    def __copy__(self):
+        return AsyncConstructionWithContainer(self.constructor)
 
 
 class ConstructionWithoutContainer(SpecialDepDefinition[X]):
@@ -59,6 +65,9 @@ class ConstructionWithoutContainer(SpecialDepDefinition[X]):
         resolver = self.constructor
         return resolver()
 
+    def __copy__(self):
+        return ConstructionWithoutContainer(self.constructor)
+
 
 class ConstructionWithContainer(SpecialDepDefinition[X]):
     """Wraps a callable for constructing a type"""
@@ -69,6 +78,9 @@ class ConstructionWithContainer(SpecialDepDefinition[X]):
     def get_instance(self, container: ReadableContainer) -> X:
         resolver = self.constructor
         return resolver(container)
+
+    def __copy__(self):
+        return ConstructionWithContainer(self.constructor)
 
 
 class YieldWithoutContainer(SpecialDepDefinition[X]):
@@ -81,6 +93,9 @@ class YieldWithoutContainer(SpecialDepDefinition[X]):
         resolver = self.constructor
         return next(resolver())
 
+    def __copy__(self):
+        return YieldWithoutContainer(self.constructor)
+
 
 class YieldWithContainer(SpecialDepDefinition[X]):
     """Wraps a generator for constructing a type"""
@@ -91,6 +106,9 @@ class YieldWithContainer(SpecialDepDefinition[X]):
     def get_instance(self, container: ReadableContainer) -> X:
         resolver = self.constructor
         return next(resolver(container))
+
+    def __copy__(self):
+        return YieldWithContainer(self.constructor)
 
 
 def async_construction(

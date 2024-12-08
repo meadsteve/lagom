@@ -75,6 +75,9 @@ class ContextContainer(Container):
             log_undefined_deps=self._undefined_logger,
         )
 
+    def __copy__(self):
+        return self.clone()
+
     def __enter__(self):
         if not self.exit_stack:
             # All actual context definitions happen on a clone so that there's isolation between invocations
