@@ -30,6 +30,8 @@ if LAGOM_COMPILE:
         ext_modules=mypycify([
             'lagom/container.py',
             'lagom/context_based.py',
+            'lagom/definitions.py',
+            'lagom/experimental/definitions.py',
             'lagom/updaters.py',
         ])
     )
