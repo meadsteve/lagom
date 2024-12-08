@@ -6,7 +6,7 @@ verify_ssl = true
 [dev-packages]
 setuptools = "~=75.3.0"
 build = "~=0.8.0"
-mypy = "~=1.11"
+mypy = "~=1.13"
 black = "~=24.10.0"
 interrogate = "~=1.2"
 safety = "~=1.9.0"
