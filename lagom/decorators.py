@@ -5,7 +5,6 @@ application into the container.s
 
 import inspect
 from contextlib import contextmanager, asynccontextmanager
-from functools import wraps
 from types import FunctionType
 from typing import (
     List,
@@ -19,6 +18,7 @@ from typing import (
 )
 
 from .container import Container
+from .functools import wraps
 from .definitions import Singleton, construction, yielding_construction
 from .exceptions import (
     MissingReturnType,
@@ -112,9 +112,6 @@ def context_dependency_definition(container: Container):
     >>> with c[ContextManager[SomeClass]] as something:
     ...     something
     <tests.examples.SomeClass ...>
-
-    with container[ContextManager[MyComplexDep]] as dep:  # type: ignore
-        assert dep.some_number == 3
     """
 
     def _decorator(func):

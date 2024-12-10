@@ -35,6 +35,7 @@ from .exceptions import (
     TypeOnlyAvailableAsAwaitable,
     CircularDefinitionError,
 )
+from .injection_context import TemporaryInjectionContext
 from .interfaces import (
     SpecialDepDefinition,
     WriteableContainer,
@@ -43,6 +44,7 @@ from .interfaces import (
     ExtendableContainer,
     ContainerDebugInfo,
     CallTimeContainerUpdate,
+    ContainerBoundFunction,
 )
 from .markers import injectable
 from .updaters import update_container_singletons
@@ -201,7 +203,7 @@ class Container(
 
     def temporary_singletons(
         self, singletons: Optional[List[Type]] = None
-    ) -> "_TemporaryInjectionContext":
+    ) -> "TemporaryInjectionContext":
         """
         Returns a context that loads a new container with singletons that only exist
         for the context.
@@ -221,7 +223,7 @@ class Container(
             if singletons
             else None
         )
-        return _TemporaryInjectionContext(self, updater)
+        return TemporaryInjectionContext(self, updater)
 
     def resolve(
         self, dep_type: Type[X], suppress_error=False, skip_definitions=False
@@ -284,7 +286,7 @@ class Container(
         func: Callable[..., X],
         shared: Optional[List[Type]] = None,
         container_updater: Optional[CallTimeContainerUpdate] = None,
-    ) -> Callable[..., X]:
+    ) -> ContainerBoundFunction[X]:
         """Takes a callable and returns a callable bound to the container
         When invoking the new callable if any arguments have a default set
         to the special marker object "injectable" then they will be constructed by
@@ -308,10 +310,10 @@ class Container(
         )
         keys_and_types = [(key, spec.annotations[key]) for key in keys_to_bind]
 
-        _injection_context = self.temporary_singletons(shared)
+        base_injection_context = self.temporary_singletons(shared)
         update_container = container_updater if container_updater else _update_nothing
 
-        def _update_args(supplied_args, supplied_kwargs):
+        def _update_args(_injection_context, supplied_args, supplied_kwargs):
             keys_to_skip = set(supplied_kwargs.keys())
             keys_to_skip.update(spec.args[0 : len(supplied_args)])
             with _injection_context as invocation_container:
@@ -324,7 +326,7 @@ class Container(
             kwargs.update(supplied_kwargs)
             return supplied_args, kwargs
 
-        return apply_argument_updater(func, _update_args, spec)
+        return apply_argument_updater(func, base_injection_context, _update_args, spec)
 
     def magic_partial(
         self,
@@ -333,7 +335,7 @@ class Container(
         keys_to_skip: Optional[List[str]] = None,
         skip_pos_up_to: int = 0,
         container_updater: Optional[CallTimeContainerUpdate] = None,
-    ) -> Callable[..., X]:
+    ) -> ContainerBoundFunction[X]:
         """Takes a callable and returns a callable bound to the container
         When invoking the new callable if any arguments can be constructed by the container
         then they can be ommited.
@@ -355,9 +357,9 @@ class Container(
         spec = self._get_spec_without_self(func)
 
         update_container = container_updater if container_updater else _update_nothing
-        _injection_context = self.temporary_singletons(shared)
+        base_injection_context = self.temporary_singletons(shared)
 
-        def _update_args(supplied_args, supplied_kwargs):
+        def _update_args(_injection_context, supplied_args, supplied_kwargs):
             final_keys_to_skip = (keys_to_skip or []) + list(supplied_kwargs.keys())
             final_skip_pos_up_to = max(skip_pos_up_to, len(supplied_args))
             with _injection_context as invocation_container:
@@ -371,7 +373,9 @@ class Container(
             kwargs.update(supplied_kwargs)
             return supplied_args, kwargs
 
-        return apply_argument_updater(func, _update_args, spec, catch_errors=True)
+        return apply_argument_updater(
+            func, base_injection_context, _update_args, spec, catch_errors=True
+        )
 
     def clone(self) -> "Container":
         """returns a copy of the container
@@ -529,29 +533,6 @@ class EmptyDefinitionSet(DefinitionsSource):
     @property
     def defined_types(self) -> Set[Type]:
         return set()
-
-
-class _TemporaryInjectionContext:
-    _base_container: Container
-
-    def __init__(
-        self,
-        container: Container,
-        update_function: Optional[Callable[[Container], Container]] = None,
-    ):
-        self._base_container = container
-        if update_function:
-            self._build_temporary_container = lambda: update_function(
-                self._base_container
-            )
-        else:
-            self._build_temporary_container = lambda: self._base_container.clone()
-
-    def __enter__(self) -> Container:
-        return self._build_temporary_container()
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        pass
 
 
 def _update_nothing(_c: WriteableContainer, _a: typing.Collection, _k: Dict):
