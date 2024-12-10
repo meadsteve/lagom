@@ -1,4 +1,11 @@
 # Changelog
+## 2.7.5 (2024-12-10)
+### Enhancements
+None
+
+### Bug Fixes
+* Fixes bug in fast api integration where only the first `depends` was built correctly (#254)
+
 ## 2.7.4 (2024-12-08)
 ### Enhancements
 None
