@@ -56,8 +56,9 @@ class FastApiIntegration:
                 not hasattr(request.state, "lagom_request_container")
                 or not request.state.lagom_request_container
             ):
-                request.state.lagom_request_container = self._build_container(request)
-                with request.state.lagom_request_container as c:
+                new_container = self._build_container(request)
+                with new_container as c:
+                    request.state.lagom_request_container = c
                     yield c
             else:
                 # No need to "with" as it's already been done once and this
@@ -99,7 +100,7 @@ class FastApiIntegration:
         container = self._container.clone()
         container.define(Request, PlainInstance(request))
         request_container = update_container_singletons(
-            container, self._request_singletons
+            container, self._request_singletons + self._request_context_singletons
         )
         return ContextContainer(
             request_container,
