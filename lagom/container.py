@@ -122,7 +122,7 @@ class Container(
 
     def __init__(
         self,
-        container: Optional["Container"] = None,
+        container: Optional["DefinitionsSource"] = None,
         log_undefined_deps: Union[bool, logging.Logger] = False,
     ):
         """
@@ -137,9 +137,12 @@ class Container(
             ContainerDebugInfo: ConstructionWithoutContainer(lambda: self)
         }
 
-        if container:
+        if isinstance(container, Container):
             self._parent_definitions = container
             self._reflector = container._reflector
+        elif container is not None:
+            self._parent_definitions = container
+            self._reflector = CachingReflector()
         else:
             self._parent_definitions = EmptyDefinitionSet()
             self._reflector = CachingReflector()
