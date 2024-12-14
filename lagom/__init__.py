@@ -1,7 +1,7 @@
 """Lagom, a type based dependency injection container"""
 
 from .container import Container, ExplicitContainer
-from .context_based import ContextContainer
+from .context_based import context_container
 from .debug import get_build_info
 from .decorators import (
     bind_to_container,
@@ -32,5 +32,5 @@ __all__ = [
     "exceptions",
     "environment",
     "injectable",
-    "ContextContainer",
+    "context_container",
 ]

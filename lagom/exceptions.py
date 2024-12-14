@@ -227,3 +227,13 @@ def _dep_type_as_string(dep_type: Type):
         return dep_type.__name__
 
     return str(dep_type)
+
+
+class ContextReuseError(RuntimeError, LagomException):
+    """
+    Context containers should be created for each use. This is to prevent
+    code that would not be threadsafe.
+    """
+
+    def __init__(self):
+        super().__init__("Context containers may only be used a single time")

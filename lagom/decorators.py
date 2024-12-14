@@ -16,9 +16,11 @@ from typing import (
     ContextManager,
     AsyncContextManager,
     Optional,
+    Union,
 )
 
 from .container import Container
+from .context_based import _ContextContainer
 from .definitions import Singleton, construction, yielding_construction
 from .exceptions import (
     MissingReturnType,
@@ -33,7 +35,7 @@ R = TypeVar("R")
 
 
 def bind_to_container(
-    container: Container, shared: Optional[List[Type]] = None
+    container: Union[Container, _ContextContainer], shared: Optional[List[Type]] = None
 ) -> Callable[[Callable[..., R]], Callable[..., R]]:
     def _decorator(func):
         if not isinstance(func, FunctionType):
@@ -44,7 +46,7 @@ def bind_to_container(
 
 
 def magic_bind_to_container(
-    container: Container, shared: Optional[List[Type]] = None
+    container: Union[Container, _ContextContainer], shared: Optional[List[Type]] = None
 ) -> Callable[[Callable[..., R]], Callable[..., R]]:
     """Decorates the function so that it's uses the container to construct things
 
