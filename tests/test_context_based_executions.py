@@ -3,11 +3,11 @@ from typing import Iterator, Generator, ContextManager
 
 import pytest
 
+import lagom
 from lagom import (
     Container,
     dependency_definition,
-    ContextContainer,
-    injectable,
+    context_container,
 )
 from lagom.decorators import context_dependency_definition
 from lagom.exceptions import InvalidDependencyDefinition
@@ -35,7 +35,18 @@ class Thing:
         self.contents = contents
 
 
+class ThingManager:
+    def __enter__(self):
+        return Thing("managed thing")
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
+
+
 container = Container()
+
+
+container[ContextManager[Thing]] = ThingManager  # type: ignore
 
 
 @dependency_definition(container)
@@ -58,38 +69,39 @@ def _load_a_some_wrapper_dep_then_clean(c) -> Iterator[SomeWrapperDep]:
 def test_clean_up_of_loaded_contexts_happens_on_container_exit():
     SomeDep.global_clean_up_has_happened = False
 
-    with ContextContainer(container, context_types=[SomeDep]) as context_container:
-        assert isinstance(context_container[SomeDep], SomeDep)
+    with context_container(container, context_types=[SomeDep]) as c:
+        assert isinstance(c[SomeDep], SomeDep)
         assert not SomeDep.global_clean_up_has_happened
     assert SomeDep.global_clean_up_has_happened
 
 
 def test_context_instances_are_not_singletons():
-    with ContextContainer(container, context_types=[SomeDep]) as context_container:
-        one = context_container[SomeDep]
-        two = context_container[SomeDep]
+    with context_container(container, context_types=[SomeDep]) as c:
+        one = c[SomeDep]
+        two = c[SomeDep]
         assert one is not two
 
 
 def test_context_instances_can_be_made_singletons():
     SomeDep.global_clean_up_has_happened = False
-    with ContextContainer(
+    with context_container(
         container, context_types=[], context_singletons=[SomeDep]
-    ) as context_container:
-        one = context_container[SomeDep]
-        two = context_container[SomeDep]
+    ) as c:
+        one = c[SomeDep]
+        two = c[SomeDep]
         assert one is two
     assert SomeDep.global_clean_up_has_happened
 
 
 def test_context_instance_singletons_only_have_a_lifespan_of_the_with():
     SomeDep.global_clean_up_has_happened = False
-    context_container = ContextContainer(
+    with context_container(
         container, context_types=[], context_singletons=[SomeDep]
-    )
-    with context_container as c:
+    ) as c:
         one = c[SomeDep]
-    with context_container as c:
+    with context_container(
+        container, context_types=[], context_singletons=[SomeDep]
+    ) as c:
         two = c[SomeDep]
     assert one is not two
 
@@ -98,10 +110,8 @@ def test_clean_up_of_loaded_contexts_happens_recursively_on_container_exit():
     SomeDep.global_clean_up_has_happened = False
     SomeWrapperDep.global_clean_up_has_happened = False
 
-    with ContextContainer(
-        container, context_types=[SomeDep, SomeWrapperDep]
-    ) as context_container:
-        assert isinstance(context_container[SomeWrapperDep], SomeWrapperDep)
+    with context_container(container, context_types=[SomeDep, SomeWrapperDep]) as c:
+        assert isinstance(c[SomeWrapperDep], SomeWrapperDep)
         assert not SomeDep.global_clean_up_has_happened
         assert not SomeWrapperDep.global_clean_up_has_happened
 
@@ -111,68 +121,42 @@ def test_clean_up_of_loaded_contexts_happens_recursively_on_container_exit():
 
 def test_it_fails_if_the_dependencies_arent_defined_correctly():
     with pytest.raises(InvalidDependencyDefinition) as failure:
-        with ContextContainer(
-            container, context_types=[SomeNotProperlySetupDef]
-        ) as context_container:
-            context_container.resolve(SomeNotProperlySetupDef)
+        with context_container(container, context_types=[SomeNotProperlySetupDef]) as c:
+            c.resolve(SomeNotProperlySetupDef)
     assert f"A ContextManager[{SomeNotProperlySetupDef}] should be defined" in str(
         failure.value
     )
 
 
 def test_it_works_with_actual_context_managers():
-    class ThingManager:
-        def __enter__(self):
-            return Thing("managed thing")
+    with context_container(container, context_types=[Thing]) as c:
+        assert c.resolve(Thing).contents == "managed thing"
 
-        def __exit__(self, exc_type, exc_val, exc_tb):
+
+def test_it_works_with_bind_to_container():
+
+    @lagom.bind_to_container(context_container(container, context_types=[Thing]))
+    def _get_thing_contents(thing: Thing = lagom.injectable):
+        return thing.contents
+
+    assert _get_thing_contents() == "managed thing"
+    assert _get_thing_contents() == "managed thing"
+
+
+def test_it_works_with_magic_bind_to_container():
+    @lagom.magic_bind_to_container(context_container(container, context_types=[Thing]))
+    def _get_thing_contents(thing: Thing):
+        return thing.contents
+
+    assert _get_thing_contents() == "managed thing"
+    assert _get_thing_contents() == "managed thing"
+
+
+def test_the_container_can_not_be_reused():
+    original = context_container(container, context_types=[SomeDep])
+    with original as context_container_1:
+        pass
+
+    with pytest.raises(Exception):
+        with original as context_container_2:
             pass
-
-    container[ContextManager[Thing]] = ThingManager  # type: ignore
-
-    with ContextContainer(container, context_types=[Thing]) as context_container:
-        assert context_container.resolve(Thing).contents == "managed thing"
-
-
-def test_the_container_can_be_reused():
-    original = ContextContainer(container, context_types=[SomeDep])
-    with original as context_container_1:
-        a = context_container_1.resolve(SomeDep)
-    with original as context_container_2:
-        b = context_container_2.resolve(SomeDep)
-    assert a != b
-
-
-def test_the_container_can_be_nested_though_this_has_no_meaning():
-    original = ContextContainer(container, context_types=[SomeDep])
-    with original as context_container_1:
-        a = context_container_1.resolve(SomeDep)
-        with context_container_1 as context_container_2:
-            b = context_container_2.resolve(SomeDep)
-    assert a != b
-
-
-def test_a_partial_function_cleans_up_the_loaded_contexts_after_execution():
-    SomeDep.global_clean_up_has_happened = False
-    context_container = ContextContainer(container, context_types=[SomeDep])
-
-    def _some_func(dep: SomeDep = injectable):
-        return dep
-
-    wrapped_func = context_container.partial(_some_func)
-
-    assert isinstance(wrapped_func(), SomeDep)
-    assert SomeDep.global_clean_up_has_happened
-
-
-def test_a_magic_partial_function_cleans_up_the_loaded_contexts_after_execution():
-    SomeDep.global_clean_up_has_happened = False
-    context_container = ContextContainer(container, context_types=[SomeDep])
-
-    def _some_func(dep: SomeDep):
-        return dep
-
-    wrapped_func = context_container.magic_partial(_some_func)
-
-    assert isinstance(wrapped_func(), SomeDep)
-    assert SomeDep.global_clean_up_has_happened

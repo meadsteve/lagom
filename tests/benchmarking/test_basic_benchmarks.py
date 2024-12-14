@@ -5,7 +5,7 @@ import pytest
 from lagom import (
     Singleton,
     Container,
-    ContextContainer,
+    context_container,
     magic_bind_to_container,
     ExplicitContainer,
     bind_to_container,
@@ -80,9 +80,9 @@ def test_context_partials(benchmark):
         finally:
             pass
 
-    context_container = ContextContainer(container, context_types=[SomeService])
-
-    @bind_to_container(context_container, shared=[SomeService])
+    @bind_to_container(
+        context_container(container, context_types=[SomeService]), shared=[SomeService]
+    )
     def do_work(thing: AThingIMightNeed = injectable):
         thing.do_it()
 

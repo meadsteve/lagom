@@ -7,12 +7,13 @@ Lagom provides the `ContextContainer` to help with this. It takes an existing la
 that should be managed within the context.
 
 ```python
-from lagom import Container, ContextContainer, context_dependency_definition, injectable, bind_to_container
+from lagom import Container, context_container, context_dependency_definition, injectable, bind_to_container
 from typing import Iterator
 from .my_lib import SomeDep
 
 # First a regular lagom container is defined
 container = Container()
+
 
 # Then we create a ContextManager for some dependency SomeDep. 
 # This would be available in Lagom as container[ContextManager[SomeDep]]
@@ -23,8 +24,10 @@ def _load_dep_then_clean() -> Iterator[SomeDep]:
     finally:
         print("Clean up!!")
 
+
 # Next we wrap the base container in a ContextContainer and configure SomeDep to be managed
-context_container = ContextContainer(container, context_types=[SomeDep])
+context_container = context_container(container, context_types=[SomeDep])
+
 
 # Then our functions can be bound to this ContextContainer
 # At the end of invoking this function the cleanup code of SomeDep will be automatically called.

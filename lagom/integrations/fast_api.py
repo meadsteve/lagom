@@ -9,7 +9,7 @@ from typing import TypeVar, Optional, Type, List, Iterator
 from fastapi import Depends
 from starlette.requests import Request
 
-from ..context_based import ContextContainer
+from ..context_based import context_container, _ContextContainer
 from ..definitions import PlainInstance
 from ..interfaces import ExtendableContainer, ReadableContainer, WriteableContainer
 from ..updaters import update_container_singletons
@@ -96,13 +96,13 @@ class FastApiIntegration:
         finally:
             self._container = original
 
-    def _build_container(self, request: Request) -> ContextContainer:
+    def _build_container(self, request: Request) -> _ContextContainer:
         container = self._container.clone()
         container.define(Request, PlainInstance(request))
         request_container = update_container_singletons(
             container, self._request_singletons + self._request_context_singletons
         )
-        return ContextContainer(
+        return context_container(
             request_container,
             context_types=[],
             context_singletons=self._request_context_singletons,

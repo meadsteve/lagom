@@ -1,5 +1,6 @@
+import functools
 import logging
-from contextlib import ExitStack
+from contextlib import ExitStack, contextmanager
 from copy import copy
 from typing import (
     Collection,
@@ -18,7 +19,7 @@ from typing import (
 from lagom import Container
 from lagom.compilaton import mypyc_attr
 from lagom.definitions import ConstructionWithContainer, SingletonWrapper, Alias
-from lagom.exceptions import InvalidDependencyDefinition
+from lagom.exceptions import InvalidDependencyDefinition, ContextReuseError
 from lagom.interfaces import (
     ReadableContainer,
     SpecialDepDefinition,
@@ -28,8 +29,15 @@ from lagom.interfaces import (
 X = TypeVar("X")
 
 
-@mypyc_attr(allow_interpreted_subclasses=True)
-class ContextContainer(Container):
+def context_container(
+    container: Container,
+    context_types: Collection[Type],
+    context_singletons: Collection[Type] = tuple(),
+) -> "_ContextContainer":
+    return _ContextContainer(container, context_types, context_singletons)
+
+
+class _ContextContainer:
     """
     Wraps a regular container but is a ContextManager for use within a `with`.
 
@@ -43,98 +51,79 @@ class ContextContainer(Container):
     >>> # register a context manager for SomeClass
     >>> c[ContextManager[SomeClass]] = SomeClassManager
     >>>
-    >>> context_c = ContextContainer(c, context_types=[SomeClass])
-    >>> with context_c as c:
+    >>> with context_container(c, context_types=[SomeClass]) as c:
     ...     c[SomeClass]
     <tests.examples.SomeClass object at ...>
     """
 
-    exit_stack: Optional[ExitStack] = None
+    exit_stack: ExitStack
+    _container: Container
     _context_types: Collection[Type]
     _context_singletons: Collection[Type]
+    _used: bool
 
     def __init__(
         self,
         container: Container,
         context_types: Collection[Type],
         context_singletons: Collection[Type] = tuple(),
-        log_undefined_deps: Union[bool, logging.Logger] = False,
     ):
+        self._container = container
         self._context_types = context_types
+        self.exit_stack = ExitStack()
+        self._used = False
         self._context_singletons = context_singletons
-        super().__init__(container, log_undefined_deps)
 
-    def clone(self) -> "ContextContainer":
-        """returns a copy of the container
-        :return:
-        """
-        return ContextContainer(
-            self,
-            context_types=self._context_types,
-            context_singletons=self._context_singletons,
-            log_undefined_deps=self._undefined_logger,
+    def clone(self) -> "_ContextContainer":
+        if self._used:
+            raise ContextReuseError()
+        return self.__class__(
+            self._container, self._context_types, self._context_singletons
         )
-
-    def __copy__(self):
-        return self.clone()
-
-    def __enter__(self):
-        if not self.exit_stack:
-            # All actual context definitions happen on a clone so that there's isolation between invocations
-            in_context = self.clone()
-            for dep_type in set(self._context_types):
-                in_context[dep_type] = self._context_type_def(dep_type)
-            for dep_type in set(self._context_singletons):
-                in_context[dep_type] = self._singleton_type_def(dep_type)
-            in_context.exit_stack = ExitStack()
-
-            # The parent context manager keeps track of the inner clone
-            self.exit_stack = ExitStack()
-            self.exit_stack.enter_context(in_context)
-            return in_context
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        if self.exit_stack:
-            self.exit_stack.close()
-            self.exit_stack = None
 
     def partial(
         self,
         func: Callable[..., X],
         shared: Optional[List[Type]] = None,
-        container_updater: Optional[CallTimeContainerUpdate] = None,
     ) -> Callable[..., X]:
-        def _with_context(*args, **kwargs):
-            with self as c:
-                # TODO: Try and move this partial outside the function as this is expensive
-                base_partial = super(ContextContainer, c).partial(
-                    func, shared, container_updater
-                )
-                return base_partial(*args, **kwargs)
 
-        return _with_context
+        @functools.wraps(func)
+        def _f(*args, **kwargs):
+            with self.clone() as c:
+                return c.partial(func, shared)(*args, **kwargs)
+
+        return _f
 
     def magic_partial(
         self,
         func: Callable[..., X],
         shared: Optional[List[Type]] = None,
-        keys_to_skip: Optional[List[str]] = None,
-        skip_pos_up_to: int = 0,
-        container_updater: Optional[CallTimeContainerUpdate] = None,
     ) -> Callable[..., X]:
-        def _with_context(*args, **kwargs):
-            with self as c:
-                # TODO: Try and move this partial outside the function as this is expensive
-                base_partial = super(ContextContainer, c).magic_partial(
-                    func, shared, keys_to_skip, skip_pos_up_to, container_updater
-                )
-                return base_partial(*args, **kwargs)
 
-        return _with_context
+        @functools.wraps(func)
+        def _f(*args, **kwargs):
+            with self.clone() as c:
+                return c.magic_partial(func, shared)(*args, **kwargs)
+
+        return _f
+
+    def __enter__(self):
+        if self._used:
+            raise ContextReuseError()
+        self._used = True
+        in_context = self._container.clone()
+        for dep_type in set(self._context_types):
+            in_context[dep_type] = self._context_type_def(dep_type)
+        for dep_type in set(self._context_singletons):
+            in_context[dep_type] = self._singleton_type_def(dep_type)
+
+        return in_context
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.exit_stack.close()
 
     def _context_type_def(self, dep_type: Type):
-        type_def = self.get_definition(ContextManager[dep_type]) or self.get_definition(Iterator[dep_type]) or self.get_definition(Generator[dep_type, None, None])  # type: ignore
+        type_def = self._container.get_definition(ContextManager[dep_type]) or self._container.get_definition(Iterator[dep_type]) or self._container.get_definition(Generator[dep_type, None, None])  # type: ignore
         if type_def is None:
             raise InvalidDependencyDefinition(
                 f"A ContextManager[{dep_type}] should be defined. "
