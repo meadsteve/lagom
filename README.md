@@ -22,8 +22,26 @@ only be involved at the top level to pull everything together.
  
 You can see a [comparison to other frameworks here](https://lagom-di.readthedocs.io/en/stable/comparison/)
 
-## 🎉 Version 2.0.0 is now released! 🎉
-For users of python 3.7 and above this should require no changes. Full details can be found in the release notes [upgrade instructions](https://lagom-di.readthedocs.io/en/stable/CHANGELOG/#upgrade-instructions).
+## 🎉 Version 3.0.0 is now released! 🎉
+This is a fairly small change but contains a breaking change as part of a fix to
+make sure context containers are thread safe.
+
+### Breaking change
+All usages of `ContextContainer` should be replaced with a call to `context_container`.
+
+
+The following code no longer works:
+```python
+context_container = ContextContainer(container, context_types=[SomeDep])
+with context_container as c:
+    do_something()
+```
+
+it should be replaced with a new function call `context_container`:
+```python
+with context_container(container, context_types=[SomeDep]) as c:
+    do_something()
+```
 
 ## Installation
 ```bash

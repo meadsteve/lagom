@@ -1,4 +1,29 @@
 # Changelog
+
+## 3.0.0 (Upcoming)
+
+### Enhancements
+None
+
+### Bug fixes
+* context container usage is now thread-safe by default. Exceptions are thrown if code is designed
+  in a way that might cause threading issues in the container setup.
+
+### Breaking change
+All usages of `ContextContainer` should be replaced with a call to `context_container`.
+
+The following code no longer works:
+```python
+context_container = ContextContainer(container, context_types=[SomeDep])
+with context_container as c:
+    do_something()
+```
+
+it should be replaced with a new function call `context_container`:
+```python
+with context_container(container, context_types=[SomeDep]) as c:
+    do_something()
+
 ## 2.7.5 (2024-12-10)
 ### Enhancements
 None
