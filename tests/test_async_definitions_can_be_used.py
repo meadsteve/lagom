@@ -41,6 +41,16 @@ async def test_async_singleton_do_not_raise_runtime_error(container: Container):
 
 
 @pytest.mark.asyncio
+async def test_simple_async_singleton_do_not_raise_runtime_error(container: Container):
+    @dependency_definition(container, singleton = True)
+    async def my_constructor() -> MyComplexDep:
+        return MyComplexDep(some_number=10)
+
+    assert (await container[Awaitable[MyComplexDep]]) == MyComplexDep(some_number=10)  # type: ignore[type-abstract]
+    assert (await container[Awaitable[MyComplexDep]]) == MyComplexDep(some_number=10)  # type: ignore[type-abstract]
+
+
+@pytest.mark.asyncio
 async def test_defining_an_async_dep_provides_a_helpful_error_if_you_forget_awaitable(
     container: Container,
 ):
