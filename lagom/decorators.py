@@ -19,7 +19,7 @@ from typing import (
 )
 
 from .container import Container
-from .definitions import Singleton, construction, yielding_construction
+from .definitions import Singleton, construction, yielding_construction, async_construction
 from .exceptions import (
     MissingReturnType,
     ClassesCannotBeDecorated,
@@ -148,7 +148,8 @@ def _extract_definition_func_and_type(
         raise MissingReturnType(
             f"Function {func.__name__} used as a definition must have a return type"
         )
-
+    if inspect.iscoroutinefunction(func):
+        return async_construction(func), return_type
     if not inspect.isgeneratorfunction(func) and not inspect.isasyncgenfunction(func):
         return construction(func), return_type
 
