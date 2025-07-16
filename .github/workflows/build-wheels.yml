@@ -23,7 +23,7 @@ jobs:
       with:
         python-version: 3.9
     - name: Install deps
-      run: python -m pip install cibuildwheel==3.0.1 twine==6.1.0
+      run: python -m pip install cibuildwheel==2.23.3 twine==6.1.0
     - name: Build wheels
       env:
         CIBW_ENVIRONMENT: LAGOM_COMPILE=1
