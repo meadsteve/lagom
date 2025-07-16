@@ -19,7 +19,12 @@ from typing import (
 )
 
 from .container import Container
-from .definitions import Singleton, construction, yielding_construction, async_construction
+from .definitions import (
+    Singleton,
+    construction,
+    yielding_construction,
+    async_construction,
+)
 from .exceptions import (
     MissingReturnType,
     ClassesCannotBeDecorated,

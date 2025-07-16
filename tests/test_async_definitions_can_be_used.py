@@ -42,7 +42,7 @@ async def test_async_singleton_do_not_raise_runtime_error(container: Container):
 
 @pytest.mark.asyncio
 async def test_simple_async_singleton_do_not_raise_runtime_error(container: Container):
-    @dependency_definition(container, singleton = True)
+    @dependency_definition(container, singleton=True)
     async def my_constructor() -> MyComplexDep:
         return MyComplexDep(some_number=10)
 
