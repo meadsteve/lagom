@@ -5,12 +5,12 @@ Integration layer for Click https://click.palletsprojects.com/
 from typing import Optional, List, Type, Callable
 
 from click import utils, decorators
-from click.core import BaseCommand
+from click.core import Command
 
 from lagom.interfaces import ExtendableContainer, WriteableContainer
 
 
-class DecoratedCommand(BaseCommand):
+class DecoratedCommand(Command):
     """
     Virtual class which is returned by the lagom wrapped click command
     decorator
