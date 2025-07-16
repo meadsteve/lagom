@@ -1,4 +1,11 @@
 # Changelog
+## 2.7.6 (2025-07-16)
+### Enhancements
+None
+
+### Bug Fixes
+* Fixes dependency_definition raise Awaitable singleton raises RuntimeError (#274) thanks @zzl221000
+
 ## 2.7.5 (2024-12-10)
 ### Enhancements
 None
