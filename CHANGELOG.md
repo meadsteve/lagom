@@ -1,4 +1,7 @@
 # Changelog
+## 2.7.7 (2025-07-16)
+No code change - only build infrastructure
+
 ## 2.7.6 (2025-07-16)
 ### Enhancements
 None
