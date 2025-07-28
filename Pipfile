@@ -16,7 +16,7 @@ pytest-cov = "*"
 pytest-asyncio = "*"
 pycrunch-engine = "*"
 typing-extensions = "*"
-mkdocs = "~=1.2.2"
+mkdocs = "~=1.6.1"
 mkdocs-material = "*"
 mkdocstrings = {version = "~=0.26.1", extras = ["python"]}
 # Needed for the Env class
