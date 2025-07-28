@@ -18,7 +18,7 @@ pycrunch-engine = "*"
 typing-extensions = "*"
 mkdocs = "~=1.2.2"
 mkdocs-material = "*"
-mkdocstrings = {version = "~=0.19.0", extras = ["python"]}
+mkdocstrings = {version = "~=0.26.1", extras = ["python"]}
 # Needed for the Env class
 pydantic = "~=2.0"
 # Needed for the integrations only
