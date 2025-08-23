@@ -2,6 +2,7 @@
 
 from .container import Container, ExplicitContainer
 from .context_based import ContextContainer
+from .composition import compose
 from .debug import get_build_info
 from .decorators import (
     bind_to_container,
@@ -33,4 +34,5 @@ __all__ = [
     "environment",
     "injectable",
     "ContextContainer",
+    "compose",
 ]
