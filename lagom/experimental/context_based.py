@@ -18,9 +18,11 @@ from typing import (
     AsyncGenerator,
     Callable,
     List,
+    Dict,
 )
 
 from lagom.container import Container
+from lagom.functools import wraps
 from lagom.definitions import Alias, ConstructionWithContainer, SingletonWrapper
 from lagom.exceptions import InvalidDependencyDefinition, MissingFeature
 from lagom.experimental.definitions import AsyncConstructionWithContainer
@@ -28,6 +30,7 @@ from lagom.interfaces import (
     ReadableContainer,
     SpecialDepDefinition,
     CallTimeContainerUpdate,
+    ContainerBoundFunction,
 )
 
 T = TypeVar("T")
@@ -52,6 +55,40 @@ class AwaitableSingleton(Generic[T]):
                 if not self.instance:
                     self.instance = await self.constructor.get_instance(self.container)
         return self.instance
+
+
+class _AsyncContextBoundFunction(ContainerBoundFunction[X]):
+    """
+    Represents an instance of a function bound to an async context container
+    """
+
+    async_context_container: "AsyncContextContainer"
+    partially_bound_function: ContainerBoundFunction
+
+    __slots__ = ("async_context_container", "partially_bound_function")
+
+    def __init__(
+        self,
+        async_context_container: "AsyncContextContainer",
+        partially_bound_function: ContainerBoundFunction,
+    ):
+        self.async_context_container = async_context_container
+        self.partially_bound_function = partially_bound_function
+
+    def __call__(self, *args, **kwargs) -> X:
+        return self.__async_call__(*args, **kwargs)
+
+    async def __async_call__(self, *args, **kwargs):
+        async with self.async_context_container as c:
+            return await self.partially_bound_function.rebind(c)(*args, **kwargs)
+
+    def rebind(self, container: ReadableContainer) -> "ContainerBoundFunction[X]":
+        return wraps(self.partially_bound_function)(
+            _AsyncContextBoundFunction(
+                self.async_context_container,
+                self.partially_bound_function.rebind(container),
+            )
+        )
 
 
 class AsyncContextContainer(Container):
@@ -116,21 +153,16 @@ class AsyncContextContainer(Container):
         func: Callable[..., X],
         shared: Optional[List[Type]] = None,
         container_updater: Optional[CallTimeContainerUpdate] = None,
-    ) -> Callable[..., X]:
+    ) -> ContainerBoundFunction[X]:
         if not inspect.iscoroutinefunction(func):
             raise MissingFeature(
                 "AsyncContextManager currently can only deal with async functions"
             )
+        base_partial = super(AsyncContextContainer, self).partial(
+            func, shared, container_updater
+        )
 
-        async def _with_context(*args, **kwargs):
-            async with self as c:
-                # TODO: Try and move this partial outside the function as this is expensive
-                base_partial = super(AsyncContextContainer, c).partial(
-                    func, shared, container_updater
-                )
-                return await base_partial(*args, **kwargs)  # type: ignore
-
-        return _with_context
+        return wraps(base_partial)(_AsyncContextBoundFunction(self, base_partial))
 
     def magic_partial(
         self,
@@ -139,21 +171,16 @@ class AsyncContextContainer(Container):
         keys_to_skip: Optional[List[str]] = None,
         skip_pos_up_to: int = 0,
         container_updater: Optional[CallTimeContainerUpdate] = None,
-    ) -> Callable[..., X]:
+    ) -> ContainerBoundFunction[X]:
         if not inspect.iscoroutinefunction(func):
             raise MissingFeature(
                 "AsyncContextManager currently can only deal with async functions"
             )
+        base_partial = super(AsyncContextContainer, self).magic_partial(
+            func, shared, keys_to_skip, skip_pos_up_to, container_updater
+        )
 
-        async def _with_context(*args, **kwargs):
-            async with self as c:
-                # TODO: Try and move this partial outside the function as this is expensive
-                base_partial = super(AsyncContextContainer, c).magic_partial(
-                    func, shared, keys_to_skip, skip_pos_up_to, container_updater
-                )
-                return await base_partial(*args, **kwargs)  # type: ignore
-
-        return _with_context
+        return wraps(base_partial)(_AsyncContextBoundFunction(self, base_partial))
 
     def _context_type_def(self, dep_type: Type):
         type_def = self.get_definition(ContextManager[dep_type]) or self.get_definition(Iterator[dep_type]) or self.get_definition(Generator[dep_type, None, None]) or self.get_definition(AsyncGenerator[dep_type, None]) or self.get_definition(AsyncContextManager[dep_type])  # type: ignore
