@@ -1,5 +1,5 @@
 # Changelog
-## Unreleased
+## 3.0.0 (Unreleased)
 ### Enhancements
 * `ContextContainer.partial` / `magic_partial` (and the experimental `AsyncContextContainer` equivalents) no longer rebuild the underlying bound function on every invocation. Bound functions now expose a `rebind(container)` method so the inner partial is built once and only the per-call container is swapped in. Benchmark `test_context_partials` median drops ~20% (e.g. ~166μs → ~134μs on a Darwin/3.10 box).
 * New `ContainerBoundItem` / `ContainerBoundFunction` protocols in `lagom.interfaces` expose the `rebind` contract.
