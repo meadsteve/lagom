@@ -4,16 +4,19 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Commands
 
+Always use the `make` targets below rather than constructing bespoke `pipenv run …` or `python -m …` invocations. Default to `make test` for verification rather than chaining individual `make test_*` targets — `make test` already runs mypy, unit tests, doctests, formatting check and doc coverage in one go.
+
 ```bash
 make install          # set up pipenv virtualenv with dev dependencies
-make test             # run all checks: mypy, unit tests, doctest, format, doc coverage
-make test_unit        # run unit tests only (excluding benchmarks)
-make test_mypy        # run mypy type checking
-make test_doctests    # run doctests embedded in source modules
+make setup_pipenv     # install / upgrade pipenv itself — run this first if `make install` fails
+make test             # full verification: mypy, unit tests, doctests, format, doc coverage
+make test_unit        # unit tests only (excluding benchmarks)
+make test_mypy        # mypy type checking
+make test_doctests    # doctests embedded in source modules
 make test_format      # check formatting with black
 make format           # auto-format with black
-make coverage         # generate HTML coverage report
-make benchmark        # run benchmark tests
+make coverage         # HTML coverage report
+make benchmark        # benchmark tests
 ```
 
 To run a single test file or test:
@@ -22,7 +25,32 @@ pipenv run pytest tests/path/to/test_file.py -vv
 pipenv run pytest tests/path/to/test_file.py::test_name -vv
 ```
 
-Doc coverage is enforced at 65%+ (via `interrogate`). New public API must have docstrings.
+Doc coverage is enforced at 65%+ (via `interrogate`) over the **whole project**, so the headroom above 65% is small. Adding a new module, class, or public method without docstrings will silently eat that buffer and break `make test`. Add docstrings in the same commit as the new code.
+
+### When something is broken, fix the root cause — don't work around it
+
+If a `make` target fails or a tool misbehaves, **read the Makefile end-to-end first** — there's often a sibling target that fixes the failure mode (e.g. `make setup_pipenv` for a broken pipenv). Then **stop and ask the user before bypassing the failing tool**. Do not silently swap in equivalent commands (`python -m pytest` instead of `make test_unit`, `pip install` instead of `pipenv install`, hardcoded venv paths, custom shell pipelines). Diagnose the failure, then propose the real fix in the project — usually a Makefile edit, dependency bump, or pinned version — and only proceed once the user has approved. Workarounds hide problems and force the user to re-approve unfamiliar commands every session; root-cause fixes stick.
+
+Common gotcha: if `make install` fails with `AttributeError: module 'pkgutil' has no attribute 'ImpImporter'`, the system `pipenv` is too old for Python 3.12 — run `make setup_pipenv` to upgrade it (the Makefile pins the right version), then retry `make install`. This is the fix, not a workaround.
+
+### Keep CHANGELOG.md current
+
+Any user-visible change (new feature, behaviour change, bug fix, perf improvement, breaking change) gets an entry under the `## Unreleased` section of `CHANGELOG.md` in the same change-set. Use the existing section headings (`### Enhancements`, `### Bug Fixes`, `### Backwards incompatible changes`). If there is no `## Unreleased` section yet, add one above the latest released version. Pure refactors, docs-only edits, and test-only changes do not need an entry.
+
+### Branch hygiene before push
+
+Before marking a PR ready (or pushing a branch you expect to be reviewed), check for `WIP`, `HACKING`, `fixup`, or `remove some junk` style commits and squash them into the logical change they belong to. Reviewers shouldn't have to read scaffolding commits. If you see a string of these on a branch you're handed, flag it to the user and offer to clean up the history before doing further work.
+
+### Benchmarking workflow
+
+`make benchmark` runs `pytest-benchmark` against `tests/benchmarking/`. To validate a perf-oriented change, save a baseline on `master` and compare:
+
+```bash
+git checkout master && pipenv run pytest tests -m "benchmarking" --benchmark-save=master
+git checkout <branch> && pipenv run pytest tests -m "benchmarking" --benchmark-compare=0001
+```
+
+Saved runs live in `.benchmarks/`. `--benchmark-compare-fail=mean:50%` in the `make benchmark` target already fails the run on a 50% regression — use that flag locally too if you want CI-style guard rails.
 
 ## Architecture
 
