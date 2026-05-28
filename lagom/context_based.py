@@ -82,7 +82,6 @@ class ContextContainer(Container):
     <tests.examples.SomeClass object at ...>
     """
 
-    exit_stack: Optional[ExitStack] = None
     _context_types: Collection[Type]
     _context_singletons: Collection[Type]
 
@@ -95,7 +94,17 @@ class ContextContainer(Container):
     ):
         self._context_types = context_types
         self._context_singletons = context_singletons
+        import threading
+        self._local = threading.local()
         super().__init__(container, log_undefined_deps)
+
+    @property
+    def exit_stack(self) -> Optional[ExitStack]:
+        return getattr(self._local, 'exit_stack', None)
+
+    @exit_stack.setter
+    def exit_stack(self, value: Optional[ExitStack]) -> None:
+        self._local.exit_stack = value
 
     def clone(self) -> "ContextContainer":
         """returns a copy of the container
