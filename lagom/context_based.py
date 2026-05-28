@@ -1,4 +1,5 @@
 import logging
+import threading as _threading
 from contextlib import ExitStack
 from copy import copy
 from typing import (
@@ -94,13 +95,12 @@ class ContextContainer(Container):
     ):
         self._context_types = context_types
         self._context_singletons = context_singletons
-        import threading
-        self._local = threading.local()
+        self._local = _threading.local()
         super().__init__(container, log_undefined_deps)
 
     @property
     def exit_stack(self) -> Optional[ExitStack]:
-        return getattr(self._local, 'exit_stack', None)
+        return getattr(self._local, "exit_stack", None)
 
     @exit_stack.setter
     def exit_stack(self, value: Optional[ExitStack]) -> None:
