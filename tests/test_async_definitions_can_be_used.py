@@ -22,7 +22,7 @@ async def test_simple_async_component_def(container: Container):
     async def my_constructor() -> MyComplexDep:
         return MyComplexDep(some_number=5)
 
-    assert (await container[Awaitable[MyComplexDep]]) == MyComplexDep(some_number=5)  # type: ignore
+    assert (await container[Awaitable[MyComplexDep]]) == MyComplexDep(some_number=5)  # type: ignore  # type: ignore
 
 
 @pytest.mark.asyncio
