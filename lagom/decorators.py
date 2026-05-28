@@ -71,7 +71,9 @@ def magic_bind_to_container(
     return _decorator
 
 
-def dependency_definition(container: Container, singleton: bool = False) -> Callable[[Callable[..., T]], Callable[..., T]]:
+def dependency_definition(
+    container: Container, singleton: bool = False
+) -> Callable[[Callable[..., T]], Callable[..., T]]:
     """Registers the provided function with the container
     The return type of the decorated function will be reflected and whenever
     the container is asked for this type the function will be called
